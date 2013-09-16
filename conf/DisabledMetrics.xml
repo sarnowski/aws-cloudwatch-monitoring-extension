@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<DisabledMetrics>
+    <MetricName>CPUUtilization</MetricName>
+    <MetricName>Some Metric</MetricName>
+</DisabledMetrics>
