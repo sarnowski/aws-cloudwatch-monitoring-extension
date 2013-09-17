@@ -162,9 +162,9 @@ public class SignedRequestsHelper {
         AWSCredentials awsCredentials = new BasicAWSCredentials("AKIAJTB7DYHGUBXOS7BQ", "jbW+aoHbYjFHSoTKrp+U1LEzdMZpvuGLETZuiMyc");
         AmazonCloudWatch awsCloudWatch = new AmazonCloudWatchClient(awsCredentials);
         //AmazonCloudWatch awsCloudWatch = new AmazonCloudWatchClient(credentialsProvider);
-        Dimension instanceDimension = new Dimension();
-        instanceDimension.setName("instanceid");
-        instanceDimension.setValue("sasadad");
+        /*Dimension instanceDimension = new Dimension();
+        //instanceDimension.setName("instanceid");
+        //instanceDimension.setValue("sasadad");
         GetMetricStatisticsRequest request = new GetMetricStatisticsRequest()
                 .withStartTime(new Date(new Date().getTime() - 100000))
                 .withNamespace("AWS/EC2")
@@ -174,10 +174,11 @@ public class SignedRequestsHelper {
                 .withDimensions(Arrays.asList(instanceDimension))
                 .withEndTime(new Date());
 
-        print(awsCloudWatch.listMetrics());
+        //print(awsCloudWatch.listMetrics());
+        print(awsCloudWatch.getMetricStatistics(request));
         ListMetricsResult result = awsCloudWatch.listMetrics();
-        List<Metric> results = result.getMetrics();
-        /*HashMap<String, HashMap<String, List<Datapoint>>> uniqueInstanceIds = new HashMap<String, HashMap<String,List<Datapoint>>>();
+        List<Metric> results = result.getMetrics();*/
+        HashMap<String, HashMap<String, List<Datapoint>>> uniqueInstanceIds = new HashMap<String, HashMap<String,List<Datapoint>>>();
         //HashMap<String, HashMap<String,Double>> uniqueInstanceIds = new HashMap<String, HashMap<String,Double>>();
 
         List<DimensionFilter> filter = new ArrayList<DimensionFilter>();
@@ -192,28 +193,29 @@ public class SignedRequestsHelper {
         for (Metric m : instanceMetrics) {
             List<Dimension> dimensions = m.getDimensions();
             for (Dimension dimension : dimensions) {
-                if (dimension.getName().equals("InstanceId") && !uniqueInstanceIds.containsKey(dimension.getValue())) {
+                if (!uniqueInstanceIds.containsKey(dimension.getValue())) {
                     uniqueInstanceIds.put(dimension.getValue(), new HashMap<String,List<Datapoint>>());
+                }
+                    //GetMetricStatisticsRequest getMetricStatisticsRequest = createGetMetricStatisticsRequest(m);
+                    //GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
+                    //uniqueInstanceIds.get(dimension.getValue()).put(m.getMetricName(), getMetricStatisticsResult.getDatapoints());
+                //}
+                //else if (dimension.getName().equals("InstanceId")) {
                     GetMetricStatisticsRequest getMetricStatisticsRequest = createGetMetricStatisticsRequest(m);
                     GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
                     uniqueInstanceIds.get(dimension.getValue()).put(m.getMetricName(), getMetricStatisticsResult.getDatapoints());
-                }
-                else if (dimension.getName().equals("InstanceId")) {
-                    GetMetricStatisticsRequest getMetricStatisticsRequest = createGetMetricStatisticsRequest(m);
-                    GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
-                    uniqueInstanceIds.get(dimension.getValue()).put(m.getMetricName(), getMetricStatisticsResult.getDatapoints());
-                }
+                //}
+
 
             }
         }
-
         Iterator iterator = uniqueInstanceIds.keySet().iterator();
 
         while (iterator.hasNext()) {
             String key = iterator.next().toString();
             String value = uniqueInstanceIds.get(key).toString();
             System.out.println(key);
-        } */
+        }
         //ListMetricsResult y = awsCloudWatch.
 
         AmazonAutoScalingClient amazonAutoScalingClient = new AmazonAutoScalingClient(awsCredentials);
@@ -286,5 +288,6 @@ public class SignedRequestsHelper {
         return getMetricStatisticsRequest;
         //GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
     }
+
 }
 
