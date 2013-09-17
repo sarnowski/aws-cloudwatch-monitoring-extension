@@ -26,13 +26,21 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
     private static final String AWS_ACCESS_KEY = "accessKey";
     private static final String AWS_SECRET_KEY = "secretKey";
     private Logger logger = Logger.getLogger(this.getClass().getName());
+    private static AmazonCloudWatchMonitor sInstance = null;
 
     // The AWS Cloud Watch client that retrieves instance metrics by executing requests
     private AmazonCloudWatch awsCloudWatch;
     // This HashSet of disabled metrics is populated by reading the DisabledMetrics.xml file
     private Set<String> disabledMetrics = new HashSet<String>();
 
-    public AmazonCloudWatchMonitor() {
+    public static synchronized AmazonCloudWatchMonitor getInstance() {
+        if (sInstance == null) {
+            sInstance = new AmazonCloudWatchMonitor();
+        }
+        return sInstance;
+    }
+
+    private AmazonCloudWatchMonitor() {
         setDisabledMetrics();
         initCloudWatchClient();
     }
@@ -80,6 +88,7 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
      */
     @Override
     public TaskOutput execute(Map<String, String> stringStringMap, TaskExecutionContext taskExecutionContext) {
+        getInstance();
         // gather metrics
         HashMap<String, HashMap<String, List<Datapoint>>> cloudWatchMetrics = gatherInstanceMetrics();
         // print metrics to controller
