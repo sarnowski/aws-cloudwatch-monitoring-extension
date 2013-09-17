@@ -19,7 +19,7 @@
                 </task-arguments>
                 <java-task>
                         <classpath>AmazonMonitor.jar</classpath>
-                        <impl-class>main.java.AmazonCloudWatchMonitor</impl-class>
+                        <impl-class>com.appdynamics.monitors.amazon.AmazonCloudWatchMonitor</impl-class>
                 </java-task>
         </monitor-run-task>
 </monitor>

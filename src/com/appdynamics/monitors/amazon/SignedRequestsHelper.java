@@ -1,4 +1,4 @@
-package main.java;
+package com.appdynamics.monitors.amazon;
 
 import javax.crypto.spec.SecretKeySpec;
 
