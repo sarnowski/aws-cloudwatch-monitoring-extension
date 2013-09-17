@@ -83,6 +83,7 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
         // gather metrics
         HashMap<String, HashMap<String, List<Datapoint>>> cloudWatchMetrics = gatherInstanceMetrics();
         // print metrics to controller
+        printMetrics(cloudWatchMetrics);
 
         return new TaskOutput("AWS Cloud Watch Metric Upload Complete");
     }
@@ -113,14 +114,6 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
                 gatherInstanceMetricsHelper(m, dimension, cloudWatchMetrics);
             }
         }
-
-//        Iterator iterator = cloudWatchMetrics.keySet().iterator();
-//
-//        while (iterator.hasNext()) {
-//            String key = iterator.next().toString();
-//            String value = cloudWatchMetrics.get(key).toString();
-//            System.out.println(key);
-//        }
         return cloudWatchMetrics;
     }
 
@@ -178,18 +171,21 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
         return "Custom Metrics|Amazon Cloud Watch|Status|";
     }
 
-    private void sendMetricsToController(HashMap<String, HashMap<String, List<Datapoint>>> cloudWatchMetrics) {
+    private void printMetrics(HashMap<String, HashMap<String, List<Datapoint>>> cloudWatchMetrics) {
         Iterator outerIterator = cloudWatchMetrics.keySet().iterator();
 
         while (outerIterator.hasNext()) {
-            String key = outerIterator.next().toString();
-            HashMap<String, List<Datapoint>> metricStatistics = cloudWatchMetrics.get(key);
+            String instanceId = outerIterator.next().toString();
+            HashMap<String, List<Datapoint>> metricStatistics = cloudWatchMetrics.get(instanceId);
             Iterator innerIterator = metricStatistics.keySet().iterator();
             while (innerIterator.hasNext()) {
                 String metricName = innerIterator.next().toString();
-
+                Datapoint data = metricStatistics.get(metricName).get(0);
+                printMetric(instanceId + "|" + metricName + "(" + data.getUnit() + ")", data.getAverage(),
+                        MetricWriter.METRIC_AGGREGATION_TYPE_OBSERVATION,
+                        MetricWriter.METRIC_TIME_ROLLUP_TYPE_AVERAGE,
+                        MetricWriter.METRIC_CLUSTER_ROLLUP_TYPE_INDIVIDUAL);
             }
-            //System.out.println(key);
         }
     }
 }
