@@ -3,12 +3,12 @@
     <property name="conf.dir" value="conf" />
     <property name="project.name" value="AmazonMonitor"/>
     <property name="lib.dir" value="lib"/>
-    <property name="machine.agent.jar" value="lib/machineagent/machineagent.jar"/>
-    <property name="log.jar" value="lib/log4j/log4j-1.2.15.jar"/>
-    <property name="apache.commons.codec.jar" value="lib/commons-codec-1.8/commons-codec-1.8.jar"/>
-    <property name="aws.jar" value="lib/aws/aws-java-sdk-1.5.6.jar"/>
-    <property name="apache.commons-logging.jar" value="lib/commons-logging-1.1.1/commons-logging-1.1.1.jar"/>
-    <property name="httpcomponents-client.jar" value="lib/httpcomponents-client-4.2.3/httpclient-4.2.3.jar"/>
+    <!--<property name="machine.agent.jar" value="lib/machineagent/machineagent.jar"/>-->
+    <!--<property name="log.jar" value="lib/log4j/log4j-1.2.15.jar"/>-->
+    <!--<property name="apache.commons.codec.jar" value="lib/commons-codec-1.8/commons-codec-1.8.jar"/>-->
+    <!--<property name="aws.jar" value="lib/aws/aws-java-sdk-1.5.6.jar"/>-->
+    <!--<property name="apache.commons-logging.jar" value="lib/commons-logging-1.1.1/commons-logging-1.1.1.jar"/>-->
+    <!--<property name="httpcomponents-client.jar" value="lib/httpcomponents-client-4.2.3/httpclient-4.2.3.jar"/>-->
 
     <path id="myClassPath">
         <!--<pathelement location="${machine.agent.jar}"/>-->
@@ -25,14 +25,18 @@
         <javac destdir="${build.dir}/classes" srcdir="src/com/appdynamics/monitors/amazon" classpathref="myClassPath" debug="on"/>
         <mkdir dir="${build.dir}/AmazonMonitor"/>
         <mkdir dir="${build.dir}/AmazonMonitor/lib"/>
+        <mkdir dir="${build.dir}/AmazonMonitor/conf"/>
         <jar destfile="${build.dir}/AmazonMonitor/${project.name}.jar">
             <fileset dir="${build.dir}/classes"/>
         </jar>
         <copy todir="${build.dir}/AmazonMonitor/lib/">
-            <fileset dir="${lib.dir}" includes="**.jar"/>
+            <fileset dir="${lib.dir}" includes="*.jar"/>
         </copy>
-        <copy todir="${build.dir}/AmazonMonitor">
+        <copy todir="${build.dir}/AmazonMonitor/">
             <fileset dir="${conf.dir}" includes="monitor.xml"/>
+        </copy>
+        <copy todir="${build.dir}/AmazonMonitor/${conf.dir}">
+            <fileset dir="${conf.dir}" includes="*.*" excludes="monitor.xml"/>
         </copy>
 
         <delete dir="${build.dir}/classes"/>

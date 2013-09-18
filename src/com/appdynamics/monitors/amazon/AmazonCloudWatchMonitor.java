@@ -77,8 +77,8 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
         catch(IOException e) {
             e.printStackTrace();
         }
-        //AWSCredentials awsCredentials = new BasicAWSCredentials(awsProperties.getProperty(AWS_ACCESS_KEY), awsProperties.getProperty(AWS_SECRET_KEY));
-        AWSCredentials awsCredentials = new BasicAWSCredentials("AKIAJTB7DYHGUBXOS7BQ", "jbW+aoHbYjFHSoTKrp+U1LEzdMZpvuGLETZuiMyc");
+        AWSCredentials awsCredentials = new BasicAWSCredentials(awsProperties.getProperty(AWS_ACCESS_KEY), awsProperties.getProperty(AWS_SECRET_KEY));
+        //AWSCredentials awsCredentials = new BasicAWSCredentials("AKIAJTB7DYHGUBXOS7BQ", "jbW+aoHbYjFHSoTKrp+U1LEzdMZpvuGLETZuiMyc");
         awsCloudWatch = new AmazonCloudWatchClient(awsCredentials);
     }
 
@@ -190,15 +190,16 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
             while (innerIterator.hasNext()) {
                 String metricName = innerIterator.next().toString();
                 List<Datapoint> datapoints = metricStatistics.get(metricName);
-                if (datapoints == null || datapoints.isEmpty()) {
-                    return;
+                if (datapoints != null && !datapoints.isEmpty()) {
+                    Datapoint data = datapoints.get(0);
+                    printMetric(instanceId + "|" + metricName + "(" + data.getUnit() + ")", data.getAverage(),
+                            MetricWriter.METRIC_AGGREGATION_TYPE_OBSERVATION,
+                            MetricWriter.METRIC_TIME_ROLLUP_TYPE_AVERAGE,
+                            MetricWriter.METRIC_CLUSTER_ROLLUP_TYPE_INDIVIDUAL);
                 }
-                Datapoint data = datapoints.get(0);
-                printMetric(instanceId + "|" + metricName + "(" + data.getUnit() + ")", data.getAverage(),
-                        MetricWriter.METRIC_AGGREGATION_TYPE_OBSERVATION,
-                        MetricWriter.METRIC_TIME_ROLLUP_TYPE_AVERAGE,
-                        MetricWriter.METRIC_CLUSTER_ROLLUP_TYPE_INDIVIDUAL);
             }
         }
     }
 }
+
+

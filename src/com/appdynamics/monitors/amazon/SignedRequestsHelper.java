@@ -155,6 +155,7 @@ public class SignedRequestsHelper {
     }
 
     public static void main(String[] args) {
+        setDisabledMetrics();
         //SignedRequestsHelper requestsHelper = new SignedRequestsHelper();
         //String requestString = requestsHelper.sign(new HashMap<String, String>());
         //System.out.println(requestString);
