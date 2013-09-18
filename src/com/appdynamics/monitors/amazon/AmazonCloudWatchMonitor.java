@@ -1,7 +1,7 @@
 package com.appdynamics.monitors.amazon;
 
-import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
 import com.amazonaws.services.cloudwatch.model.*;
@@ -39,7 +39,7 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
         return sInstance;
     }
 
-    private AmazonCloudWatchMonitor() {
+    public AmazonCloudWatchMonitor() {
         setDisabledMetrics();
         initCloudWatchClient();
     }
@@ -77,7 +77,8 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
         catch(IOException e) {
             e.printStackTrace();
         }
-        AWSCredentials awsCredentials = new BasicAWSCredentials(awsProperties.getProperty(AWS_ACCESS_KEY), awsProperties.getProperty(AWS_SECRET_KEY));
+        //AWSCredentials awsCredentials = new BasicAWSCredentials(awsProperties.getProperty(AWS_ACCESS_KEY), awsProperties.getProperty(AWS_SECRET_KEY));
+        AWSCredentials awsCredentials = new BasicAWSCredentials("AKIAJTB7DYHGUBXOS7BQ", "jbW+aoHbYjFHSoTKrp+U1LEzdMZpvuGLETZuiMyc");
         awsCloudWatch = new AmazonCloudWatchClient(awsCredentials);
     }
 
@@ -87,7 +88,7 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
      */
     @Override
     public TaskOutput execute(Map<String, String> stringStringMap, TaskExecutionContext taskExecutionContext) {
-        getInstance();
+        //getInstance();
         // gather metrics
         HashMap<String, HashMap<String, List<Datapoint>>> cloudWatchMetrics = gatherInstanceMetrics();
         // print metrics to controller
@@ -188,7 +189,11 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
             Iterator innerIterator = metricStatistics.keySet().iterator();
             while (innerIterator.hasNext()) {
                 String metricName = innerIterator.next().toString();
-                Datapoint data = metricStatistics.get(metricName).get(0);
+                List<Datapoint> datapoints = metricStatistics.get(metricName);
+                if (datapoints == null || datapoints.isEmpty()) {
+                    return;
+                }
+                Datapoint data = datapoints.get(0);
                 printMetric(instanceId + "|" + metricName + "(" + data.getUnit() + ")", data.getAverage(),
                         MetricWriter.METRIC_AGGREGATION_TYPE_OBSERVATION,
                         MetricWriter.METRIC_TIME_ROLLUP_TYPE_AVERAGE,

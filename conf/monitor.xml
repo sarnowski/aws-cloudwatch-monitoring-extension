@@ -12,13 +12,9 @@
                 <type>java</type>
                 <execution-timeout-in-secs>60</execution-timeout-in-secs>
                 <task-arguments>
-                        <argument name="host" is-required="true" default-value="localhost" />
-                        <argument name="port" is-required="true" default-value="80" />
-                        <argument name="user" is-required="true" default-value="username" />
-                        <argument name="pass" is-required="true" default-value="password" />
                 </task-arguments>
                 <java-task>
-                        <classpath>AmazonMonitor.jar</classpath>
+                    <classpath>AmazonMonitor.jar;lib/aws-java-sdk-1.5.6.jar;lib/commons-codec-1.8.jar;lib/log4j-1.2.15.jar;lib/machineagent.jar;lib/httpclient-4.2.3.jar;lib/httpcore-4.2.jar;lib/commons-logging-1.1.1.jar</classpath>
                         <impl-class>com.appdynamics.monitors.amazon.AmazonCloudWatchMonitor</impl-class>
                 </java-task>
         </monitor-run-task>

@@ -2,6 +2,7 @@
     <property name="build.dir" value="dist" />
     <property name="conf.dir" value="conf" />
     <property name="project.name" value="AmazonMonitor"/>
+    <property name="lib.dir" value="lib"/>
     <property name="machine.agent.jar" value="lib/machineagent/machineagent.jar"/>
     <property name="log.jar" value="lib/log4j/log4j-1.2.15.jar"/>
     <property name="apache.commons.codec.jar" value="lib/commons-codec-1.8/commons-codec-1.8.jar"/>
@@ -9,25 +10,31 @@
     <property name="apache.commons-logging.jar" value="lib/commons-logging-1.1.1/commons-logging-1.1.1.jar"/>
     <property name="httpcomponents-client.jar" value="lib/httpcomponents-client-4.2.3/httpclient-4.2.3.jar"/>
 
-    <path id="cp">
-        <pathelement location="${machine.agent.jar}"/>
-        <pathelement location="${log.jar}"/>
-        <pathelement location="${apache.commons.codec.jar}"/>
-        <pathelement location="${aws.jar}"/>
-        <pathelement location="${apache.commons-logging.jar}"/>
-        <pathelement location="${httpcomponents-client.jar}"/>
+    <path id="myClassPath">
+        <!--<pathelement location="${machine.agent.jar}"/>-->
+        <!--<pathelement location="${log.jar}"/>-->
+        <!--<pathelement location="${apache.commons.codec.jar}"/>-->
+        <!--<pathelement location="${aws.jar}"/>-->
+        <!--<pathelement location="${apache.commons-logging.jar}"/>-->
+        <!--<pathelement location="${httpcomponents-client.jar}"/>-->
+        <fileset dir="${lib.dir}" includes="**/*.jar"/>
     </path>
 
     <target name="build">
         <mkdir dir="${build.dir}/classes"/>
-        <javac destdir="${build.dir}/classes" srcdir="src/main/java" classpathref="cp" debug="on"/>
+        <javac destdir="${build.dir}/classes" srcdir="src/com/appdynamics/monitors/amazon" classpathref="myClassPath" debug="on"/>
         <mkdir dir="${build.dir}/AmazonMonitor"/>
+        <mkdir dir="${build.dir}/AmazonMonitor/lib"/>
         <jar destfile="${build.dir}/AmazonMonitor/${project.name}.jar">
             <fileset dir="${build.dir}/classes"/>
         </jar>
+        <copy todir="${build.dir}/AmazonMonitor/lib/">
+            <fileset dir="${lib.dir}" includes="**.jar"/>
+        </copy>
         <copy todir="${build.dir}/AmazonMonitor">
             <fileset dir="${conf.dir}" includes="monitor.xml"/>
         </copy>
+
         <delete dir="${build.dir}/classes"/>
     </target>
     <target name="package" depends="build">
