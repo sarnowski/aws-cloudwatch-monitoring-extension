@@ -17,6 +17,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import javax.crypto.Mac;
 import javax.xml.parsers.DocumentBuilder;
@@ -27,9 +28,7 @@ import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.ClasspathPropertiesFileCredentialsProvider;
 import com.amazonaws.services.autoscaling.AmazonAutoScalingClient;
-import com.amazonaws.services.autoscaling.model.AutoScalingGroup;
-import com.amazonaws.services.autoscaling.model.CreateAutoScalingGroupRequest;
-import com.amazonaws.services.autoscaling.model.DescribeAutoScalingGroupsResult;
+import com.amazonaws.services.autoscaling.model.*;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
 import com.amazonaws.services.cloudwatch.model.*;
@@ -162,25 +161,8 @@ public class SignedRequestsHelper {
         //AWSCredentialsProvider credentialsProvider = new ClasspathPropertiesFileCredentialsProvider("conf");
         AWSCredentials awsCredentials = new BasicAWSCredentials("AKIAJTB7DYHGUBXOS7BQ", "jbW+aoHbYjFHSoTKrp+U1LEzdMZpvuGLETZuiMyc");
         AmazonCloudWatch awsCloudWatch = new AmazonCloudWatchClient(awsCredentials);
-        //AmazonCloudWatch awsCloudWatch = new AmazonCloudWatchClient(credentialsProvider);
-        /*Dimension instanceDimension = new Dimension();
-        //instanceDimension.setName("instanceid");
-        //instanceDimension.setValue("sasadad");
-        GetMetricStatisticsRequest request = new GetMetricStatisticsRequest()
-                .withStartTime(new Date(new Date().getTime() - 100000))
-                .withNamespace("AWS/EC2")
-                .withPeriod(60 * 60)
-                .withMetricName("CPUUtilization")
-                .withStatistics("Average")
-                .withDimensions(Arrays.asList(instanceDimension))
-                .withEndTime(new Date());
 
-        //print(awsCloudWatch.listMetrics());
-        print(awsCloudWatch.getMetricStatistics(request));
-        ListMetricsResult result = awsCloudWatch.listMetrics();
-        List<Metric> results = result.getMetrics();*/
-        HashMap<String, HashMap<String, List<Datapoint>>> uniqueInstanceIds = new HashMap<String, HashMap<String,List<Datapoint>>>();
-        //HashMap<String, HashMap<String,Double>> uniqueInstanceIds = new HashMap<String, HashMap<String,Double>>();
+        /*HashMap<String, HashMap<String, List<Datapoint>>> uniqueInstanceIds = new HashMap<String, HashMap<String,List<Datapoint>>>();
 
         List<DimensionFilter> filter = new ArrayList<DimensionFilter>();
         DimensionFilter x = new DimensionFilter();
@@ -197,15 +179,9 @@ public class SignedRequestsHelper {
                 if (!uniqueInstanceIds.containsKey(dimension.getValue())) {
                     uniqueInstanceIds.put(dimension.getValue(), new HashMap<String,List<Datapoint>>());
                 }
-                    //GetMetricStatisticsRequest getMetricStatisticsRequest = createGetMetricStatisticsRequest(m);
-                    //GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
-                    //uniqueInstanceIds.get(dimension.getValue()).put(m.getMetricName(), getMetricStatisticsResult.getDatapoints());
-                //}
-                //else if (dimension.getName().equals("InstanceId")) {
-                    GetMetricStatisticsRequest getMetricStatisticsRequest = createGetMetricStatisticsRequest(m);
-                    GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
-                    uniqueInstanceIds.get(dimension.getValue()).put(m.getMetricName(), getMetricStatisticsResult.getDatapoints());
-                //}
+                GetMetricStatisticsRequest getMetricStatisticsRequest = createGetMetricStatisticsRequest(m);
+                GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
+                uniqueInstanceIds.get(dimension.getValue()).put(m.getMetricName(), getMetricStatisticsResult.getDatapoints());
 
 
             }
@@ -216,37 +192,35 @@ public class SignedRequestsHelper {
             String key = iterator.next().toString();
             String value = uniqueInstanceIds.get(key).toString();
             System.out.println(key);
-        }
-        //ListMetricsResult y = awsCloudWatch.
+        }  */
 
         AmazonAutoScalingClient amazonAutoScalingClient = new AmazonAutoScalingClient(awsCredentials);
-        //CreateAutoScalingGroupRequest createAutoScalingGroupRequest = new CreateAutoScalingGroupRequest();
-        //createAutoScalingGroupRequest.
-        //amazonAutoScalingClient.createAutoScalingGroup();
         DescribeAutoScalingGroupsResult describeAutoScalingGroupsResult = amazonAutoScalingClient.describeAutoScalingGroups();
         List<AutoScalingGroup> autoScalingGroupList = describeAutoScalingGroupsResult.getAutoScalingGroups();
+        AutoScalingGroup group = autoScalingGroupList.get(0);
+        EnableMetricsCollectionRequest request = new EnableMetricsCollectionRequest();
+        request.setAutoScalingGroupName(group.getAutoScalingGroupName());
+        request.setGranularity("1Minute");
+        amazonAutoScalingClient.enableMetricsCollection(request);
+        DescribeMetricCollectionTypesResult y = amazonAutoScalingClient.describeMetricCollectionTypes();
+        List<EnabledMetric> enabledMetrics = group.getEnabledMetrics();
+
+        GetMetricStatisticsRequest getMetricStatisticsRequest = new GetMetricStatisticsRequest()
+                .withStartTime( new Date( System.currentTimeMillis() - TimeUnit.MINUTES.toMillis( 2 ) ) )
+                .withNamespace("AWS/AutoScaling")
+                .withPeriod(60 * 60)
+                .withDimensions(new Dimension().withName("AutoScalingGroupName").withValue(group.getAutoScalingGroupName()))
+                .withMetricName("GroupMaxSize")
+                .withStatistics("Average")
+                .withEndTime(new Date());
+        GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
+
 
 
         AutoScalingGroup autoScalingGroup = new AutoScalingGroup();
 
 
         //autoScalingGroup.getInstances()
-
-        Properties prop = new Properties();
-        try {
-            //load a properties file
-            prop.load(new FileInputStream("conf/AwsCredentials.properties"));
-
-            //get the property value and print it out
-            //System.out.println(prop.getProperty("database"));
-            //System.out.println(prop.getProperty("dbuser"));
-            //System.out.println(prop.getProperty("accessKey"));
-
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-        setDisabledMetrics();
-
 
     }
     private static void setDisabledMetrics() {

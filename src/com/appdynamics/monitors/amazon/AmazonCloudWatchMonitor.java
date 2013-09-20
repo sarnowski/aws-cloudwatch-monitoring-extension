@@ -2,6 +2,12 @@ package com.appdynamics.monitors.amazon;
 
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.services.autoscaling.AmazonAutoScaling;
+import com.amazonaws.services.autoscaling.AmazonAutoScalingClient;
+import com.amazonaws.services.autoscaling.model.AutoScalingGroup;
+import com.amazonaws.services.autoscaling.model.DescribeAutoScalingGroupsResult;
+import com.amazonaws.services.autoscaling.model.EnableMetricsCollectionRequest;
+import com.amazonaws.services.autoscaling.model.EnabledMetric;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
 import com.amazonaws.services.cloudwatch.model.*;
@@ -12,13 +18,17 @@ import com.singularity.ee.agent.systemagent.api.TaskOutput;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
+import sun.tools.java.ClassPath;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class AmazonCloudWatchMonitor extends AManagedMonitor {
 
@@ -32,15 +42,8 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
     // This HashSet of disabled metrics is populated by reading the DisabledMetrics.xml file
     private Set<String> disabledMetrics = new HashSet<String>();
 
-    public static synchronized AmazonCloudWatchMonitor getInstance() {
-        if (sInstance == null) {
-            sInstance = new AmazonCloudWatchMonitor();
-        }
-        return sInstance;
-    }
-
     public AmazonCloudWatchMonitor() {
-        setDisabledMetrics();
+        //setDisabledMetrics();
         initCloudWatchClient();
     }
 
@@ -50,18 +53,28 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
      */
     private void setDisabledMetrics() {
         try {
-            File fXmlFile = new File("conf/DisabledMetrics.xml");
+            //File disabledMetricsFile = new File("conf/DisabledMetrics.xml");
+            File disabledMetricsFile = new File("/mnt/appdynamics/machineagent/monitors/AmazonMonitor/conf/DisabledMetrics.xml");
+
+            //InputStream disabledMetricsFile = ClassLoader.getSystemResourceAsStream("conf/DisabledMetrics.xml");
+            //InputStream disabledMetricsFile = this.getClass().getResourceAsStream("/conf/DisabledMetrics.xml");
+            String strClassPath = System.getProperty("java.class.path");
+            logger.error("Classpath is " + strClassPath);
+            if (disabledMetricsFile == null) {
+                logger.error("Disabled File is null");
+            }
+            //InputStream disabledMetricsFile = getClass().getClassLoader().getResourceAsStream("DisabledMetrics.xml");
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(fXmlFile);
+            Document doc = dBuilder.parse(disabledMetricsFile);
             NodeList nList = doc.getElementsByTagName("MetricName");
-
+            logger.error("Number of disabled metrics: " + nList.getLength());
             for (int i = 0; i < nList.getLength(); i++) {
                 disabledMetrics.add(nList.item(i).getTextContent());
             }
         }
         catch(Exception e) {
-            e.printStackTrace();
+            logger.error(e);
         }
     }
 
@@ -70,15 +83,19 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
      * @return
      */
     private void initCloudWatchClient() {
-        Properties awsProperties = new Properties();
-        try {
-            awsProperties.load(new FileInputStream("conf/AwsCredentials.properties"));
-        }
-        catch(IOException e) {
-            e.printStackTrace();
-        }
-        AWSCredentials awsCredentials = new BasicAWSCredentials(awsProperties.getProperty(AWS_ACCESS_KEY), awsProperties.getProperty(AWS_SECRET_KEY));
-        //AWSCredentials awsCredentials = new BasicAWSCredentials("AKIAJTB7DYHGUBXOS7BQ", "jbW+aoHbYjFHSoTKrp+U1LEzdMZpvuGLETZuiMyc");
+//        Properties awsProperties = new Properties();
+//        try {
+//            //awsProperties.load(new FileInputStream("AwsCredentials.properties"));
+//
+//            awsProperties.load(getClass().getClassLoader().getResourceAsStream("AwsCredentials.properties"));
+//            //awsProperties.load(ClassLoader.getSystemResourceAsStream("AwsCredentials.properties"));
+//
+//        }
+//        catch(IOException e) {
+//            e.printStackTrace();
+//        }
+//        //AWSCredentials awsCredentials = new BasicAWSCredentials(awsProperties.getProperty(AWS_ACCESS_KEY), awsProperties.getProperty(AWS_SECRET_KEY));
+        AWSCredentials awsCredentials = new BasicAWSCredentials("AKIAJTB7DYHGUBXOS7BQ", "jbW+aoHbYjFHSoTKrp+U1LEzdMZpvuGLETZuiMyc");
         awsCloudWatch = new AmazonCloudWatchClient(awsCredentials);
     }
 
@@ -88,11 +105,17 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
      */
     @Override
     public TaskOutput execute(Map<String, String> stringStringMap, TaskExecutionContext taskExecutionContext) {
-        //getInstance();
-        // gather metrics
-        HashMap<String, HashMap<String, List<Datapoint>>> cloudWatchMetrics = gatherInstanceMetrics();
+        // gather instance metrics
+        HashMap<String, HashMap<String, List<Datapoint>>> instanceMetrics = gatherInstanceMetrics();
+
+        // gather auto-scaling metrics
+        HashMap<String, HashMap<String,List<Datapoint>>> autoscalingMetrics = gatherAutoScalingMetrics();
+
         // print metrics to controller
-        printMetrics(cloudWatchMetrics);
+        printInstanceMetrics(instanceMetrics);
+
+        // print auto-scaling metrics to controller
+        printAutoScalingMetrics(autoscalingMetrics);
 
         return new TaskOutput("AWS Cloud Watch Metric Upload Complete");
     }
@@ -148,6 +171,47 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
         return getMetricStatisticsRequest;
     }
 
+    private HashMap<String,HashMap<String,List<Datapoint>>> gatherAutoScalingMetrics() {
+        HashMap<String, HashMap<String,List<Datapoint>>> autoScalingMetrics = new HashMap<String,HashMap<String,List<Datapoint>>>();
+        AWSCredentials awsCredentials = new BasicAWSCredentials("AKIAJTB7DYHGUBXOS7BQ", "jbW+aoHbYjFHSoTKrp+U1LEzdMZpvuGLETZuiMyc");
+        AmazonAutoScalingClient amazonAutoScalingClient = new AmazonAutoScalingClient(awsCredentials);
+        DescribeAutoScalingGroupsResult describeAutoScalingGroupsResult = amazonAutoScalingClient.describeAutoScalingGroups();
+        List<AutoScalingGroup> autoScalingGroupList = describeAutoScalingGroupsResult.getAutoScalingGroups();
+        for (AutoScalingGroup autoScalingGroup : autoScalingGroupList) {
+            String groupName = autoScalingGroup.getAutoScalingGroupName();
+            if (!autoScalingMetrics.containsKey(groupName)) {
+                autoScalingMetrics.put(groupName, new HashMap<String,List<Datapoint>>());
+                //TODO: remove this. Ask Pranta
+                EnableMetricsCollectionRequest request = new EnableMetricsCollectionRequest();
+                request.setAutoScalingGroupName(groupName);
+                request.setGranularity("1Minute");
+                amazonAutoScalingClient.enableMetricsCollection(request);
+
+            }
+            gatherAutoScalingMetricsHelper(autoScalingGroup, autoScalingMetrics);
+        }
+
+        return autoScalingMetrics;
+    }
+
+    private void gatherAutoScalingMetricsHelper(AutoScalingGroup currentGroup, HashMap<String,HashMap<String,List<Datapoint>>> autoScalingMetrics) {
+        HashMap<String,List<Datapoint>> groupMetrics = autoScalingMetrics.get(currentGroup.getAutoScalingGroupName());
+        List<EnabledMetric> enabledMetrics = currentGroup.getEnabledMetrics();
+        for (EnabledMetric m : enabledMetrics) {
+            GetMetricStatisticsRequest getMetricStatisticsRequest = new GetMetricStatisticsRequest()
+                    .withStartTime( new Date( System.currentTimeMillis() - TimeUnit.MINUTES.toMillis( 2 ) ) )
+                    .withNamespace("AWS/AutoScaling")
+                    .withPeriod(60 * 60)
+                    .withDimensions(new Dimension().withName("AutoScalingGroupName").withValue(currentGroup.getAutoScalingGroupName()))
+                    .withMetricName(m.getMetric())
+                    .withStatistics("Average")
+                    .withEndTime(new Date());
+            GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
+            List<Datapoint> datapoints = getMetricStatisticsResult.getDatapoints();
+            groupMetrics.put(m.getMetric(), datapoints);
+        }
+    }
+
     /**
      * Returns the metric to the AppDynamics Controller.
      * @param 	metricName		Name of the Metric
@@ -177,10 +241,10 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
      */
     private String getMetricPrefix()
     {
-        return "Custom Metrics|Amazon Cloud Watch|Status|";
+        return "Custom Metrics|Amazon Cloud Watch|";
     }
 
-    private void printMetrics(HashMap<String, HashMap<String, List<Datapoint>>> cloudWatchMetrics) {
+    private void printInstanceMetrics(HashMap<String, HashMap<String, List<Datapoint>>> cloudWatchMetrics) {
         Iterator outerIterator = cloudWatchMetrics.keySet().iterator();
 
         while (outerIterator.hasNext()) {
@@ -192,7 +256,27 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
                 List<Datapoint> datapoints = metricStatistics.get(metricName);
                 if (datapoints != null && !datapoints.isEmpty()) {
                     Datapoint data = datapoints.get(0);
-                    printMetric(instanceId + "|" + metricName + "(" + data.getUnit() + ")", data.getAverage(),
+                    printMetric("EC2|" + "InstanceId|" + instanceId + "|" + metricName + "(" + data.getUnit() + ")", data.getAverage(),
+                            MetricWriter.METRIC_AGGREGATION_TYPE_OBSERVATION,
+                            MetricWriter.METRIC_TIME_ROLLUP_TYPE_AVERAGE,
+                            MetricWriter.METRIC_CLUSTER_ROLLUP_TYPE_INDIVIDUAL);
+                }
+            }
+        }
+    }
+    private void printAutoScalingMetrics(HashMap<String, HashMap<String,List<Datapoint>>> autoScalingMetrics) {
+        Iterator outerIterator = autoScalingMetrics.keySet().iterator();
+
+        while (outerIterator.hasNext()) {
+            String autoScalingGroupName = outerIterator.next().toString();
+            HashMap<String, List<Datapoint>> metricStatistics = autoScalingMetrics.get(autoScalingGroupName);
+            Iterator innerIterator = metricStatistics.keySet().iterator();
+            while (innerIterator.hasNext()) {
+                String metricName = innerIterator.next().toString();
+                List<Datapoint> datapoints = metricStatistics.get(metricName);
+                if (datapoints != null && !datapoints.isEmpty()) {
+                    Datapoint data = datapoints.get(0);
+                    printMetric("AutoScaling|" + "Group Name|" + autoScalingGroupName + "|" + metricName, data.getAverage(),
                             MetricWriter.METRIC_AGGREGATION_TYPE_OBSERVATION,
                             MetricWriter.METRIC_TIME_ROLLUP_TYPE_AVERAGE,
                             MetricWriter.METRIC_CLUSTER_ROLLUP_TYPE_INDIVIDUAL);

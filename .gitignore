@@ -1,7 +1,7 @@
 # IntelliJ files #
 .idea/*
 *.iml
-dist/*.jar
+dist
 
 *.class
 
