@@ -11,11 +11,13 @@
                 <description>Cloud Watch Monitor Task</description>
                 <type>java</type>
                 <execution-timeout-in-secs>60</execution-timeout-in-secs>
-                <task-arguments>
-                </task-arguments>
                 <java-task>
                     <classpath>AmazonMonitor.jar;lib/aws-java-sdk-1.5.6.jar;lib/commons-codec-1.8.jar;lib/log4j-1.2.15.jar;lib/machineagent.jar;lib/httpclient-4.2.3.jar;lib/httpcore-4.2.jar;lib/commons-logging-1.1.1.jar</classpath>
                         <impl-class>com.appdynamics.monitors.amazon.AmazonCloudWatchMonitor</impl-class>
                 </java-task>
+                <task-arguments>
+                    <argument name="awsCredentials" is-required="true" default-value="monitors/AmazonMonitor/conf/AwsCredentials.properties"/>
+                    <argument name="disabledMetricsFile" is-required="false" default-value="monitors/AmazonMonitor/conf/DisabledMetrics.xml"/>
+                </task-arguments>
         </monitor-run-task>
 </monitor>

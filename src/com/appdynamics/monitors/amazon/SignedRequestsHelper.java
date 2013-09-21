@@ -215,8 +215,6 @@ public class SignedRequestsHelper {
                 .withEndTime(new Date());
         GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
 
-
-
         AutoScalingGroup autoScalingGroup = new AutoScalingGroup();
 
 
@@ -225,18 +223,20 @@ public class SignedRequestsHelper {
     }
     private static void setDisabledMetrics() {
         try {
-            Set<String> disabledMetrics = new HashSet<String>();
-
+            HashMap<String,HashSet<String>> disabledMetrics = new HashMap<String,HashSet<String>>();
             File fXmlFile = new File("conf/DisabledMetrics.xml");
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document doc = dBuilder.parse(fXmlFile);
-            NodeList nList = doc.getElementsByTagName("MetricName");
+            NodeList nList = doc.getElementsByTagName("Metric");
             for (int i = 0; i < nList.getLength(); i++) {
-                disabledMetrics.add(nList.item(i).getTextContent());
+                String namespaceKey = nList.item(i).getAttributes().getNamedItem("namespace").getNodeValue();
+                String metricName = nList.item(i).getAttributes().getNamedItem("metricName").getNodeValue();
+                if (!disabledMetrics.containsKey(namespaceKey)) {
+                    disabledMetrics.put(namespaceKey, new HashSet<String>());
+                }
+                disabledMetrics.get(namespaceKey).add(metricName);
             }
-            printDisabledMetrics(disabledMetrics);
-
         }
         catch(Exception e) {
             e.printStackTrace();
