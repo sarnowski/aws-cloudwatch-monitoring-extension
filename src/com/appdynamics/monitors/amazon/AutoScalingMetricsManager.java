@@ -81,7 +81,7 @@ public class AutoScalingMetricsManager extends MetricsManager{
                             MetricWriter.METRIC_AGGREGATION_TYPE_OBSERVATION,
                             MetricWriter.METRIC_TIME_ROLLUP_TYPE_AVERAGE,
                             MetricWriter.METRIC_CLUSTER_ROLLUP_TYPE_INDIVIDUAL);
-                    logger.error("--------PRINTING " + NAMESPACE + " METRICS---------");
+                    //logger.error("--------PRINTING " + NAMESPACE + " METRICS---------");
                 }
             }
         }

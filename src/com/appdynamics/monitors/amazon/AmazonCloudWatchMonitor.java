@@ -126,13 +126,6 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
             Object metrics = metricsManager.gatherMetrics();
             metricsManager.printMetrics(metrics);
         }
-//        MetricsManager instanceMetricsManager = metricsManagerFactory.createMetricsManager("AWS/EC2");
-//        Object instanceMetrics = instanceMetricsManager.gatherMetrics();
-//        instanceMetricsManager.printMetrics(instanceMetrics);
-//
-//        MetricsManager autoscalingMetricsManager = metricsManagerFactory.createMetricsManager("AWS/AutoScaling");
-//        Object autoscalingMetrics = autoscalingMetricsManager.gatherMetrics();
-//        autoscalingMetricsManager.printMetrics(autoscalingMetrics);
 
         return new TaskOutput("AWS Cloud Watch Metric Upload Complete");
     }

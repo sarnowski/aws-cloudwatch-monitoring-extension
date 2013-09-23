@@ -32,6 +32,8 @@ import com.amazonaws.services.autoscaling.model.*;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
 import com.amazonaws.services.cloudwatch.model.*;
+import com.amazonaws.services.dynamodb.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import org.apache.commons.codec.binary.Base64;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -214,9 +216,36 @@ public class SignedRequestsHelper {
                 .withMetricName("GroupMaxSize")
                 .withStatistics("Average")
                 .withEndTime(new Date());
-        GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
+
+
+        AmazonDynamoDBClient x = new AmazonDynamoDBClient();
+
+        List<DimensionFilter> filter = new ArrayList<DimensionFilter>();
+        DimensionFilter instanceIdFilter = new DimensionFilter();
+        instanceIdFilter.setName("VolumeId");
+        filter.add(instanceIdFilter);
+        ListMetricsRequest listMetricsRequest = new ListMetricsRequest();
+        listMetricsRequest.setDimensions(filter);
+        ListMetricsResult instanceMetricsResult = awsCloudWatch.listMetrics(listMetricsRequest);
+        List<com.amazonaws.services.cloudwatch.model.Metric> instanceMetrics = instanceMetricsResult.getMetrics();
+
+        List<Dimension> dimensions= new ArrayList<Dimension>();
+        dimensions.add(new Dimension().withName("Operation").withValue("PutItem"));
+        dimensions.add(new Dimension().withName("TableName").withValue("TestTable"));
+
+        GetMetricStatisticsRequest getDynamoDBStatisticsRequest = new GetMetricStatisticsRequest()
+                .withStartTime( new Date( System.currentTimeMillis() - 10000000))
+                .withNamespace("AWS/EBS")
+                .withPeriod(60 * 60)
+                .withDimensions(new Dimension().withName("VolumeId").withValue("vol-b60fc1c1"))
+                .withMetricName("VolumeIdleTime")
+                .withStatistics("Average")
+                .withEndTime(new Date());
+        GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getDynamoDBStatisticsRequest);
 
         AutoScalingGroup autoScalingGroup = new AutoScalingGroup();
+
+
 
 
         //autoScalingGroup.getInstances()
@@ -231,7 +260,7 @@ public class SignedRequestsHelper {
             Document doc = dBuilder.parse(fXmlFile);
             NodeList nList = doc.getElementsByTagName("Namespace");
             for (int i = 0; i < nList.getLength(); i++) {
-                namespaces.add(nList.item(0).getTextContent());
+
 //              String namespaceKey = nList.item(i).getAttributes().getNamedItem("namespace").getNodeValue();
 //                String metricName = nList.item(i).getAttributes().getNamedItem("metricName").getNodeValue();
 //                if (!disabledMetrics.containsKey(namespaceKey)) {

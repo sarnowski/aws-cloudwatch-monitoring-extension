@@ -23,6 +23,9 @@ public class MetricsManagerFactory {
         else if (namespace.equals("AWS/AutoScaling")) {
             metricsManager = new AutoScalingMetricsManager(amazonCloudWatchMonitor);
         }
+        else if (namespace.equals("AWS/EBS")) {
+            metricsManager = new EBSMetricsManager(amazonCloudWatchMonitor);
+        }
 
         metricsManager.initialize();
         return metricsManager;
