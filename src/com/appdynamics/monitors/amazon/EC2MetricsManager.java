@@ -1,8 +1,8 @@
 package com.appdynamics.monitors.amazon;
 
-import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.model.*;
 import com.singularity.ee.agent.systemagent.api.MetricWriter;
+import org.apache.log4j.Logger;
 
 import java.util.*;
 
@@ -10,6 +10,7 @@ public class EC2MetricsManager extends MetricsManager {
 
     private HashMap<String, List<String>> disabledMetrics = new HashMap<String, List<String>>();
     private static final String NAMESPACE = "AWS/EC2";
+    private Logger logger = Logger.getLogger(this.getClass().getName());
 
     public EC2MetricsManager(AmazonCloudWatchMonitor amazonCloudWatchMonitor){
         super(amazonCloudWatchMonitor);
@@ -69,6 +70,7 @@ public class EC2MetricsManager extends MetricsManager {
                             MetricWriter.METRIC_AGGREGATION_TYPE_OBSERVATION,
                             MetricWriter.METRIC_TIME_ROLLUP_TYPE_AVERAGE,
                             MetricWriter.METRIC_CLUSTER_ROLLUP_TYPE_INDIVIDUAL);
+                    logger.error("--------PRINTING " + NAMESPACE + " METRICS---------");
                 }
             }
         }

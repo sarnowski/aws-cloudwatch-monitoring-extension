@@ -1,32 +1,29 @@
 package com.appdynamics.monitors.amazon;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.autoscaling.AmazonAutoScalingClient;
 import com.amazonaws.services.autoscaling.model.AutoScalingGroup;
 import com.amazonaws.services.autoscaling.model.DescribeAutoScalingGroupsResult;
 import com.amazonaws.services.autoscaling.model.EnableMetricsCollectionRequest;
 import com.amazonaws.services.autoscaling.model.EnabledMetric;
-import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.model.Datapoint;
 import com.amazonaws.services.cloudwatch.model.Dimension;
 import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsRequest;
 import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsResult;
 import com.singularity.ee.agent.systemagent.api.MetricWriter;
+import org.apache.log4j.Logger;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 public class AutoScalingMetricsManager extends MetricsManager{
 
     private HashMap<String, List<String>> disabledMetrics = new HashMap<String, List<String>>();
     private static final String NAMESPACE = "AWS/AutoScaling";
+    private Logger logger = Logger.getLogger(this.getClass().getName());
 
     public AutoScalingMetricsManager(AmazonCloudWatchMonitor amazonCloudWatchMonitor) {
         super(amazonCloudWatchMonitor);
     }
 
-    //TODO: FIX HELPER
     private void gatherAutoScalingMetricsHelper(AutoScalingGroup currentGroup, HashMap<String,HashMap<String,List<Datapoint>>> autoScalingMetrics) {
         HashMap<String,List<Datapoint>> groupMetrics = autoScalingMetrics.get(currentGroup.getAutoScalingGroupName());
         List<EnabledMetric> enabledMetrics = currentGroup.getEnabledMetrics();
@@ -46,8 +43,8 @@ public class AutoScalingMetricsManager extends MetricsManager{
     @Override
     public Object gatherMetrics() {
         HashMap<String, HashMap<String,List<Datapoint>>> autoScalingMetrics = new HashMap<String,HashMap<String,List<Datapoint>>>();
-        AWSCredentials awsCredentials = new BasicAWSCredentials("AKIAJTB7DYHGUBXOS7BQ", "jbW+aoHbYjFHSoTKrp+U1LEzdMZpvuGLETZuiMyc");
-        AmazonAutoScalingClient amazonAutoScalingClient = new AmazonAutoScalingClient(awsCredentials);
+
+        AmazonAutoScalingClient amazonAutoScalingClient = new AmazonAutoScalingClient(amazonCloudWatchMonitor.getAWSCredentials());
         DescribeAutoScalingGroupsResult describeAutoScalingGroupsResult = amazonAutoScalingClient.describeAutoScalingGroups();
         List<AutoScalingGroup> autoScalingGroupList = describeAutoScalingGroupsResult.getAutoScalingGroups();
         for (AutoScalingGroup autoScalingGroup : autoScalingGroupList) {
@@ -84,6 +81,7 @@ public class AutoScalingMetricsManager extends MetricsManager{
                             MetricWriter.METRIC_AGGREGATION_TYPE_OBSERVATION,
                             MetricWriter.METRIC_TIME_ROLLUP_TYPE_AVERAGE,
                             MetricWriter.METRIC_CLUSTER_ROLLUP_TYPE_INDIVIDUAL);
+                    logger.error("--------PRINTING " + NAMESPACE + " METRICS---------");
                 }
             }
         }

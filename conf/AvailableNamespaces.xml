@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<Namespaces>
+	<Namespace>AWS/EC2</Namespace>	
+	<Namespace>AWS/AutoScaling</Namespace>			
+</Namespaces>
