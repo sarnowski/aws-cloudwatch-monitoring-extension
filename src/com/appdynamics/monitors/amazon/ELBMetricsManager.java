@@ -47,7 +47,7 @@ public class ELBMetricsManager extends MetricsManager{
                 elbMetrics.get(loadBalancerName).put(availabilityZone, new HashMap<String, List<Datapoint>>());
             }
             if (!elbMetrics.get(loadBalancerName).get(availabilityZone).containsKey(m.getMetricName())) {
-                if (!disabledMetrics.containsKey(m.getMetricName())) {
+                if(!disabledMetrics.get(NAMESPACE).contains(m.getMetricName())) {
                     GetMetricStatisticsRequest getMetricStatisticsRequest = amazonCloudWatchMonitor.createGetMetricStatisticsRequest(NAMESPACE, m.getMetricName(), "Average", null);
                     GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
                     elbMetrics.get(loadBalancerName).get(availabilityZone).put(m.getMetricName(), getMetricStatisticsResult.getDatapoints());
@@ -74,9 +74,9 @@ public class ELBMetricsManager extends MetricsManager{
                 while (metricsIterator.hasNext()) {
                     String metricName = metricsIterator.next().toString();
                     List<Datapoint> datapoints = metricsMap.get(metricName);
-                    if (datapoints != null && !datapoints.isEmpty()) {
+                    if (datapoints != null && datapoints.size() > 0) {
                         Datapoint data = datapoints.get(0);
-                        amazonCloudWatchMonitor.printMetric(getNamespacePrefix() + loadBalancerName + "|" + "Availability Zone|" +  availabilityZones + "|",metricName + "(" + data.getUnit() + ")", data.getAverage(),
+                        amazonCloudWatchMonitor.printMetric(getNamespacePrefix() + loadBalancerName + "|" + "Availability Zone|" +  zoneName + "|",metricName + "(" + data.getUnit() + ")", data.getAverage(),
                                 MetricWriter.METRIC_AGGREGATION_TYPE_OBSERVATION,
                                 MetricWriter.METRIC_TIME_ROLLUP_TYPE_AVERAGE,
                                 MetricWriter.METRIC_CLUSTER_ROLLUP_TYPE_INDIVIDUAL);
@@ -85,6 +85,7 @@ public class ELBMetricsManager extends MetricsManager{
                 }
             }
         }
+        logger.info("--------PRINTING " + NAMESPACE + " METRICS---------");
     }
 
     @Override

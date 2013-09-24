@@ -44,7 +44,7 @@ public class EC2MetricsManager extends MetricsManager {
     private void gatherInstanceMetricsHelper(com.amazonaws.services.cloudwatch.model.Metric metric,
                                              Dimension dimension,
                                              HashMap<String, HashMap<String, List<Datapoint>>> cloudWatchMetrics) {
-        if(disabledMetrics.containsKey(metric.getMetricName())) {
+        if(disabledMetrics.get(NAMESPACE).contains(metric.getMetricName())) {
             return;
         }
         GetMetricStatisticsRequest getMetricStatisticsRequest = amazonCloudWatchMonitor.createGetMetricStatisticsRequest(NAMESPACE, metric.getMetricName(), "Average", null);
@@ -70,7 +70,7 @@ public class EC2MetricsManager extends MetricsManager {
                             MetricWriter.METRIC_AGGREGATION_TYPE_OBSERVATION,
                             MetricWriter.METRIC_TIME_ROLLUP_TYPE_AVERAGE,
                             MetricWriter.METRIC_CLUSTER_ROLLUP_TYPE_INDIVIDUAL);
-                    //logger.error("--------PRINTING " + NAMESPACE + " METRICS---------");
+                    logger.info("--------PRINTING " + NAMESPACE + " METRICS---------");
                 }
             }
         }

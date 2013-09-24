@@ -28,15 +28,14 @@ public class AutoScalingMetricsManager extends MetricsManager{
         HashMap<String,List<Datapoint>> groupMetrics = autoScalingMetrics.get(currentGroup.getAutoScalingGroupName());
         List<EnabledMetric> enabledMetrics = currentGroup.getEnabledMetrics();
         for (EnabledMetric metric : enabledMetrics) {
-            if(disabledMetrics.containsKey(metric.getMetric())) {
-                return;
+            if(!disabledMetrics.get(NAMESPACE).contains(metric.getMetric())) {
+                List<Dimension> dimensionsList = new ArrayList<Dimension>();
+                dimensionsList.add(new Dimension().withName("AutoScalingGroupName").withValue(currentGroup.getAutoScalingGroupName()));
+                GetMetricStatisticsRequest getMetricStatisticsRequest = amazonCloudWatchMonitor.createGetMetricStatisticsRequest(NAMESPACE, metric.getMetric(), "Average", dimensionsList);
+                GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
+                List<Datapoint> datapoints = getMetricStatisticsResult.getDatapoints();
+                groupMetrics.put(metric.getMetric(), datapoints);
             }
-            List<Dimension> dimensionsList = new ArrayList<Dimension>();
-            dimensionsList.add(new Dimension().withName("AutoScalingGroupName").withValue(currentGroup.getAutoScalingGroupName()));
-            GetMetricStatisticsRequest getMetricStatisticsRequest = amazonCloudWatchMonitor.createGetMetricStatisticsRequest(NAMESPACE, metric.getMetric(), "Average", dimensionsList);
-            GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
-            List<Datapoint> datapoints = getMetricStatisticsResult.getDatapoints();
-            groupMetrics.put(metric.getMetric(), datapoints);
         }
     }
 
@@ -81,7 +80,7 @@ public class AutoScalingMetricsManager extends MetricsManager{
                             MetricWriter.METRIC_AGGREGATION_TYPE_OBSERVATION,
                             MetricWriter.METRIC_TIME_ROLLUP_TYPE_AVERAGE,
                             MetricWriter.METRIC_CLUSTER_ROLLUP_TYPE_INDIVIDUAL);
-                    //logger.error("--------PRINTING " + NAMESPACE + " METRICS---------");
+                    logger.info("--------PRINTING " + NAMESPACE + " METRICS---------");
                 }
             }
         }

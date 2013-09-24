@@ -38,11 +38,12 @@ import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancing;
 import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancingClient;
 import com.amazonaws.services.elasticloadbalancing.model.DescribeLoadBalancersResult;
 import com.amazonaws.services.elasticloadbalancing.model.LoadBalancerDescription;
+import com.singularity.ee.agent.systemagent.api.MetricWriter;
 import org.apache.commons.codec.binary.Base64;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
-public class SignedRequestsHelper {
+public class TestClass {
     private static final String UTF8_CHARSET = "UTF-8";
     private static final String HMAC_SHA256_ALGORITHM = "HmacSHA256";
     private static final String REQUEST_URI = "/onca/xml";
@@ -54,7 +55,7 @@ public class SignedRequestsHelper {
     private SecretKeySpec secretKeySpec = null;
     private Mac mac = null;
 
-    public SignedRequestsHelper() {
+    public TestClass() {
         byte[] secretyKeyBytes = new byte[0];
         try {
             secretyKeyBytes = AWS_SECRET_KEY.getBytes(UTF8_CHARSET);
@@ -162,7 +163,7 @@ public class SignedRequestsHelper {
     public static void main(String[] args) {
         setNamespaces();
         setDisabledMetrics();
-        //SignedRequestsHelper requestsHelper = new SignedRequestsHelper();
+        //TestClass requestsHelper = new TestClass();
         //String requestString = requestsHelper.sign(new HashMap<String, String>());
         //System.out.println(requestString);
         //AWSCredentialsProvider credentialsProvider = new ClasspathPropertiesFileCredentialsProvider("conf");
@@ -398,6 +399,31 @@ public class SignedRequestsHelper {
                         .withEndTime(new Date());
                 GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
                 elbMetrics.get(loadBalancerName).get(availabilityZone).put(m.getMetricName(), getMetricStatisticsResult.getDatapoints());
+            }
+        }
+
+        Iterator loadBalancerIterator = elbMetrics.keySet().iterator();
+
+        while (loadBalancerIterator.hasNext()) {
+            String loadBalancerName = loadBalancerIterator.next().toString();
+            HashMap<String, HashMap<String,List<Datapoint>>> availabilityZones = elbMetrics.get(loadBalancerName);
+            Iterator zoneIterator = availabilityZones.keySet().iterator();
+            while (zoneIterator.hasNext()) {
+                String zoneName = zoneIterator.next().toString();
+                HashMap<String, List<Datapoint>> metricsMap = availabilityZones.get(zoneName);
+                Iterator metricsIterator = metricsMap.keySet().iterator();
+                while (metricsIterator.hasNext()) {
+                    String metricName = metricsIterator.next().toString();
+                    List<Datapoint> datapoints = metricsMap.get(metricName);
+                    if (datapoints != null && !datapoints.isEmpty()) {
+                        Datapoint data = datapoints.get(0);
+//                        amazonCloudWatchMonitor.printMetric(getNamespacePrefix() + loadBalancerName + "|" + "Availability Zone|" +  availabilityZones + "|",metricName + "(" + data.getUnit() + ")", data.getAverage(),
+//                                MetricWriter.METRIC_AGGREGATION_TYPE_OBSERVATION,
+//                                MetricWriter.METRIC_TIME_ROLLUP_TYPE_AVERAGE,
+//                                MetricWriter.METRIC_CLUSTER_ROLLUP_TYPE_INDIVIDUAL);
+
+                    }
+                }
             }
         }
 

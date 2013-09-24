@@ -44,7 +44,7 @@ public class EBSMetricsManager extends MetricsManager{
     private void gatherEBSMetricsHelper(com.amazonaws.services.cloudwatch.model.Metric metric,
                                              Dimension dimension,
                                              HashMap<String, HashMap<String, List<Datapoint>>> ebsMetrics) {
-        if(disabledMetrics.containsKey(metric.getMetricName())) {
+        if(disabledMetrics.get(NAMESPACE).contains(metric.getMetricName())) {
             return;
         }
         GetMetricStatisticsRequest getMetricStatisticsRequest = amazonCloudWatchMonitor.createGetMetricStatisticsRequest(NAMESPACE, metric.getMetricName(), "Average", null);
@@ -74,6 +74,7 @@ public class EBSMetricsManager extends MetricsManager{
                 }
             }
         }
+        logger.info("--------PRINTING " + NAMESPACE + " METRICS---------");
     }
 
     @Override
