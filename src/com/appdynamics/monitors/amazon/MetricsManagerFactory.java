@@ -26,6 +26,9 @@ public class MetricsManagerFactory {
         else if (namespace.equals("AWS/EBS")) {
             metricsManager = new EBSMetricsManager(amazonCloudWatchMonitor);
         }
+        else if (namespace.equals("AWS/ELB")) {
+            metricsManager = new ELBMetricsManager(amazonCloudWatchMonitor);
+        }
 
         metricsManager.initialize();
         return metricsManager;

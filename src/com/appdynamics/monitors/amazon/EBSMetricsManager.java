@@ -21,7 +21,6 @@ public class EBSMetricsManager extends MetricsManager{
     @Override
     public Object gatherMetrics() {
         HashMap<String, HashMap<String, List<Datapoint>>> ebsMetrics = new HashMap<String, HashMap<String,List<Datapoint>>>();
-
         List<DimensionFilter> filter = new ArrayList<DimensionFilter>();
         DimensionFilter volumeIdFilter = new DimensionFilter();
         volumeIdFilter.setName("VolumeId");
@@ -37,12 +36,12 @@ public class EBSMetricsManager extends MetricsManager{
                 if (!ebsMetrics.containsKey(dimension.getValue())) {
                     ebsMetrics.put(dimension.getValue(), new HashMap<String,List<Datapoint>>());
                 }
-                gatherInstanceMetricsHelper(m, dimension, ebsMetrics);
+                gatherEBSMetricsHelper(m, dimension, ebsMetrics);
             }
         }
         return ebsMetrics;
     }
-    private void gatherInstanceMetricsHelper(com.amazonaws.services.cloudwatch.model.Metric metric,
+    private void gatherEBSMetricsHelper(com.amazonaws.services.cloudwatch.model.Metric metric,
                                              Dimension dimension,
                                              HashMap<String, HashMap<String, List<Datapoint>>> ebsMetrics) {
         if(disabledMetrics.containsKey(metric.getMetricName())) {
@@ -71,7 +70,7 @@ public class EBSMetricsManager extends MetricsManager{
                             MetricWriter.METRIC_AGGREGATION_TYPE_OBSERVATION,
                             MetricWriter.METRIC_TIME_ROLLUP_TYPE_AVERAGE,
                             MetricWriter.METRIC_CLUSTER_ROLLUP_TYPE_INDIVIDUAL);
-                    //logger.error("--------PRINTING " + NAMESPACE + " METRICS---------");
+
                 }
             }
         }

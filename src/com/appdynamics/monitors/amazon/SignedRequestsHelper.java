@@ -34,6 +34,10 @@ import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
 import com.amazonaws.services.cloudwatch.model.*;
 import com.amazonaws.services.dynamodb.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancing;
+import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancingClient;
+import com.amazonaws.services.elasticloadbalancing.model.DescribeLoadBalancersResult;
+import com.amazonaws.services.elasticloadbalancing.model.LoadBalancerDescription;
 import org.apache.commons.codec.binary.Base64;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -164,7 +168,8 @@ public class SignedRequestsHelper {
         //AWSCredentialsProvider credentialsProvider = new ClasspathPropertiesFileCredentialsProvider("conf");
         AWSCredentials awsCredentials = new BasicAWSCredentials("AKIAJTB7DYHGUBXOS7BQ", "jbW+aoHbYjFHSoTKrp+U1LEzdMZpvuGLETZuiMyc");
         AmazonCloudWatch awsCloudWatch = new AmazonCloudWatchClient(awsCredentials);
-
+        //getEBSMetrics(awsCloudWatch);
+        getELBMetrics(awsCloudWatch, awsCredentials);
         /*HashMap<String, HashMap<String, List<Datapoint>>> uniqueInstanceIds = new HashMap<String, HashMap<String,List<Datapoint>>>();
 
         List<DimensionFilter> filter = new ArrayList<DimensionFilter>();
@@ -317,6 +322,88 @@ public class SignedRequestsHelper {
         //GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
     }
 
+    private static void getEBSMetrics(AmazonCloudWatch awsCloudWatch) {
+        HashMap<String, HashMap<String, List<Datapoint>>> ebsMetrics = new HashMap<String, HashMap<String,List<Datapoint>>>();
+
+        List<DimensionFilter> filter = new ArrayList<DimensionFilter>();
+        DimensionFilter volumeIdFilter = new DimensionFilter();
+        volumeIdFilter.setName("VolumeId");
+        filter.add(volumeIdFilter);
+        ListMetricsRequest listMetricsRequest = new ListMetricsRequest();
+        listMetricsRequest.setDimensions(filter);
+        ListMetricsResult ebsMetricsResult = awsCloudWatch.listMetrics(listMetricsRequest);
+        List<com.amazonaws.services.cloudwatch.model.Metric> ebsMetricsResultMetrics = ebsMetricsResult.getMetrics();
+
+        for (com.amazonaws.services.cloudwatch.model.Metric m : ebsMetricsResultMetrics) {
+            List<Dimension> dimensions = m.getDimensions();
+            for (Dimension dimension : dimensions) {
+                if (!ebsMetrics.containsKey(dimension.getValue())) {
+                    ebsMetrics.put(dimension.getValue(), new HashMap<String,List<Datapoint>>());
+                }
+
+                GetMetricStatisticsRequest getMetricStatisticsRequest = new GetMetricStatisticsRequest()
+                        .withStartTime( new Date( System.currentTimeMillis() - 10000000))
+                        .withNamespace("AWS/EBS")
+                        .withPeriod(60 * 60)
+                        .withDimensions(new Dimension().withName("VolumeId").withValue("vol-b60fc1c1"))
+                        .withMetricName("VolumeIdleTime")
+                        .withStatistics("Average")
+                        .withEndTime(new Date());
+                GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
+                ebsMetrics.get(dimension.getValue()).put(m.getMetricName(), getMetricStatisticsResult.getDatapoints());
+
+                //gatherInstanceMetricsHelper(m, dimension, ebsMetrics);
+            }
+        }
+    }
+
+    private static void getELBMetrics(AmazonCloudWatch awsCloudWatch, AWSCredentials credentials) {
+        List<DimensionFilter> filters = new ArrayList<DimensionFilter>();
+        DimensionFilter nameFilter = new DimensionFilter();
+        nameFilter.setName("LoadBalancerName");
+        DimensionFilter zoneFilter = new DimensionFilter();
+        zoneFilter.setName("AvailabilityZone");
+        filters.add(nameFilter);
+        filters.add(zoneFilter);
+
+        ListMetricsRequest listMetricsRequest = new ListMetricsRequest();
+        listMetricsRequest.withNamespace("AWS/ELB");
+        listMetricsRequest.setDimensions(filters);
+        ListMetricsResult elbMetricsResult = awsCloudWatch.listMetrics(listMetricsRequest);
+        List<com.amazonaws.services.cloudwatch.model.Metric> elbMetricsList = elbMetricsResult.getMetrics();
+
+        //Top level     -- Key = LoadBalancerName,      Value = HashMap of availability zones
+        //Mid level     -- Key = AvailabilityZoneName,  Value = HashMap of Metrics
+        //Bottom level  -- Key = MetricName,            Value = List of datapoints
+        HashMap<String, HashMap<String, HashMap<String, List<Datapoint>>>> elbMetrics = new HashMap<String, HashMap<String,HashMap<String,List<Datapoint>>>>();
+
+        for (com.amazonaws.services.cloudwatch.model.Metric m : elbMetricsList) {
+            List<Dimension> dimensions = m.getDimensions();
+            String loadBalancerName = dimensions.get(0).getValue();
+            String availabilityZone = dimensions.get(1).getValue();
+            if (!elbMetrics.containsKey(loadBalancerName)) {
+                elbMetrics.put(loadBalancerName, new HashMap<String, HashMap<String, List<Datapoint>>>());
+            }
+            if (!elbMetrics.get(loadBalancerName).containsKey(availabilityZone)) {
+                elbMetrics.get(loadBalancerName).put(availabilityZone, new HashMap<String, List<Datapoint>>());
+            }
+            if (!elbMetrics.get(loadBalancerName).get(availabilityZone).containsKey(m.getMetricName())) {
+                GetMetricStatisticsRequest getMetricStatisticsRequest = new GetMetricStatisticsRequest()
+                        .withStartTime( new Date( System.currentTimeMillis() - 10000000))
+                        .withNamespace("AWS/ELB")
+                        .withPeriod(60 * 60)
+                        .withDimensions()
+                        .withMetricName(m.getMetricName())
+                        .withStatistics("Average")
+                        .withEndTime(new Date());
+                GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
+                elbMetrics.get(loadBalancerName).get(availabilityZone).put(m.getMetricName(), getMetricStatisticsResult.getDatapoints());
+            }
+        }
+
+        System.out.println("Done");
+
+    }
 }
 
 
