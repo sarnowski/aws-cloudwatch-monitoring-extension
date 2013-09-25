@@ -39,7 +39,7 @@ public class EBSMetricsManager extends MetricsManager{
                 if (!amazonCloudWatchMonitor.isMetricDisabled(NAMESPACE, metric.getMetricName())) {
                     List<Dimension> dimensionsList = new ArrayList<Dimension>();
                     dimensionsList.add(new Dimension().withName("VolumeId").withValue(dimension.getValue()));
-                    GetMetricStatisticsRequest getMetricStatisticsRequest = amazonCloudWatchMonitor.createGetMetricStatisticsRequest(NAMESPACE, metric.getMetricName(), "Average",dimensionsList);
+                    GetMetricStatisticsRequest getMetricStatisticsRequest = createGetMetricStatisticsRequest(NAMESPACE, metric.getMetricName(), "Average",dimensionsList);
                     GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
                     ebsMetrics.get(dimension.getValue()).put(metric.getMetricName(), getMetricStatisticsResult.getDatapoints());
                 }

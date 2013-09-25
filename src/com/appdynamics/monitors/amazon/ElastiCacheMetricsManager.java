@@ -50,7 +50,7 @@ public class ElastiCacheMetricsManager extends MetricsManager{
             if (!cacheClusterMetrics.get(cacheClusterId).get(cacheNodeId).containsKey(metric.getMetricName())) {
 
                 if (!amazonCloudWatchMonitor.isMetricDisabled(NAMESPACE, metric.getMetricName())) {
-                    GetMetricStatisticsRequest getMetricStatisticsRequest = amazonCloudWatchMonitor.createGetMetricStatisticsRequest(NAMESPACE, metric.getMetricName(), "Average", dimensions);
+                    GetMetricStatisticsRequest getMetricStatisticsRequest = createGetMetricStatisticsRequest(NAMESPACE, metric.getMetricName(), "Average", dimensions);
                     GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
                     cacheClusterMetrics.get(cacheClusterId).get(cacheNodeId).put(metric.getMetricName(), getMetricStatisticsResult.getDatapoints());
                 }

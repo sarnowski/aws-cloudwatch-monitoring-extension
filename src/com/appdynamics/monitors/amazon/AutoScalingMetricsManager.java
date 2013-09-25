@@ -29,7 +29,7 @@ public class AutoScalingMetricsManager extends MetricsManager{
             if(!amazonCloudWatchMonitor.isMetricDisabled(NAMESPACE, metric.getMetric())) {
                 List<Dimension> dimensionsList = new ArrayList<Dimension>();
                 dimensionsList.add(new Dimension().withName("AutoScalingGroupName").withValue(currentGroup.getAutoScalingGroupName()));
-                GetMetricStatisticsRequest getMetricStatisticsRequest = amazonCloudWatchMonitor.createGetMetricStatisticsRequest(NAMESPACE, metric.getMetric(), "Average", dimensionsList);
+                GetMetricStatisticsRequest getMetricStatisticsRequest = createGetMetricStatisticsRequest(NAMESPACE, metric.getMetric(), "Average", dimensionsList);
                 GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
                 List<Datapoint> datapoints = getMetricStatisticsResult.getDatapoints();
                 groupMetrics.put(metric.getMetric(), datapoints);

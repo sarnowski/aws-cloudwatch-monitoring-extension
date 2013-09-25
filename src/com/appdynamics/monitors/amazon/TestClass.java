@@ -47,6 +47,7 @@ import com.amazonaws.services.elasticloadbalancing.model.LoadBalancerDescription
 import com.singularity.ee.agent.systemagent.api.MetricWriter;
 import org.apache.commons.codec.binary.Base64;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 public class TestClass {
@@ -68,15 +69,16 @@ public class TestClass {
 
 
     public static void main(String[] args) {
+        AWSCredentials awsCredentials = new BasicAWSCredentials("AKIAJTB7DYHGUBXOS7BQ", "jbW+aoHbYjFHSoTKrp+U1LEzdMZpvuGLETZuiMyc");
+        AmazonCloudWatch awsCloudWatch = new AmazonCloudWatchClient(awsCredentials);
         //setNamespaces();
         //setDisabledMetrics();
         //boolean result = isMetricDisabled("AWS/EC22", "CPUUtilization2");
-        AWSCredentials awsCredentials = new BasicAWSCredentials("AKIAJTB7DYHGUBXOS7BQ", "jbW+aoHbYjFHSoTKrp+U1LEzdMZpvuGLETZuiMyc");
-        AmazonCloudWatch awsCloudWatch = new AmazonCloudWatchClient(awsCredentials);
         //getEBSMetrics(awsCloudWatch);
         //getELBMetrics(awsCloudWatch, awsCredentials);
         //getEC2InstanceMetrics(awsCloudWatch);
-        getElasticCacheClusterMetrics(awsCloudWatch, awsCredentials);
+        //getElasticCacheClusterMetrics(awsCloudWatch, awsCredentials);
+        readConfigurations("conf/AWSConfigurations.xml");
     }
     private static void setNamespaces() {
         try {
@@ -121,6 +123,24 @@ public class TestClass {
             e.printStackTrace();
         }
     }
+    private static void readConfigurations(String filePath) {
+        try {
+            File configFile = new File(filePath);
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(configFile);
+            Element awsCredentials = (Element)doc.getElementsByTagName("AWSCredentials").item(0);
+            Element namespaces = (Element)doc.getElementsByTagName("SupportedNamespaces").item(0);
+            Element disabledMetrics = (Element)doc.getElementsByTagName("DisabledMetrics").item(0);
+
+            System.out.println(awsCredentials.getElementsByTagName("AccessKey"));
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private static void printDisabledMetrics(Set<String> disabledMetrics) {
         for (String s : disabledMetrics) {
             System.out.println(s);

@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<Configurations>
+
+    <AWSCredentials>
+        <AccessKey>AKIAJTB7DYHGUBXOS7BQ</AccessKey>
+        <SecretKey>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</SecretKey>
+    </AWSCredentials>
+
+    <!-- MetricManagers for these namespaces have been implemented -->
+    <SupportedNamespaces>
+        <Namespace>AWS/EC2</Namespace>
+        <Namespace>AWS/AutoScaling</Namespace>
+        <Namespace>AWS/EBS</Namespace>
+        <Namespace>AWS/ELB</Namespace>
+        <Namespace>AWS/ElastiCache</Namespace>
+    </SupportedNamespaces>
+
+    <DisabledMetrics>
+        <Metric namespace="AWS/EC2" metricName="CPUUtilization"/>
+        <Metric namespace="AWS/EC2" metricName="Some Metric"/>
+    </DisabledMetrics>
+
+</Configurations>
+

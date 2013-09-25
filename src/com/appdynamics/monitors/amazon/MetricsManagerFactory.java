@@ -25,6 +25,9 @@ public class MetricsManagerFactory {
         else if (namespace.equals("AWS/ElastiCache")) {
             metricsManager = new ElastiCacheMetricsManager(amazonCloudWatchMonitor);
         }
+        else {
+            throw new UnsupportedOperationException();
+        }
 
         metricsManager.initialize();
         return metricsManager;
