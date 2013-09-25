@@ -36,8 +36,8 @@ public class ELBMetricsManager extends MetricsManager{
         //Bottom level  -- Key = MetricName,            Value = List of datapoints
         HashMap<String, HashMap<String, HashMap<String, List<Datapoint>>>> elbMetrics = new HashMap<String, HashMap<String,HashMap<String,List<Datapoint>>>>();
 
-        for (com.amazonaws.services.cloudwatch.model.Metric m : elbMetricsList) {
-            List<Dimension> dimensions = m.getDimensions();
+        for (com.amazonaws.services.cloudwatch.model.Metric metric : elbMetricsList) {
+            List<Dimension> dimensions = metric.getDimensions();
             String loadBalancerName = dimensions.get(0).getValue();
             String availabilityZone = dimensions.get(1).getValue();
             if (!elbMetrics.containsKey(loadBalancerName)) {
@@ -46,11 +46,12 @@ public class ELBMetricsManager extends MetricsManager{
             if (!elbMetrics.get(loadBalancerName).containsKey(availabilityZone)) {
                 elbMetrics.get(loadBalancerName).put(availabilityZone, new HashMap<String, List<Datapoint>>());
             }
-            if (!elbMetrics.get(loadBalancerName).get(availabilityZone).containsKey(m.getMetricName())) {
-                if(!disabledMetrics.get(NAMESPACE).contains(m.getMetricName())) {
-                    GetMetricStatisticsRequest getMetricStatisticsRequest = amazonCloudWatchMonitor.createGetMetricStatisticsRequest(NAMESPACE, m.getMetricName(), "Average", null);
+            if (!elbMetrics.get(loadBalancerName).get(availabilityZone).containsKey(metric.getMetricName())) {
+
+                if (!amazonCloudWatchMonitor.isMetricDisabled(NAMESPACE, metric.getMetricName())) {
+                    GetMetricStatisticsRequest getMetricStatisticsRequest = amazonCloudWatchMonitor.createGetMetricStatisticsRequest(NAMESPACE, metric.getMetricName(), "Average", dimensions);
                     GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
-                    elbMetrics.get(loadBalancerName).get(availabilityZone).put(m.getMetricName(), getMetricStatisticsResult.getDatapoints());
+                    elbMetrics.get(loadBalancerName).get(availabilityZone).put(metric.getMetricName(), getMetricStatisticsResult.getDatapoints());
                 }
             }
         }
@@ -85,7 +86,6 @@ public class ELBMetricsManager extends MetricsManager{
                 }
             }
         }
-        logger.info("--------PRINTING " + NAMESPACE + " METRICS---------");
     }
 
     @Override

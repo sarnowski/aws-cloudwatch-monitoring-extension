@@ -16,7 +16,6 @@ import java.util.*;
 
 public class AutoScalingMetricsManager extends MetricsManager{
 
-    private HashMap<String, List<String>> disabledMetrics = new HashMap<String, List<String>>();
     private static final String NAMESPACE = "AWS/AutoScaling";
     private Logger logger = Logger.getLogger(this.getClass().getName());
 
@@ -28,7 +27,7 @@ public class AutoScalingMetricsManager extends MetricsManager{
         HashMap<String,List<Datapoint>> groupMetrics = autoScalingMetrics.get(currentGroup.getAutoScalingGroupName());
         List<EnabledMetric> enabledMetrics = currentGroup.getEnabledMetrics();
         for (EnabledMetric metric : enabledMetrics) {
-            if(!disabledMetrics.get(NAMESPACE).contains(metric.getMetric())) {
+            if(!amazonCloudWatchMonitor.isMetricDisabled(NAMESPACE, metric.getMetric())) {
                 List<Dimension> dimensionsList = new ArrayList<Dimension>();
                 dimensionsList.add(new Dimension().withName("AutoScalingGroupName").withValue(currentGroup.getAutoScalingGroupName()));
                 GetMetricStatisticsRequest getMetricStatisticsRequest = amazonCloudWatchMonitor.createGetMetricStatisticsRequest(NAMESPACE, metric.getMetric(), "Average", dimensionsList);
@@ -80,7 +79,6 @@ public class AutoScalingMetricsManager extends MetricsManager{
                             MetricWriter.METRIC_AGGREGATION_TYPE_OBSERVATION,
                             MetricWriter.METRIC_TIME_ROLLUP_TYPE_AVERAGE,
                             MetricWriter.METRIC_CLUSTER_ROLLUP_TYPE_INDIVIDUAL);
-                    logger.info("--------PRINTING " + NAMESPACE + " METRICS---------");
                 }
             }
         }

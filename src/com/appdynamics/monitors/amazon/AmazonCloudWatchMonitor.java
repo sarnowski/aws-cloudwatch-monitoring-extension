@@ -33,7 +33,7 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
     private AmazonCloudWatch awsCloudWatch;
     // This HashSet of disabled metrics is populated by reading the DisabledMetrics.xml file
     private HashMap<String,HashSet<String>> disabledMetrics = new HashMap<String,HashSet<String>>();
-
+    // This HashSet of available namespaces is populated by reading the AvailableNamespaces.xml file
     private HashSet<String> availableNamespaces = new HashSet<String>();
 
     private AWSCredentials awsCredentials;
@@ -117,14 +117,19 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
      */
     @Override
     public TaskOutput execute(Map<String, String> taskArguments, TaskExecutionContext taskExecutionContext) {
+        logger.info("Executing AmazonMonitor...");
         init(taskArguments);
-
+        logger.info("AmazonMonitor initialized");
         Iterator namespaceIterator = availableNamespaces.iterator();
         while (namespaceIterator.hasNext()) {
             String namespace = (String) namespaceIterator.next();
+            logger.info("Processing metrics for namespace: " + namespace);
             MetricsManager metricsManager = metricsManagerFactory.createMetricsManager(namespace);
+            logger.info("Created metrics manager for namespace: " + namespace);
             Object metrics = metricsManager.gatherMetrics();
+            logger.info("Gathered metrics for namespace: " + namespace);
             metricsManager.printMetrics(metrics);
+            logger.info("Printed metrics for namespace: " + namespace);
         }
 
         return new TaskOutput("AWS Cloud Watch Metric Upload Complete");
@@ -187,6 +192,16 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
                 .withStatistics(statisticsType)
                 .withEndTime(new Date());
         return getMetricStatisticsRequest;
+    }
+
+    public boolean isMetricDisabled(String namespace, String metricName) {
+        boolean result = false;
+        if (disabledMetrics.get(namespace) != null) {
+            if (disabledMetrics.get(namespace).contains(metricName)) {
+                result = true;
+            }
+        }
+        return result;
     }
 }
 

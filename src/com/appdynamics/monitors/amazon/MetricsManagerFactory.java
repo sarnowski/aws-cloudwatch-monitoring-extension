@@ -9,8 +9,6 @@ public class MetricsManagerFactory {
 
     private MetricsManager metricsManager;
     private AmazonCloudWatchMonitor amazonCloudWatchMonitor;
-    private AmazonCloudWatch amazonCloudWatch;
-    private Map<String,List<String>> disabledMetrics;
 
     public MetricsManagerFactory(AmazonCloudWatchMonitor amazonCloudWatchMonitor) {
         this.amazonCloudWatchMonitor = amazonCloudWatchMonitor;

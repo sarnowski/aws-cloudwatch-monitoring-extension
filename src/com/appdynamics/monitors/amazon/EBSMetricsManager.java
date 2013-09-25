@@ -30,26 +30,21 @@ public class EBSMetricsManager extends MetricsManager{
         ListMetricsResult ebsMetricsResult = awsCloudWatch.listMetrics(listMetricsRequest);
         List<com.amazonaws.services.cloudwatch.model.Metric> ebsMetricsResultMetrics = ebsMetricsResult.getMetrics();
 
-        for (com.amazonaws.services.cloudwatch.model.Metric m : ebsMetricsResultMetrics) {
-            List<Dimension> dimensions = m.getDimensions();
-            for (Dimension dimension : dimensions) {
+        for (com.amazonaws.services.cloudwatch.model.Metric metric : ebsMetricsResultMetrics) {
+            // EBS has only one dimension so this is safe
+            Dimension dimension = metric.getDimensions().get(0);
                 if (!ebsMetrics.containsKey(dimension.getValue())) {
                     ebsMetrics.put(dimension.getValue(), new HashMap<String,List<Datapoint>>());
                 }
-                gatherEBSMetricsHelper(m, dimension, ebsMetrics);
+                if (!amazonCloudWatchMonitor.isMetricDisabled(NAMESPACE, metric.getMetricName())) {
+                    List<Dimension> dimensionsList = new ArrayList<Dimension>();
+                    dimensionsList.add(new Dimension().withName("VolumeId").withValue(dimension.getValue()));
+                    GetMetricStatisticsRequest getMetricStatisticsRequest = amazonCloudWatchMonitor.createGetMetricStatisticsRequest(NAMESPACE, metric.getMetricName(), "Average",dimensionsList);
+                    GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
+                    ebsMetrics.get(dimension.getValue()).put(metric.getMetricName(), getMetricStatisticsResult.getDatapoints());
+                }
             }
-        }
         return ebsMetrics;
-    }
-    private void gatherEBSMetricsHelper(com.amazonaws.services.cloudwatch.model.Metric metric,
-                                             Dimension dimension,
-                                             HashMap<String, HashMap<String, List<Datapoint>>> ebsMetrics) {
-        if(disabledMetrics.get(NAMESPACE).contains(metric.getMetricName())) {
-            return;
-        }
-        GetMetricStatisticsRequest getMetricStatisticsRequest = amazonCloudWatchMonitor.createGetMetricStatisticsRequest(NAMESPACE, metric.getMetricName(), "Average", null);
-        GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
-        ebsMetrics.get(dimension.getValue()).put(metric.getMetricName(), getMetricStatisticsResult.getDatapoints());
     }
 
     @Override
@@ -74,7 +69,6 @@ public class EBSMetricsManager extends MetricsManager{
                 }
             }
         }
-        logger.info("--------PRINTING " + NAMESPACE + " METRICS---------");
     }
 
     @Override

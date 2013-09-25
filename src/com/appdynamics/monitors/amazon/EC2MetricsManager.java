@@ -8,7 +8,6 @@ import java.util.*;
 
 public class EC2MetricsManager extends MetricsManager {
 
-    //private HashMap<String, List<String>> disabledMetrics = new HashMap<String, List<String>>();
     private static final String NAMESPACE = "AWS/EC2";
     private Logger logger = Logger.getLogger(this.getClass().getName());
 
@@ -29,27 +28,20 @@ public class EC2MetricsManager extends MetricsManager {
         ListMetricsResult instanceMetricsResult = awsCloudWatch.listMetrics(listMetricsRequest);
         List<com.amazonaws.services.cloudwatch.model.Metric> instanceMetrics = instanceMetricsResult.getMetrics();
 
-        for (com.amazonaws.services.cloudwatch.model.Metric m : instanceMetrics) {
-            List<Dimension> dimensions = m.getDimensions();
-            for (Dimension dimension : dimensions) {
+        for (com.amazonaws.services.cloudwatch.model.Metric metric : instanceMetrics) {
+            Dimension dimension  = metric.getDimensions().get(0);
                 if (!cloudWatchMetrics.containsKey(dimension.getValue())) {
                     cloudWatchMetrics.put(dimension.getValue(), new HashMap<String,List<Datapoint>>());
                 }
-                gatherInstanceMetricsHelper(m, dimension, cloudWatchMetrics);
+                if (!amazonCloudWatchMonitor.isMetricDisabled(NAMESPACE, metric.getMetricName())) {
+                    List<Dimension> dimensionsList = new ArrayList<Dimension>();
+                    dimensionsList.add(dimension);
+                    GetMetricStatisticsRequest getMetricStatisticsRequest = amazonCloudWatchMonitor.createGetMetricStatisticsRequest(NAMESPACE, metric.getMetricName(), "Average", dimensionsList);
+                    GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
+                    cloudWatchMetrics.get(dimension.getValue()).put(metric.getMetricName(), getMetricStatisticsResult.getDatapoints());
+                }
             }
-        }
         return cloudWatchMetrics;
-    }
-
-    private void gatherInstanceMetricsHelper(com.amazonaws.services.cloudwatch.model.Metric metric,
-                                             Dimension dimension,
-                                             HashMap<String, HashMap<String, List<Datapoint>>> cloudWatchMetrics) {
-        if(disabledMetrics.get(NAMESPACE).contains(metric.getMetricName())) {
-            return;
-        }
-        GetMetricStatisticsRequest getMetricStatisticsRequest = amazonCloudWatchMonitor.createGetMetricStatisticsRequest(NAMESPACE, metric.getMetricName(), "Average", null);
-        GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
-        cloudWatchMetrics.get(dimension.getValue()).put(metric.getMetricName(), getMetricStatisticsResult.getDatapoints());
     }
 
     @Override
@@ -70,7 +62,7 @@ public class EC2MetricsManager extends MetricsManager {
                             MetricWriter.METRIC_AGGREGATION_TYPE_OBSERVATION,
                             MetricWriter.METRIC_TIME_ROLLUP_TYPE_AVERAGE,
                             MetricWriter.METRIC_CLUSTER_ROLLUP_TYPE_INDIVIDUAL);
-                    logger.info("--------PRINTING " + NAMESPACE + " METRICS---------");
+
                 }
             }
         }
