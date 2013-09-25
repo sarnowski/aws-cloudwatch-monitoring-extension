@@ -9,6 +9,7 @@ import com.singularity.ee.agent.systemagent.api.AManagedMonitor;
 import com.singularity.ee.agent.systemagent.api.MetricWriter;
 import com.singularity.ee.agent.systemagent.api.TaskExecutionContext;
 import com.singularity.ee.agent.systemagent.api.TaskOutput;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -39,7 +40,7 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
     private AWSCredentials awsCredentials;
 
     public AmazonCloudWatchMonitor() {
-
+        logger.setLevel(Level.INFO);
         metricsManagerFactory = new MetricsManagerFactory(this);
     }
 
@@ -88,7 +89,7 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
             awsProperties.load(new FileInputStream(filePath));
         }
         catch(IOException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
         }
         awsCredentials = new BasicAWSCredentials(awsProperties.getProperty(AWS_ACCESS_KEY), awsProperties.getProperty(AWS_SECRET_KEY));
         awsCloudWatch = new AmazonCloudWatchClient(awsCredentials);
@@ -119,18 +120,20 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
     public TaskOutput execute(Map<String, String> taskArguments, TaskExecutionContext taskExecutionContext) {
         logger.info("Executing AmazonMonitor...");
         init(taskArguments);
-        logger.info("AmazonMonitor initialized");
+        //logger.info("AmazonMonitor initialized");
         Iterator namespaceIterator = availableNamespaces.iterator();
         while (namespaceIterator.hasNext()) {
             String namespace = (String) namespaceIterator.next();
-            logger.info("Processing metrics for namespace: " + namespace);
+            //logger.info("Processing metrics for namespace: " + namespace);
             MetricsManager metricsManager = metricsManagerFactory.createMetricsManager(namespace);
-            logger.info("Created metrics manager for namespace: " + namespace);
+            //logger.info("Created metrics manager for namespace: " + namespace);
             Object metrics = metricsManager.gatherMetrics();
-            logger.info("Gathered metrics for namespace: " + namespace);
+            //logger.info("Gathered metrics for namespace: " + namespace + "  Size of metrics: " + ((HashMap)metrics).size());
             metricsManager.printMetrics(metrics);
             logger.info("Printed metrics for namespace: " + namespace);
+            logger.info("   Size of metrics for namepace: " + namespace + "   " + ((HashMap) metrics).size());
         }
+        logger.info("Finished Executing AmazonMonitor...");
 
         return new TaskOutput("AWS Cloud Watch Metric Upload Complete");
     }

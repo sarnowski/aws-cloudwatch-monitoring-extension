@@ -17,7 +17,6 @@ import java.util.*;
 public class AutoScalingMetricsManager extends MetricsManager{
 
     private static final String NAMESPACE = "AWS/AutoScaling";
-    private Logger logger = Logger.getLogger(this.getClass().getName());
 
     public AutoScalingMetricsManager(AmazonCloudWatchMonitor amazonCloudWatchMonitor) {
         super(amazonCloudWatchMonitor);

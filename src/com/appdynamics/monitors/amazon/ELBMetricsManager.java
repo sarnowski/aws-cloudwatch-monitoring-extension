@@ -9,7 +9,6 @@ import java.util.*;
 public class ELBMetricsManager extends MetricsManager{
 
     private static final String NAMESPACE = "AWS/ELB";
-    private Logger logger = Logger.getLogger(this.getClass().getName());
 
     public ELBMetricsManager(AmazonCloudWatchMonitor amazonCloudWatchMonitor){
         super(amazonCloudWatchMonitor);

@@ -4,4 +4,5 @@
 	<Namespace>AWS/AutoScaling</Namespace>
     <Namespace>AWS/EBS</Namespace>
     <Namespace>AWS/ELB</Namespace>
+    <Namespace>AWS/ElastiCache</Namespace>
 </Namespaces>
