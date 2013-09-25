@@ -90,6 +90,6 @@ public class ELBMetricsManager extends MetricsManager{
 
     @Override
     public String getNamespacePrefix() {
-        return NAMESPACE + "|" + "Load Balancer Name|";
+        return NAMESPACE.substring(4,NAMESPACE.length()) + "|" + "Load Balancer Name|";
     }
 }

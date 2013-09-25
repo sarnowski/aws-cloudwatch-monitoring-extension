@@ -86,6 +86,6 @@ public class AutoScalingMetricsManager extends MetricsManager{
 
     @Override
     public String getNamespacePrefix() {
-        return NAMESPACE + "|" + "GroupId|";
+        return NAMESPACE.substring(4,NAMESPACE.length()) + "|" + "GroupId|";
     }
 }

@@ -73,6 +73,6 @@ public class EBSMetricsManager extends MetricsManager{
 
     @Override
     public String getNamespacePrefix() {
-        return NAMESPACE + "|" + "VolumeId|";
+        return NAMESPACE.substring(4,NAMESPACE.length()) + "|" + "VolumeId|";
     }
 }

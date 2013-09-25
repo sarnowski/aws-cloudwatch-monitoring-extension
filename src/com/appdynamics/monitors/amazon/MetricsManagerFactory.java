@@ -1,10 +1,5 @@
 package com.appdynamics.monitors.amazon;
 
-import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
-
-import java.util.List;
-import java.util.Map;
-
 public class MetricsManagerFactory {
 
     private MetricsManager metricsManager;
@@ -26,6 +21,9 @@ public class MetricsManagerFactory {
         }
         else if (namespace.equals("AWS/ELB")) {
             metricsManager = new ELBMetricsManager(amazonCloudWatchMonitor);
+        }
+        else if (namespace.equals("AWS/ElastiCache")) {
+            metricsManager = new ElastiCacheMetricsManager(amazonCloudWatchMonitor);
         }
 
         metricsManager.initialize();

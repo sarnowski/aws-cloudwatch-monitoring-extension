@@ -70,6 +70,6 @@ public class EC2MetricsManager extends MetricsManager {
 
     @Override
     public String getNamespacePrefix() {
-        return NAMESPACE + "|" + "InstanceId|";
+        return NAMESPACE.substring(4,NAMESPACE.length()) + "|" + "InstanceId|";
     }
 }

@@ -34,6 +34,12 @@ import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
 import com.amazonaws.services.cloudwatch.model.*;
 import com.amazonaws.services.dynamodb.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.amazonaws.services.elasticache.AmazonElastiCache;
+import com.amazonaws.services.elasticache.AmazonElastiCacheClient;
+import com.amazonaws.services.elasticache.model.CacheCluster;
+import com.amazonaws.services.elasticache.model.CacheNode;
+import com.amazonaws.services.elasticache.model.DescribeCacheClustersRequest;
+import com.amazonaws.services.elasticache.model.DescribeCacheClustersResult;
 import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancing;
 import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancingClient;
 import com.amazonaws.services.elasticloadbalancing.model.DescribeLoadBalancersResult;
@@ -69,7 +75,8 @@ public class TestClass {
         AmazonCloudWatch awsCloudWatch = new AmazonCloudWatchClient(awsCredentials);
         //getEBSMetrics(awsCloudWatch);
         //getELBMetrics(awsCloudWatch, awsCredentials);
-        getEC2InstanceMetrics(awsCloudWatch);
+        //getEC2InstanceMetrics(awsCloudWatch);
+        getElasticCacheClusterMetrics(awsCloudWatch, awsCredentials);
     }
     private static void setNamespaces() {
         try {
@@ -281,6 +288,48 @@ public class TestClass {
                 //gatherInstanceMetricsHelper(m, dimension, ebsMetrics);
             }
         }
+    }
+    private static void getElasticCacheClusterMetrics(AmazonCloudWatch awsCloudWatch, AWSCredentials awsCredentials) {
+
+        DimensionFilter clusterIdFilter = new DimensionFilter();
+        clusterIdFilter.setName("CacheClusterId");
+        DimensionFilter cacheNodeIdFilter = new DimensionFilter();
+        cacheNodeIdFilter.setName("CacheNodeId");
+        List<DimensionFilter> filters = new ArrayList<DimensionFilter>();
+        filters.add(clusterIdFilter);
+        filters.add(cacheNodeIdFilter);
+
+        ListMetricsRequest request = new ListMetricsRequest();
+        request.withDimensions(filters);
+        ListMetricsResult listMetricsResult = awsCloudWatch.listMetrics(request);
+        List<Metric> metricsList = listMetricsResult.getMetrics();
+
+        //Top level     -- Key = CacheClusterIds,       Value = HashMap of cache nodes
+        //Mid level     -- Key = CacheNodeIds,          Value = HashMap of Metrics
+        //Bottom level  -- Key = MetricName,            Value = List of datapoints
+        HashMap<String, HashMap<String, HashMap<String, List<Datapoint>>>> cacheClusterMetrics = new HashMap<String, HashMap<String,HashMap<String,List<Datapoint>>>>();
+
+        for (com.amazonaws.services.cloudwatch.model.Metric metric : metricsList) {
+            List<Dimension> dimensions = metric.getDimensions();
+            String loadBalancerName = dimensions.get(0).getValue();
+            String availabilityZone = dimensions.get(1).getValue();
+            if (!cacheClusterMetrics.containsKey(loadBalancerName)) {
+                cacheClusterMetrics.put(loadBalancerName, new HashMap<String, HashMap<String, List<Datapoint>>>());
+            }
+            if (!cacheClusterMetrics.get(loadBalancerName).containsKey(availabilityZone)) {
+                cacheClusterMetrics.get(loadBalancerName).put(availabilityZone, new HashMap<String, List<Datapoint>>());
+            }
+            if (!cacheClusterMetrics.get(loadBalancerName).get(availabilityZone).containsKey(metric.getMetricName())) {
+
+//                if (!amazonCloudWatchMonitor.isMetricDisabled(NAMESPACE, metric.getMetricName())) {
+//                    GetMetricStatisticsRequest getMetricStatisticsRequest = amazonCloudWatchMonitor.createGetMetricStatisticsRequest(NAMESPACE, metric.getMetricName(), "Average", dimensions);
+//                    GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
+//                    elbMetrics.get(loadBalancerName).get(availabilityZone).put(metric.getMetricName(), getMetricStatisticsResult.getDatapoints());
+//                }
+            }
+        }
+
+
     }
     public static boolean isMetricDisabled(String namespace, String metricName) {
         boolean result = false;
