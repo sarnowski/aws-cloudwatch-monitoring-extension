@@ -19,18 +19,7 @@ public class ElastiCacheMetricsManager extends MetricsManager{
 
     @Override
     public Object gatherMetrics() {
-        DimensionFilter clusterIdFilter = new DimensionFilter();
-        clusterIdFilter.setName("CacheClusterId");
-        DimensionFilter cacheNodeIdFilter = new DimensionFilter();
-        cacheNodeIdFilter.setName("CacheNodeId");
-        List<DimensionFilter> filters = new ArrayList<DimensionFilter>();
-        filters.add(clusterIdFilter);
-        filters.add(cacheNodeIdFilter);
-
-        ListMetricsRequest request = new ListMetricsRequest();
-        request.withDimensions(filters);
-        ListMetricsResult listMetricsResult = awsCloudWatch.listMetrics(request);
-        List<Metric> metricsList = listMetricsResult.getMetrics();
+        List<Metric> metricsList = getMetrics(NAMESPACE, "CacheClusterId", "CacheNodeId");
 
         //Top level     -- Key = CacheClusterIds,       Value = HashMap of cache nodes
         //Mid level     -- Key = CacheNodeIds,          Value = HashMap of Metrics

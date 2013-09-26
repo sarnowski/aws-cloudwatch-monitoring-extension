@@ -17,15 +17,7 @@ public class EC2MetricsManager extends MetricsManager {
     @Override
     public Object gatherMetrics() {
         HashMap<String, HashMap<String, List<Datapoint>>> cloudWatchMetrics = new HashMap<String, HashMap<String,List<Datapoint>>>();
-
-        List<DimensionFilter> filter = new ArrayList<DimensionFilter>();
-        DimensionFilter instanceIdFilter = new DimensionFilter();
-        instanceIdFilter.setName("InstanceId");
-        filter.add(instanceIdFilter);
-        ListMetricsRequest listMetricsRequest = new ListMetricsRequest();
-        listMetricsRequest.setDimensions(filter);
-        ListMetricsResult instanceMetricsResult = awsCloudWatch.listMetrics(listMetricsRequest);
-        List<com.amazonaws.services.cloudwatch.model.Metric> instanceMetrics = instanceMetricsResult.getMetrics();
+        List<com.amazonaws.services.cloudwatch.model.Metric> instanceMetrics = getMetrics(NAMESPACE, "InstanceId");
 
         for (com.amazonaws.services.cloudwatch.model.Metric metric : instanceMetrics) {
             Dimension dimension  = metric.getDimensions().get(0);

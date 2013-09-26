@@ -21,14 +21,7 @@ public class EBSMetricsManager extends MetricsManager{
     @Override
     public Object gatherMetrics() {
         HashMap<String, HashMap<String, List<Datapoint>>> ebsMetrics = new HashMap<String, HashMap<String,List<Datapoint>>>();
-        List<DimensionFilter> filter = new ArrayList<DimensionFilter>();
-        DimensionFilter volumeIdFilter = new DimensionFilter();
-        volumeIdFilter.setName("VolumeId");
-        filter.add(volumeIdFilter);
-        ListMetricsRequest listMetricsRequest = new ListMetricsRequest();
-        listMetricsRequest.setDimensions(filter);
-        ListMetricsResult ebsMetricsResult = awsCloudWatch.listMetrics(listMetricsRequest);
-        List<com.amazonaws.services.cloudwatch.model.Metric> ebsMetricsResultMetrics = ebsMetricsResult.getMetrics();
+        List<com.amazonaws.services.cloudwatch.model.Metric> ebsMetricsResultMetrics = getMetrics(NAMESPACE, "VolumeId");
 
         for (com.amazonaws.services.cloudwatch.model.Metric metric : ebsMetricsResultMetrics) {
             // EBS has only one dimension so this is safe

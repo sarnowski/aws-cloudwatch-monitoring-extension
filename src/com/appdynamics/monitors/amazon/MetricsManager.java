@@ -1,13 +1,9 @@
 package com.appdynamics.monitors.amazon;
 
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
-import com.amazonaws.services.cloudwatch.model.Dimension;
-import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsRequest;
+import com.amazonaws.services.cloudwatch.model.*;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class MetricsManager{
 
@@ -43,4 +39,20 @@ public abstract class MetricsManager{
         return getMetricStatisticsRequest;
     }
 
+    protected List<Metric> getMetrics(String namespace, String... filterNames) {
+        ListMetricsRequest request = new ListMetricsRequest();
+        List<DimensionFilter> filters = new ArrayList<DimensionFilter>();
+
+        for (String filterName : filterNames) {
+            DimensionFilter dimensionFilter = new DimensionFilter();
+            dimensionFilter.withName(filterName);
+            filters.add(dimensionFilter);
+        }
+
+        request.withNamespace(namespace);
+        request.withDimensions(filters);
+
+        ListMetricsResult listMetricsResult = awsCloudWatch.listMetrics(request);
+        return listMetricsResult.getMetrics();
+    }
 }

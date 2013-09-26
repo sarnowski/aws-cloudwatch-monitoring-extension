@@ -25,6 +25,9 @@ public class MetricsManagerFactory {
         else if (namespace.equals("AWS/ElastiCache")) {
             metricsManager = new ElastiCacheMetricsManager(amazonCloudWatchMonitor);
         }
+        else if (namespace.equals("AWS/Redshift")) {
+            metricsManager = new RedshiftMetricsManager(amazonCloudWatchMonitor);
+        }
         else {
             throw new UnsupportedOperationException();
         }

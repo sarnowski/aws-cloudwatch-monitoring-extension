@@ -1,5 +1,0 @@
-<?xml version="1.0"?>
-<DisabledMetrics>
-	<Metric namespace="AWS/EC2" metricName="CPUUtilization"/>
-	<Metric namespace="AWS/EC2" metricName="Some Metric"/>
-</DisabledMetrics>

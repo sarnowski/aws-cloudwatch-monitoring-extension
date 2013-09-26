@@ -16,19 +16,7 @@ public class ELBMetricsManager extends MetricsManager{
 
     @Override
     public Object gatherMetrics() {
-        List<DimensionFilter> filters = new ArrayList<DimensionFilter>();
-        DimensionFilter nameFilter = new DimensionFilter();
-        nameFilter.setName("LoadBalancerName");
-        DimensionFilter zoneFilter = new DimensionFilter();
-        zoneFilter.setName("AvailabilityZone");
-        filters.add(nameFilter);
-        filters.add(zoneFilter);
-
-        ListMetricsRequest listMetricsRequest = new ListMetricsRequest();
-        listMetricsRequest.withNamespace("AWS/ELB");
-        listMetricsRequest.setDimensions(filters);
-        ListMetricsResult elbMetricsResult = awsCloudWatch.listMetrics(listMetricsRequest);
-        List<com.amazonaws.services.cloudwatch.model.Metric> elbMetricsList = elbMetricsResult.getMetrics();
+        List<com.amazonaws.services.cloudwatch.model.Metric> elbMetricsList = getMetrics(NAMESPACE, "LoadBalancerName", "AvailabilityName");
 
         //Top level     -- Key = LoadBalancerName,      Value = HashMap of availability zones
         //Mid level     -- Key = AvailabilityZoneName,  Value = HashMap of Metrics

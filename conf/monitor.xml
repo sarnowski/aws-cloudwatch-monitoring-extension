@@ -16,9 +16,6 @@
                         <impl-class>com.appdynamics.monitors.amazon.AmazonCloudWatchMonitor</impl-class>
                 </java-task>
                 <task-arguments>
-                    <!--<argument name="awsCredentials" is-required="true" default-value="/mnt/appdynamics/machineagent/monitors/AmazonMonitor/conf/AwsCredentials.properties"/>-->
-                    <!--<argument name="disabledMetricsFile" is-required="false" default-value="/mnt/appdynamics/machineagent/monitors/AmazonMonitor/conf/DisabledMetrics.xml"/>-->
-                    <!--<argument name="namespaces" is-required="false" default-value="/mnt/appdynamics/machineagent/monitors/AmazonMonitor/conf/AvailableNamespaces.xml"/>-->
                     <argument name="configurations" is-required="true" default-value="/mnt/appdynamics/machineagent/monitors/AmazonMonitor/conf/AWSConfigurations.xml"/>
                 </task-arguments>
         </monitor-run-task>

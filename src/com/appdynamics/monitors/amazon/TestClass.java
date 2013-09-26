@@ -44,6 +44,8 @@ import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancing;
 import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancingClient;
 import com.amazonaws.services.elasticloadbalancing.model.DescribeLoadBalancersResult;
 import com.amazonaws.services.elasticloadbalancing.model.LoadBalancerDescription;
+import com.amazonaws.services.redshift.AmazonRedshift;
+import com.amazonaws.services.redshift.AmazonRedshiftClient;
 import com.singularity.ee.agent.systemagent.api.MetricWriter;
 import org.apache.commons.codec.binary.Base64;
 import org.w3c.dom.Document;
@@ -78,7 +80,8 @@ public class TestClass {
         //getELBMetrics(awsCloudWatch, awsCredentials);
         //getEC2InstanceMetrics(awsCloudWatch);
         //getElasticCacheClusterMetrics(awsCloudWatch, awsCredentials);
-        readConfigurations("conf/AWSConfigurations.xml");
+        //readConfigurations("conf/AWSConfigurations.xml");
+        gatherRedshiftMetrics(awsCloudWatch);
     }
     private static void setNamespaces() {
         try {
@@ -320,6 +323,7 @@ public class TestClass {
         filters.add(cacheNodeIdFilter);
 
         ListMetricsRequest request = new ListMetricsRequest();
+        //request.withNamespace()
         request.withDimensions(filters);
         ListMetricsResult listMetricsResult = awsCloudWatch.listMetrics(request);
         List<Metric> metricsList = listMetricsResult.getMetrics();
@@ -349,8 +353,29 @@ public class TestClass {
             }
         }
 
+    }
+
+    private static void gatherRedshiftMetrics(AmazonCloudWatch awsCloudWatch) {
+        DimensionFilter NodeIDFilter = new DimensionFilter();
+
+        //NodeIDFilter.setName("NodeID");
+        DimensionFilter ClusterIdentifierFilter = new DimensionFilter();
+        ClusterIdentifierFilter.setName("ClusterIdentifier");
+        List<DimensionFilter> filters = new ArrayList<DimensionFilter>();
+        //filters.add(NodeIDFilter);
+        filters.add(ClusterIdentifierFilter);
+
+        ListMetricsRequest request = new ListMetricsRequest();
+        request.withNamespace("AWS/Redshift");
+        //request.withDimensions(filters);
+        ListMetricsResult listMetricsResult = awsCloudWatch.listMetrics(request);
+        List<Metric> metricsList = listMetricsResult.getMetrics();
+
+
+        System.out.println("done");
 
     }
+
     public static boolean isMetricDisabled(String namespace, String metricName) {
         boolean result = false;
         if (disabledMetrics.get(namespace) != null) {
