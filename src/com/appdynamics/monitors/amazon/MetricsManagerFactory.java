@@ -34,6 +34,10 @@ public class MetricsManagerFactory {
         else if (namespace.equals("AWS/RDS")) {
             metricsManager = new RDSMetricsManager(amazonCloudWatchMonitor);
         }
+        else if (namespace.equals("AWS/Route53")) {
+            metricsManager = new Route53MetricsManager(amazonCloudWatchMonitor);
+        }
+
         else {
             throw new UnsupportedOperationException();
         }

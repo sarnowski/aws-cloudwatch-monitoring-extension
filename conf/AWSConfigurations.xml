@@ -15,7 +15,8 @@
         <!--<Namespace>AWS/ElastiCache</Namespace>-->
         <!--<Namespace>AWS/Redshift</Namespace>-->
         <!--<Namespace>AWS/DynamoDB</Namespace>-->
-        <Namespace>AWS/RDS</Namespace>
+        <!--<Namespace>AWS/RDS</Namespace>-->
+        <Namespace>AWS/Route53</Namespace>
     </SupportedNamespaces>
 
     <DisabledMetrics>

@@ -46,6 +46,10 @@ import com.amazonaws.services.elasticloadbalancing.model.DescribeLoadBalancersRe
 import com.amazonaws.services.elasticloadbalancing.model.LoadBalancerDescription;
 import com.amazonaws.services.redshift.AmazonRedshift;
 import com.amazonaws.services.redshift.AmazonRedshiftClient;
+import com.amazonaws.services.route53.AmazonRoute53;
+import com.amazonaws.services.route53.AmazonRoute53Client;
+import com.amazonaws.services.route53.model.HealthCheck;
+import com.amazonaws.services.route53.model.ListHealthChecksResult;
 import com.singularity.ee.agent.systemagent.api.MetricWriter;
 import org.apache.commons.codec.binary.Base64;
 import org.w3c.dom.Document;
@@ -81,7 +85,7 @@ public class TestClass {
         //getEC2InstanceMetrics(awsCloudWatch);
         //getElasticCacheClusterMetrics(awsCloudWatch, awsCredentials);
         //readConfigurations("conf/AWSConfigurations.xml");
-        gatherRedshiftMetrics(awsCloudWatch);
+        gatherRedshiftMetrics(awsCloudWatch, awsCredentials);
     }
     private static void setNamespaces() {
         try {
@@ -355,7 +359,7 @@ public class TestClass {
 
     }
 
-    private static void gatherRedshiftMetrics(AmazonCloudWatch awsCloudWatch) {
+    private static void gatherRedshiftMetrics(AmazonCloudWatch awsCloudWatch, AWSCredentials awsCredentials) {
         DimensionFilter NodeIDFilter = new DimensionFilter();
 
         //NodeIDFilter.setName("NodeID");
@@ -370,11 +374,22 @@ public class TestClass {
         filters.add(filter2);
 
         ListMetricsRequest request = new ListMetricsRequest();
-        request.withNamespace("AWS/RDS");
-        request.withDimensions(filters);
+        request.withNamespace("AWS/Route53");
+        //request.withDimensions(filters);
         ListMetricsResult listMetricsResult = awsCloudWatch.listMetrics(request);
         List<Metric> metricsList = listMetricsResult.getMetrics();
-
+        AmazonRoute53 amazonRoute53 =  new AmazonRoute53Client(awsCredentials);
+        ListHealthChecksResult listHealthChecksResult = amazonRoute53.listHealthChecks();
+        List<HealthCheck> healthChecks = listHealthChecksResult.getHealthChecks();
+//        GetMetricStatisticsRequest getMetricStatisticsRequest = new GetMetricStatisticsRequest()
+//                .withStartTime( new Date( System.currentTimeMillis() - 10000000))
+//                .withNamespace("AWS/Route53")
+//                .withPeriod(60 * 60)
+//                .withDimensions(new Dimension().withName("HealthCheckId").withValue("f717f7a5-0448-42f3-8e60-1c644b0bd3ad"))
+//                .withMetricName("HealthCheckStatus")
+//                .withStatistics("Average")
+//                .withEndTime(new Date());
+//        GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
 
         System.out.println("done");
 
