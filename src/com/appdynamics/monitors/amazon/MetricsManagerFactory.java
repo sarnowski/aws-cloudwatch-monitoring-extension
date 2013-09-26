@@ -31,6 +31,9 @@ public class MetricsManagerFactory {
         else if (namespace.equals("AWS/DynamoDB")) {
             metricsManager = new DynamoDBMetricsManager(amazonCloudWatchMonitor);
         }
+        else if (namespace.equals("AWS/RDS")) {
+            metricsManager = new RDSMetricsManager(amazonCloudWatchMonitor);
+        }
         else {
             throw new UnsupportedOperationException();
         }

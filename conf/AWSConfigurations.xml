@@ -14,7 +14,8 @@
         <!--<Namespace>AWS/ELB</Namespace>-->
         <!--<Namespace>AWS/ElastiCache</Namespace>-->
         <!--<Namespace>AWS/Redshift</Namespace>-->
-        <Namespace>AWS/DynamoDB</Namespace>
+        <!--<Namespace>AWS/DynamoDB</Namespace>-->
+        <Namespace>AWS/RDS</Namespace>
     </SupportedNamespaces>
 
     <DisabledMetrics>
