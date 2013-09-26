@@ -360,14 +360,15 @@ public class TestClass {
 
         //NodeIDFilter.setName("NodeID");
         DimensionFilter ClusterIdentifierFilter = new DimensionFilter();
-        ClusterIdentifierFilter.setName("ClusterIdentifier");
+        ClusterIdentifierFilter.setName("TableName");
+       // ClusterIdentifierFilter.setValue("TestTable");
         List<DimensionFilter> filters = new ArrayList<DimensionFilter>();
         //filters.add(NodeIDFilter);
         filters.add(ClusterIdentifierFilter);
 
         ListMetricsRequest request = new ListMetricsRequest();
-        request.withNamespace("AWS/Redshift");
-        //request.withDimensions(filters);
+        request.withNamespace("AWS/DynamoDB");
+        request.withDimensions(filters);
         ListMetricsResult listMetricsResult = awsCloudWatch.listMetrics(request);
         List<Metric> metricsList = listMetricsResult.getMetrics();
 

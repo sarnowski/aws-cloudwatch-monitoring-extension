@@ -13,7 +13,8 @@
         <!--<Namespace>AWS/EBS</Namespace>-->
         <!--<Namespace>AWS/ELB</Namespace>-->
         <!--<Namespace>AWS/ElastiCache</Namespace>-->
-        <Namespace>AWS/Redshift</Namespace>
+        <!--<Namespace>AWS/Redshift</Namespace>-->
+        <Namespace>AWS/DynamoDB</Namespace>
     </SupportedNamespaces>
 
     <DisabledMetrics>

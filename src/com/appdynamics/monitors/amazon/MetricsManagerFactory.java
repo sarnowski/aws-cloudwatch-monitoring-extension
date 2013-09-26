@@ -28,6 +28,9 @@ public class MetricsManagerFactory {
         else if (namespace.equals("AWS/Redshift")) {
             metricsManager = new RedshiftMetricsManager(amazonCloudWatchMonitor);
         }
+        else if (namespace.equals("AWS/DynamoDB")) {
+            metricsManager = new DynamoDBMetricsManager(amazonCloudWatchMonitor);
+        }
         else {
             throw new UnsupportedOperationException();
         }
