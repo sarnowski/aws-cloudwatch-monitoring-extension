@@ -18,6 +18,7 @@
         <Namespace>AWS/RDS</Namespace>
         <Namespace>AWS/Route53</Namespace>
         <Namespace>AWS/SQS</Namespace>
+        <Namespace>AWS/ElasticMapReduce</Namespace>
     </SupportedNamespaces>
 
     <DisabledMetrics>

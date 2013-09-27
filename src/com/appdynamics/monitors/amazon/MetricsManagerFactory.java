@@ -40,6 +40,9 @@ public class MetricsManagerFactory {
         else if (namespace.equals("AWS/SQS")) {
             metricsManager = new SQSMetricsManager(amazonCloudWatchMonitor);
         }
+        else if (namespace.equals("AWS/ElasticMapReduce")) {
+            metricsManager = new ElasticMapReduceMetricsManager(amazonCloudWatchMonitor);
+        }
         else {
             throw new UnsupportedOperationException();
         }

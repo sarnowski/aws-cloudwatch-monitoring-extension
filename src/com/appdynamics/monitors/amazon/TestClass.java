@@ -374,7 +374,7 @@ public class TestClass {
         //filters.add(filter2);
 
         ListMetricsRequest request = new ListMetricsRequest();
-        request.withNamespace("AWS/SQS");
+        request.withNamespace("AWS/ElasticMapReduce");
         //request.withDimensions(filters);
         ListMetricsResult listMetricsResult = awsCloudWatch.listMetrics(request);
         List<Metric> metricsList = listMetricsResult.getMetrics();
