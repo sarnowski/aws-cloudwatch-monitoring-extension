@@ -19,21 +19,6 @@ public class AutoScalingMetricsManager extends MetricsManager{
         super(amazonCloudWatchMonitor);
     }
 
-    private void gatherAutoScalingMetricsHelper(AutoScalingGroup currentGroup, HashMap<String,HashMap<String,List<Datapoint>>> autoScalingMetrics) {
-        HashMap<String,List<Datapoint>> groupMetrics = autoScalingMetrics.get(currentGroup.getAutoScalingGroupName());
-        List<EnabledMetric> enabledMetrics = currentGroup.getEnabledMetrics();
-        for (EnabledMetric metric : enabledMetrics) {
-            if(!amazonCloudWatchMonitor.isMetricDisabled(NAMESPACE, metric.getMetric())) {
-                List<Dimension> dimensionsList = new ArrayList<Dimension>();
-                dimensionsList.add(new Dimension().withName("AutoScalingGroupName").withValue(currentGroup.getAutoScalingGroupName()));
-                GetMetricStatisticsRequest getMetricStatisticsRequest = createGetMetricStatisticsRequest(NAMESPACE, metric.getMetric(), "Average", dimensionsList);
-                GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
-                List<Datapoint> datapoints = getMetricStatisticsResult.getDatapoints();
-                groupMetrics.put(metric.getMetric(), datapoints);
-            }
-        }
-    }
-
     @Override
     public Object gatherMetrics() {
 
@@ -55,23 +40,6 @@ public class AutoScalingMetricsManager extends MetricsManager{
                 }
             }
         }
-
-//        AmazonAutoScalingClient amazonAutoScalingClient = new AmazonAutoScalingClient(amazonCloudWatchMonitor.getAWSCredentials());
-//        DescribeAutoScalingGroupsResult describeAutoScalingGroupsResult = amazonAutoScalingClient.describeAutoScalingGroups();
-//        List<AutoScalingGroup> autoScalingGroupList = describeAutoScalingGroupsResult.getAutoScalingGroups();
-//        for (AutoScalingGroup autoScalingGroup : autoScalingGroupList) {
-//            String groupName = autoScalingGroup.getAutoScalingGroupName();
-//            if (!autoScalingMetrics.containsKey(groupName)) {
-//                autoScalingMetrics.put(groupName, new HashMap<String,List<Datapoint>>());
-//                //TODO: remove this. Ask Pranta
-//                EnableMetricsCollectionRequest request = new EnableMetricsCollectionRequest();
-//                request.setAutoScalingGroupName(groupName);
-//                request.setGranularity("1Minute");
-//                amazonAutoScalingClient.enableMetricsCollection(request);
-//
-//            }
-//            gatherAutoScalingMetricsHelper(autoScalingGroup, autoScalingMetrics);
-//        }
         return autoScalingMetrics;
     }
 

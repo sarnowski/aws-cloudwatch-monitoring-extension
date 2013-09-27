@@ -364,35 +364,32 @@ public class TestClass {
 
         //NodeIDFilter.setName("NodeID");
         DimensionFilter filter1 = new DimensionFilter();
-        filter1.setName("DBInstanceIdentifier");
+        filter1.setName("QueueName");
         DimensionFilter filter2 = new DimensionFilter();
         filter2.setName("EngineName");
        // ClusterIdentifierFilter.setValue("TestTable");
         List<DimensionFilter> filters = new ArrayList<DimensionFilter>();
         //filters.add(NodeIDFilter);
         filters.add(filter1);
-        filters.add(filter2);
+        //filters.add(filter2);
 
         ListMetricsRequest request = new ListMetricsRequest();
-        request.withNamespace("AWS/Route53");
+        request.withNamespace("AWS/SQS");
         //request.withDimensions(filters);
         ListMetricsResult listMetricsResult = awsCloudWatch.listMetrics(request);
         List<Metric> metricsList = listMetricsResult.getMetrics();
-        AmazonRoute53 amazonRoute53 =  new AmazonRoute53Client(awsCredentials);
-        ListHealthChecksResult listHealthChecksResult = amazonRoute53.listHealthChecks();
-        List<HealthCheck> healthChecks = listHealthChecksResult.getHealthChecks();
+
 //        GetMetricStatisticsRequest getMetricStatisticsRequest = new GetMetricStatisticsRequest()
-//                .withStartTime( new Date( System.currentTimeMillis() - 10000000))
-//                .withNamespace("AWS/Route53")
+//                .withStartTime(new Date(new Date().getTime() - 1000000000))
+//                .withNamespace("AWS/SQS")
+//                .withDimensions(new Dimension().withName("QueueName").withValue("myqueue1"))
 //                .withPeriod(60 * 60)
-//                .withDimensions(new Dimension().withName("HealthCheckId").withValue("f717f7a5-0448-42f3-8e60-1c644b0bd3ad"))
-//                .withMetricName("HealthCheckStatus")
+//                .withMetricName("NumberOfMessagesSent")
 //                .withStatistics("Average")
 //                .withEndTime(new Date());
-//        GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
+//         GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
 
         System.out.println("done");
-
     }
 
     public static boolean isMetricDisabled(String namespace, String metricName) {
