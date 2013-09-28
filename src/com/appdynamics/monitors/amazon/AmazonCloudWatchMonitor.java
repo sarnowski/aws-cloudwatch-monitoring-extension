@@ -22,6 +22,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class AmazonCloudWatchMonitor extends AManagedMonitor {
 
@@ -50,6 +51,7 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
      * @return
      */
     private void initialize(Map<String, String> taskArguments) {
+        long startTime = System.currentTimeMillis();
         if (!isInitialized) {
             try {
                 File configFile = new File(taskArguments.get("configurations"));
@@ -92,6 +94,8 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
                 logger.error(e.getMessage());
             }
         }
+        long endTime = System.currentTimeMillis();
+        printExecutionTime(startTime, endTime);
     }
 
 
@@ -106,6 +110,7 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
         //logger.info("AmazonMonitor initialized");
         Iterator namespaceIterator = availableNamespaces.iterator();
         while (namespaceIterator.hasNext()) {
+            long startTime = System.currentTimeMillis();
             String namespace = (String) namespaceIterator.next();
             //logger.info("Processing metrics for namespace: " + namespace);
             MetricsManager metricsManager = metricsManagerFactory.createMetricsManager(namespace);
@@ -114,13 +119,13 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
             //logger.info("Gathered metrics for namespace: " + namespace + "  Size of metrics: " + ((HashMap)metrics).size());
             metricsManager.printMetrics(metrics);
             logger.info("Printed metrics for namespace: " + namespace + "       Size of metrics: " + ((HashMap) metrics).size());
+            long endTime = System.currentTimeMillis();
+            printExecutionTime(startTime, endTime);
         }
         logger.info("Finished Executing AmazonMonitor...");
 
         return new TaskOutput("AWS Cloud Watch Metric Upload Complete");
     }
-
-
 
     public AmazonCloudWatch getAmazonCloudWatch() {
         return this.awsCloudWatch;
@@ -173,6 +178,16 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
     private String getMetricPrefix()
     {
         return "Custom Metrics|Amazon Cloud Watch|";
+    }
+
+    private void printExecutionTime(long startTime, long endTime) {
+        long executionTime = endTime - startTime;
+        String formattedTime = String.format("%d min, %d sec",
+                TimeUnit.MILLISECONDS.toMinutes(executionTime),
+                TimeUnit.MILLISECONDS.toSeconds(executionTime) -
+                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(executionTime))
+        );
+        logger.info("   EXECUTION TIME: " + formattedTime);
     }
 }
 

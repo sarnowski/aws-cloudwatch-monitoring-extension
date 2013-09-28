@@ -16,7 +16,7 @@ public class ELBMetricsManager extends MetricsManager{
 
     @Override
     public Object gatherMetrics() {
-        List<com.amazonaws.services.cloudwatch.model.Metric> elbMetricsList = getMetrics(NAMESPACE, "LoadBalancerName", "AvailabilityName");
+        List<com.amazonaws.services.cloudwatch.model.Metric> elbMetricsList = getMetrics(NAMESPACE, "LoadBalancerName", "AvailabilityZone");
 
         //Top level     -- Key = LoadBalancerName,      Value = HashMap of availability zones
         //Mid level     -- Key = AvailabilityZoneName,  Value = HashMap of Metrics

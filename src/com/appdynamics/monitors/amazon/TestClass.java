@@ -374,7 +374,7 @@ public class TestClass {
         //filters.add(filter2);
 
         ListMetricsRequest request = new ListMetricsRequest();
-        request.withNamespace("AWS/ElasticMapReduce");
+        request.withNamespace("AWS/ELB");
         //request.withDimensions(filters);
         ListMetricsResult listMetricsResult = awsCloudWatch.listMetrics(request);
         List<Metric> metricsList = listMetricsResult.getMetrics();
