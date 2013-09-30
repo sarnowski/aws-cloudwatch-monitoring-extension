@@ -1,10 +1,9 @@
 package com.appdynamics.monitors.amazon;
 
-import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
-import com.amazonaws.services.cloudwatch.model.*;
 import com.singularity.ee.agent.systemagent.api.AManagedMonitor;
 import com.singularity.ee.agent.systemagent.api.MetricWriter;
 import com.singularity.ee.agent.systemagent.api.TaskExecutionContext;
@@ -17,11 +16,12 @@ import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
-
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 public class AmazonCloudWatchMonitor extends AManagedMonitor {
@@ -54,7 +54,8 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
         long startTime = System.currentTimeMillis();
         if (!isInitialized) {
             try {
-                File configFile = new File(taskArguments.get("configurations"));
+                //File configFile = new File(taskArguments.get("configurations"));
+                FileInputStream configFile = new FileInputStream(taskArguments.get("configurations"));
                 DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
                 DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
                 Document doc = dBuilder.parse(configFile);
@@ -88,6 +89,7 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
                     }
                     disabledMetrics.get(namespaceKey).add(metricName);
                 }
+                configFile.close();
                 isInitialized = true;
             }
             catch (Exception e) {
@@ -107,20 +109,30 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
     public TaskOutput execute(Map<String, String> taskArguments, TaskExecutionContext taskExecutionContext) {
         logger.info("Executing AmazonMonitor...");
         initialize(taskArguments);
-        //logger.info("AmazonMonitor initialized");
-        Iterator namespaceIterator = availableNamespaces.iterator();
+        logger.info("AmazonMonitor initialized");
+        final Iterator namespaceIterator = availableNamespaces.iterator();
+        final CountDownLatch latch = new CountDownLatch(availableNamespaces.size());
         while (namespaceIterator.hasNext()) {
-            long startTime = System.currentTimeMillis();
-            String namespace = (String) namespaceIterator.next();
-            //logger.info("Processing metrics for namespace: " + namespace);
-            MetricsManager metricsManager = metricsManagerFactory.createMetricsManager(namespace);
-            //logger.info("Created metrics manager for namespace: " + namespace);
-            Object metrics = metricsManager.gatherMetrics();
-            //logger.info("Gathered metrics for namespace: " + namespace + "  Size of metrics: " + ((HashMap)metrics).size());
-            metricsManager.printMetrics(metrics);
-            logger.info("Printed metrics for namespace: " + namespace + "       Size of metrics: " + ((HashMap) metrics).size());
-            long endTime = System.currentTimeMillis();
-            printExecutionTime(startTime, endTime);
+            final String namespace = (String) namespaceIterator.next();
+            Thread metricManagerThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    MetricsManager metricsManager = metricsManagerFactory.createMetricsManager(namespace);
+                    Object metrics = metricsManager.gatherMetrics();
+                    logger.info("Gathered metrics for namespace: " + namespace + "       Size of metrics: " + ((HashMap) metrics).size());
+                    metricsManager.printMetrics(metrics);
+                    logger.info("Printed metrics for namespace: " + namespace + "       Size of metrics: " + ((HashMap) metrics).size());
+                    latch.countDown();
+                }
+            });
+            metricManagerThread.start();
+        }
+        try {
+            latch.await();
+            logger.info("All threads finished");
+        }
+        catch(InterruptedException e) {
+            logger.error(e.getMessage());
         }
         logger.info("Finished Executing AmazonMonitor...");
 
@@ -190,5 +202,3 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
         logger.info("   EXECUTION TIME: " + formattedTime);
     }
 }
-
-

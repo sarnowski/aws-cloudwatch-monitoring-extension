@@ -1,60 +1,20 @@
 package com.appdynamics.monitors.amazon;
 
-import javax.crypto.spec.SecretKeySpec;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-
-import javax.crypto.Mac;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.auth.ClasspathPropertiesFileCredentialsProvider;
-import com.amazonaws.services.autoscaling.AmazonAutoScalingClient;
-import com.amazonaws.services.autoscaling.model.*;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
 import com.amazonaws.services.cloudwatch.model.*;
-import com.amazonaws.services.dynamodb.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
-import com.amazonaws.services.elasticache.AmazonElastiCache;
-import com.amazonaws.services.elasticache.AmazonElastiCacheClient;
-import com.amazonaws.services.elasticache.model.CacheCluster;
-import com.amazonaws.services.elasticache.model.CacheNode;
-import com.amazonaws.services.elasticache.model.DescribeCacheClustersRequest;
-import com.amazonaws.services.elasticache.model.DescribeCacheClustersResult;
-import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancing;
-import com.amazonaws.services.elasticloadbalancing.AmazonElasticLoadBalancingClient;
-import com.amazonaws.services.elasticloadbalancing.model.DescribeLoadBalancersResult;
-import com.amazonaws.services.elasticloadbalancing.model.LoadBalancerDescription;
-import com.amazonaws.services.redshift.AmazonRedshift;
-import com.amazonaws.services.redshift.AmazonRedshiftClient;
-import com.amazonaws.services.route53.AmazonRoute53;
-import com.amazonaws.services.route53.AmazonRoute53Client;
-import com.amazonaws.services.route53.model.HealthCheck;
-import com.amazonaws.services.route53.model.ListHealthChecksResult;
-import com.singularity.ee.agent.systemagent.api.MetricWriter;
-import org.apache.commons.codec.binary.Base64;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.File;
+import java.util.*;
 
 public class TestClass {
     private static final String UTF8_CHARSET = "UTF-8";
@@ -401,89 +361,9 @@ public class TestClass {
         }
         return result;
     }
+
+    public static void testAsyncTask() {
+
+    }
+
 }
-
-            /*HashMap<String, HashMap<String, List<Datapoint>>> uniqueInstanceIds = new HashMap<String, HashMap<String,List<Datapoint>>>();
-
-        List<DimensionFilter> filter = new ArrayList<DimensionFilter>();
-        DimensionFilter x = new DimensionFilter();
-        x.setName("InstanceId");
-        filter.add(x);
-        ListMetricsRequest listMetricsRequest = new ListMetricsRequest();
-        listMetricsRequest.setDimensions(filter);
-        ListMetricsResult instanceMetricsResult = awsCloudWatch.listMetrics(listMetricsRequest);
-        ListMetricsResult allMetricNames = awsCloudWatch.listMetrics();
-        List<Metric> instanceMetrics = instanceMetricsResult.getMetrics();
-        for (Metric m : instanceMetrics) {
-            List<Dimension> dimensions = m.getDimensions();
-            for (Dimension dimension : dimensions) {
-                if (!uniqueInstanceIds.containsKey(dimension.getValue())) {
-                    uniqueInstanceIds.put(dimension.getValue(), new HashMap<String,List<Datapoint>>());
-                }
-                GetMetricStatisticsRequest getMetricStatisticsRequest = createGetMetricStatisticsRequest(m);
-                GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
-                uniqueInstanceIds.get(dimension.getValue()).put(m.getMetricName(), getMetricStatisticsResult.getDatapoints());
-
-
-            }
-        }
-        Iterator iterator = uniqueInstanceIds.keySet().iterator();
-
-        while (iterator.hasNext()) {
-            String key = iterator.next().toString();
-            String value = uniqueInstanceIds.get(key).toString();
-            System.out.println(key);
-        }  */
-
-//AmazonAutoScalingClient amazonAutoScalingClient = new AmazonAutoScalingClient(awsCredentials);
-//        DescribeAutoScalingGroupsResult describeAutoScalingGroupsResult = amazonAutoScalingClient.describeAutoScalingGroups();
-//        List<AutoScalingGroup> autoScalingGroupList = describeAutoScalingGroupsResult.getAutoScalingGroups();
-//        AutoScalingGroup group = autoScalingGroupList.get(0);
-//        EnableMetricsCollectionRequest request = new EnableMetricsCollectionRequest();
-//        request.setAutoScalingGroupName(group.getAutoScalingGroupName());
-//        request.setGranularity("1Minute");
-//        amazonAutoScalingClient.enableMetricsCollection(request);
-//        DescribeMetricCollectionTypesResult y = amazonAutoScalingClient.describeMetricCollectionTypes();
-//        List<EnabledMetric> enabledMetrics = group.getEnabledMetrics();
-//
-//        GetMetricStatisticsRequest getMetricStatisticsRequest = new GetMetricStatisticsRequest()
-//                .withStartTime( new Date( System.currentTimeMillis() - TimeUnit.MINUTES.toMillis( 2 ) ) )
-//                .withNamespace("AWS/AutoScaling")
-//                .withPeriod(60 * 60)
-//                .withDimensions(new Dimension().withName("AutoScalingGroupName").withValue(group.getAutoScalingGroupName()))
-//                .withMetricName("GroupMaxSize")
-//                .withStatistics("Average")
-//                .withEndTime(new Date());
-//
-//
-//        AmazonDynamoDBClient x = new AmazonDynamoDBClient();
-//
-//        List<DimensionFilter> filter = new ArrayList<DimensionFilter>();
-//        DimensionFilter instanceIdFilter = new DimensionFilter();
-//        instanceIdFilter.setName("VolumeId");
-//        filter.add(instanceIdFilter);
-//        ListMetricsRequest listMetricsRequest = new ListMetricsRequest();
-//        listMetricsRequest.setDimensions(filter);
-//        ListMetricsResult instanceMetricsResult = awsCloudWatch.listMetrics(listMetricsRequest);
-//        List<com.amazonaws.services.cloudwatch.model.Metric> instanceMetrics = instanceMetricsResult.getMetrics();
-//
-//        List<Dimension> dimensions= new ArrayList<Dimension>();
-//        dimensions.add(new Dimension().withName("Operation").withValue("PutItem"));
-//        dimensions.add(new Dimension().withName("TableName").withValue("TestTable"));
-//
-//        GetMetricStatisticsRequest getDynamoDBStatisticsRequest = new GetMetricStatisticsRequest()
-//                .withStartTime( new Date( System.currentTimeMillis() - 10000000))
-//                .withNamespace("AWS/EBS")
-//                .withPeriod(60 * 60)
-//                .withDimensions(new Dimension().withName("VolumeId").withValue("vol-b60fc1c1"))
-//                .withMetricName("VolumeIdleTime")
-//                .withStatistics("Average")
-//                .withEndTime(new Date());
-//        GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getDynamoDBStatisticsRequest);
-//
-//        AutoScalingGroup autoScalingGroup = new AutoScalingGroup();
-//
-//
-//
-//
-//        //autoScalingGroup.getInstances()

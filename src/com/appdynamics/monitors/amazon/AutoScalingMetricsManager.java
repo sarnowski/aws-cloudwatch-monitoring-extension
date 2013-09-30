@@ -1,15 +1,11 @@
 package com.appdynamics.monitors.amazon;
 
-import com.amazonaws.services.autoscaling.AmazonAutoScalingClient;
-import com.amazonaws.services.autoscaling.model.AutoScalingGroup;
-import com.amazonaws.services.autoscaling.model.DescribeAutoScalingGroupsResult;
-import com.amazonaws.services.autoscaling.model.EnableMetricsCollectionRequest;
-import com.amazonaws.services.autoscaling.model.EnabledMetric;
 import com.amazonaws.services.cloudwatch.model.*;
 import com.singularity.ee.agent.systemagent.api.MetricWriter;
-import org.apache.log4j.Logger;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
 public class AutoScalingMetricsManager extends MetricsManager{
 

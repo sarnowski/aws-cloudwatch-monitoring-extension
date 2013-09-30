@@ -2,9 +2,7 @@ package com.appdynamics.monitors.amazon;
 
 import com.amazonaws.services.cloudwatch.model.*;
 import com.singularity.ee.agent.systemagent.api.MetricWriter;
-import org.apache.log4j.Logger;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
