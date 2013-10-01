@@ -13,7 +13,15 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.EndElement;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.*;
 
 public class TestClass {
@@ -45,7 +53,8 @@ public class TestClass {
         //getEC2InstanceMetrics(awsCloudWatch);
         //getElasticCacheClusterMetrics(awsCloudWatch, awsCredentials);
         //readConfigurations("conf/AWSConfigurations.xml");
-        gatherRedshiftMetrics(awsCloudWatch, awsCredentials);
+        //gatherRedshiftMetrics(awsCloudWatch, awsCredentials);
+        readConfigFileUsingStaxParser();
     }
     private static void setNamespaces() {
         try {
@@ -362,8 +371,65 @@ public class TestClass {
         return result;
     }
 
-    public static void testAsyncTask() {
+    public static void readConfigFileUsingStaxParser() {
+        // First create a new XMLInputFactory
+        try {
 
+            XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+
+            // Setup a new eventReader
+            InputStream in = new FileInputStream("conf/AWSConfigurations.xml");
+            XMLEventReader eventReader = inputFactory.createXMLEventReader(in);
+            while (eventReader.hasNext()) {
+                XMLEvent event = eventReader.nextEvent();
+
+                //reach the start of an item
+                if (event.isStartElement()) {
+
+                    StartElement startElement = event.asStartElement();
+
+                    if (startElement.getName().getLocalPart() == "AccessKey") {
+                        System.out.println("--start of an item");
+                        // attribute
+                        Iterator<Attribute> attributes = startElement.getAttributes();
+                        while (attributes.hasNext()) {
+                            Attribute attribute = attributes.next();
+                            if (attribute.getName().toString().equals("id")) {
+                                System.out.println("id = " + attribute.getValue());
+                            }
+                        }
+                    }
+
+                    // data
+                    if (event.isStartElement()) {
+                        if (event.asStartElement().getName().getLocalPart().equals("AccessKey")) {
+                            event = eventReader.nextEvent();
+
+                            if(true){
+                                System.out.println("thetext: "
+                                        + event.asCharacters().getData());
+
+                                continue;
+                            }else{
+                                continue;
+                            }
+
+                        }
+                    }
+                }
+
+                //reach the end of an item
+                if (event.isEndElement()) {
+                    EndElement endElement = event.asEndElement();
+                    if (endElement.getName().getLocalPart() == "item") {
+                        System.out.println("--end of an item\n");
+                    }
+                }
+
+            }
+        }
+        catch(Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
-
 }
