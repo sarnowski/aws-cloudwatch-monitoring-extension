@@ -49,6 +49,9 @@ public class MetricsManagerFactory {
         else if (namespace.equals("AWS/OpsWorks")) {
             metricsManager = new OpsWorksMetricsManager(amazonCloudWatchMonitor);
         }
+        else if (namespace.equals("AWS/SNS")) {
+            metricsManager = new SNSMetricsManager(amazonCloudWatchMonitor);
+        }
         else {
             throw new UnsupportedOperationException();
         }

@@ -8,19 +8,20 @@
 
     <!-- MetricManagers for these namespaces have been implemented -->
     <SupportedNamespaces>
-        <!--<Namespace>AWS/EC2</Namespace>-->
-        <!--<Namespace>AWS/AutoScaling</Namespace>-->
-        <!--<Namespace>AWS/EBS</Namespace>-->
-        <!--<Namespace>AWS/ELB</Namespace>-->
-        <!--<Namespace>AWS/ElastiCache</Namespace>-->
-        <!--<Namespace>AWS/Redshift</Namespace>-->
-        <!--<Namespace>AWS/DynamoDB</Namespace>-->
-        <!--<Namespace>AWS/RDS</Namespace>-->
-        <!--<Namespace>AWS/Route53</Namespace>-->
-        <!--<Namespace>AWS/SQS</Namespace>-->
-        <!--<Namespace>AWS/ElasticMapReduce</Namespace>-->
-        <!--<Namespace>AWS/StorageGateway</Namespace>-->
-        <!--<Namespace>AWS/OpsWorks</Namespace>-->
+        <Namespace>AWS/EC2</Namespace>
+        <Namespace>AWS/AutoScaling</Namespace>
+        <Namespace>AWS/EBS</Namespace>
+        <Namespace>AWS/ELB</Namespace>
+        <Namespace>AWS/ElastiCache</Namespace>
+        <Namespace>AWS/Redshift</Namespace>
+        <Namespace>AWS/DynamoDB</Namespace>
+        <Namespace>AWS/RDS</Namespace>
+        <Namespace>AWS/Route53</Namespace>
+        <Namespace>AWS/SQS</Namespace>
+        <Namespace>AWS/ElasticMapReduce</Namespace>
+        <Namespace>AWS/StorageGateway</Namespace>
+        <Namespace>AWS/OpsWorks</Namespace>
+        <Namespace>AWS/SNS</Namespace>
     </SupportedNamespaces>
 
     <DisabledMetrics>
