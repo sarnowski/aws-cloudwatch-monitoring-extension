@@ -1,4 +1,4 @@
-package com.appdynamics.monitors.amazon;
+package com.appdynamics.monitors.amazon.configuration;
 
 import com.amazonaws.auth.AWSCredentials;
 

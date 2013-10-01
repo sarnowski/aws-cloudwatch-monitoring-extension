@@ -1,7 +1,8 @@
-package com.appdynamics.monitors.amazon;
+package com.appdynamics.monitors.amazon.metricsmanager;
 
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.model.*;
+import com.appdynamics.monitors.amazon.AmazonCloudWatchMonitor;
 
 import java.util.*;
 

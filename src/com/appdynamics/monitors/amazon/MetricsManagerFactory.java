@@ -1,5 +1,7 @@
 package com.appdynamics.monitors.amazon;
 
+import com.appdynamics.monitors.amazon.metricsmanager.*;
+
 public class MetricsManagerFactory {
 
     private MetricsManager metricsManager;

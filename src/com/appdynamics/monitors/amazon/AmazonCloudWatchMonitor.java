@@ -1,22 +1,18 @@
 package com.appdynamics.monitors.amazon;
 
 import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
+import com.appdynamics.monitors.amazon.configuration.Configuration;
+import com.appdynamics.monitors.amazon.configuration.ConfigurationUtil;
+import com.appdynamics.monitors.amazon.metricsmanager.MetricsManager;
 import com.singularity.ee.agent.systemagent.api.AManagedMonitor;
 import com.singularity.ee.agent.systemagent.api.MetricWriter;
 import com.singularity.ee.agent.systemagent.api.TaskExecutionContext;
 import com.singularity.ee.agent.systemagent.api.TaskOutput;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -39,6 +35,7 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
     private HashSet<String> availableNamespaces;
 
     private AWSCredentials awsCredentials;
+
     private Configuration awsConfiguration;
 
     public AmazonCloudWatchMonitor() {

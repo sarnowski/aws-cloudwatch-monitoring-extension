@@ -44,8 +44,8 @@ public class TestClass {
 
 
     public static void main(String[] args) {
-        AWSCredentials awsCredentials = new BasicAWSCredentials("AKIAJTB7DYHGUBXOS7BQ", "jbW+aoHbYjFHSoTKrp+U1LEzdMZpvuGLETZuiMyc");
-        //AWSCredentials awsCredentials = new BasicAWSCredentials("AKIAI2BVWFZKH275ZSXA", "S1PZilsK8A9JtERc5VIzdayoJakSnsDnQ/GHzhUT");
+        //AWSCredentials awsCredentials = new BasicAWSCredentials("AKIAJTB7DYHGUBXOS7BQ", "jbW+aoHbYjFHSoTKrp+U1LEzdMZpvuGLETZuiMyc");
+        AWSCredentials awsCredentials = new BasicAWSCredentials("AKIAI2BVWFZKH275ZSXA", "S1PZilsK8A9JtERc5VIzdayoJakSnsDnQ/GHzhUT");
         AmazonCloudWatch awsCloudWatch = new AmazonCloudWatchClient(awsCredentials);
         //setNamespaces();
         //setDisabledMetrics();
@@ -346,10 +346,12 @@ public class TestClass {
         //filters.add(filter2);
 
         ListMetricsRequest request = new ListMetricsRequest();
-        request.withNamespace("AWS/SNS");
+        request.withNamespace("AWS/Billing");
         //request.withDimensions(filters);
         ListMetricsResult listMetricsResult = awsCloudWatch.listMetrics(request);
         List<Metric> metricsList = listMetricsResult.getMetrics();
+
+
 
 //        GetMetricStatisticsRequest getMetricStatisticsRequest = new GetMetricStatisticsRequest()
 //                .withStartTime(new Date(new Date().getTime() - 1000000000))

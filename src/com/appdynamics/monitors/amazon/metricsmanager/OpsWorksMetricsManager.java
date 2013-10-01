@@ -1,43 +1,44 @@
-package com.appdynamics.monitors.amazon;
+package com.appdynamics.monitors.amazon.metricsmanager;
 
 import com.amazonaws.services.cloudwatch.model.*;
+import com.appdynamics.monitors.amazon.AmazonCloudWatchMonitor;
 import com.singularity.ee.agent.systemagent.api.MetricWriter;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-public class SNSMetricsManager extends MetricsManager{
+public class OpsWorksMetricsManager extends MetricsManager{
 
-    private static final String NAMESPACE = "AWS/SNS";
+    private static final String NAMESPACE = "AWS/OpsWorks";
 
-    public SNSMetricsManager(AmazonCloudWatchMonitor amazonCloudWatchMonitor) {
+    public OpsWorksMetricsManager(AmazonCloudWatchMonitor amazonCloudWatchMonitor) {
         super(amazonCloudWatchMonitor);
     }
 
     @Override
     public Object gatherMetrics() {
-        HashMap<String, HashMap<String, HashMap<String, List<Datapoint>>>> snsMetrics = new HashMap<String, HashMap<String, HashMap<String, List<Datapoint>>>>();
+        HashMap<String, HashMap<String, HashMap<String, List<Datapoint>>>> opsWorksMetrics = new HashMap<String, HashMap<String, HashMap<String, List<Datapoint>>>>();
 
-        HashMap<String, HashMap<String, List<Datapoint>>> applicationMetrics = getDimensionMetrics("Application");
-        HashMap<String, HashMap<String, List<Datapoint>>> platformMetrics = getDimensionMetrics("Platform");
-        HashMap<String, HashMap<String, List<Datapoint>>> topicNameMetrics = getDimensionMetrics("TopicName");
+        HashMap<String, HashMap<String, List<Datapoint>>> stackMetrics = getDimensionMetrics("StackId");
+        HashMap<String, HashMap<String, List<Datapoint>>> layerMetrics = getDimensionMetrics("LayerId");
+        HashMap<String, HashMap<String, List<Datapoint>>> instanceMetrics = getDimensionMetrics("InstanceId");
 
-        snsMetrics.put("Application", applicationMetrics);
-        snsMetrics.put("Platform", platformMetrics);
-        snsMetrics.put("TopicName", topicNameMetrics);
+        opsWorksMetrics.put("StackId", stackMetrics);
+        opsWorksMetrics.put("LayerId", layerMetrics);
+        opsWorksMetrics.put("InstanceId", instanceMetrics);
 
-        return snsMetrics;
+        return opsWorksMetrics;
     }
 
     @Override
     public void printMetrics(Object metrics) {
-        HashMap<String, HashMap<String, HashMap<String, List<Datapoint>>>> snsMetrics = (HashMap<String, HashMap<String,HashMap<String,List<Datapoint>>>>) metrics;
-        Iterator dimensionFilterIterator = snsMetrics.keySet().iterator();
+        HashMap<String, HashMap<String, HashMap<String, List<Datapoint>>>> opsWorksMetrics = (HashMap<String, HashMap<String,HashMap<String,List<Datapoint>>>>) metrics;
+        Iterator dimensionFilterIterator = opsWorksMetrics.keySet().iterator();
 
         while (dimensionFilterIterator.hasNext()) {
             String metricType = dimensionFilterIterator.next().toString();
-            HashMap<String, HashMap<String,List<Datapoint>>> dimensionMetrics = snsMetrics.get(metricType);
+            HashMap<String, HashMap<String,List<Datapoint>>> dimensionMetrics = opsWorksMetrics.get(metricType);
             Iterator dimensionIterator = dimensionMetrics.keySet().iterator();
             while (dimensionIterator.hasNext()) {
                 String dimensionId = dimensionIterator.next().toString();
@@ -66,7 +67,6 @@ public class SNSMetricsManager extends MetricsManager{
 
     private HashMap<String, HashMap<String, List<Datapoint>>> getDimensionMetrics(String dimensionFilterName) {
         HashMap<String, HashMap<String, List<Datapoint>>> dimensionMetrics = new HashMap<String, HashMap<String, List<Datapoint>>>();
-
         List<Metric> metricsList = getMetrics(NAMESPACE, dimensionFilterName);
 
         for (com.amazonaws.services.cloudwatch.model.Metric metric : metricsList) {

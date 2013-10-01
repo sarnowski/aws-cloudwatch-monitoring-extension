@@ -1,9 +1,10 @@
-package com.appdynamics.monitors.amazon;
+package com.appdynamics.monitors.amazon.metricsmanager;
 
 import com.amazonaws.services.cloudwatch.model.Datapoint;
 import com.amazonaws.services.cloudwatch.model.Dimension;
 import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsRequest;
 import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsResult;
+import com.appdynamics.monitors.amazon.AmazonCloudWatchMonitor;
 import com.singularity.ee.agent.systemagent.api.MetricWriter;
 import org.apache.log4j.Logger;
 

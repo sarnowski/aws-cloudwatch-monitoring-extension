@@ -1,4 +1,4 @@
-package com.appdynamics.monitors.amazon;
+package com.appdynamics.monitors.amazon.metricsmanager;
 
 import com.amazonaws.services.cloudwatch.model.Datapoint;
 import com.amazonaws.services.cloudwatch.model.Dimension;
@@ -8,6 +8,7 @@ import com.amazonaws.services.route53.AmazonRoute53;
 import com.amazonaws.services.route53.AmazonRoute53Client;
 import com.amazonaws.services.route53.model.HealthCheck;
 import com.amazonaws.services.route53.model.ListHealthChecksResult;
+import com.appdynamics.monitors.amazon.AmazonCloudWatchMonitor;
 import com.singularity.ee.agent.systemagent.api.MetricWriter;
 
 import java.util.ArrayList;
