@@ -388,7 +388,7 @@ public class TestClass {
 
                     StartElement startElement = event.asStartElement();
 
-                    if (startElement.getName().getLocalPart() == "AccessKey") {
+                    if (startElement.getName().getLocalPart() == "Metric") {
                         System.out.println("--start of an item");
                         // attribute
                         Iterator<Attribute> attributes = startElement.getAttributes();
@@ -402,17 +402,15 @@ public class TestClass {
 
                     // data
                     if (event.isStartElement()) {
-                        if (event.asStartElement().getName().getLocalPart().equals("AccessKey")) {
-                            event = eventReader.nextEvent();
-
-                            if(true){
-                                System.out.println("thetext: "
-                                        + event.asCharacters().getData());
-
-                                continue;
-                            }else{
-                                continue;
-                            }
+                        String tagName = event.asStartElement().getName().getLocalPart();
+                        event = eventReader.nextEvent();
+                        if (tagName.equals("AccessKey")) {
+                            String accessKey = event.toString();
+                        }
+                        if (tagName.equals("SecretKey")) {
+                            String secretKey = event.toString();
+                        }
+                        if (tagName.equals("Namespace")) {
 
                         }
                     }

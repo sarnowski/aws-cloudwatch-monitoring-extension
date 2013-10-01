@@ -35,27 +35,39 @@ public class ConfigurationUtil {
 
                     StartElement startElement = event.asStartElement();
 
-                    if (startElement.getName().getLocalPart() == "AccessKey") {
+                    if (startElement.getName().getLocalPart() == "Metric") {
                         System.out.println("--start of an item");
                         // attribute
                         Iterator<Attribute> attributes = startElement.getAttributes();
                         while (attributes.hasNext()) {
                             Attribute attribute = attributes.next();
-                            if (attribute.getName().toString().equals("id")) {
-                                System.out.println("id = " + attribute.getValue());
+                            String namespace;
+                            String metricName;
+                            if (attribute.getName().toString().equals("Namespace")) {
+                                namespace = attribute.getValue();
                             }
+                            if (attribute.getName().toString().equals("MetricName")) {
+
+                            }
+
                         }
                     }
 
                     // data
                     if (event.isStartElement()) {
                         String tagName = event.asStartElement().getName().getLocalPart();
-                        if (tagName.equals("AccessKey")) {
-                            event = eventReader.nextEvent();
+                        event = eventReader.nextEvent();
+                        if(tagName.equals("AccessKey")) {
                             accessKey = event.toString();
                         }
-                        if (tagName.equals("SecretKey")) {
-
+                        if(tagName.equals("SecretKey")) {
+                            secretKey = event.toString();
+                        }
+                        if(tagName.equals("Namespace")) {
+                            String namespace = event.toString();
+                            if (!awsConfiguration.availableNamespaces.contains(namespace)) {
+                                awsConfiguration.availableNamespaces.add(namespace);
+                            }
                         }
                     }
                 }
