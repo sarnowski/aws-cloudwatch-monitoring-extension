@@ -40,10 +40,12 @@ public class TestClass {
     }
 
     private static HashMap<String,HashSet<String>> disabledMetrics = new HashMap<String,HashSet<String>>();
+    private static HashSet<String> availableNamespaces = new HashSet<String>();
 
 
     public static void main(String[] args) {
-        AWSCredentials awsCredentials = new BasicAWSCredentials("AKIAJTB7DYHGUBXOS7BQ", "jbW+aoHbYjFHSoTKrp+U1LEzdMZpvuGLETZuiMyc");
+        //AWSCredentials awsCredentials = new BasicAWSCredentials("AKIAJTB7DYHGUBXOS7BQ", "jbW+aoHbYjFHSoTKrp+U1LEzdMZpvuGLETZuiMyc");
+        AWSCredentials awsCredentials = new BasicAWSCredentials("AKIAI2BVWFZKH275ZSXA", "S1PZilsK8A9JtERc5VIzdayoJakSnsDnQ/GHzhUT");
         AmazonCloudWatch awsCloudWatch = new AmazonCloudWatchClient(awsCredentials);
         //setNamespaces();
         //setDisabledMetrics();
@@ -53,8 +55,9 @@ public class TestClass {
         //getEC2InstanceMetrics(awsCloudWatch);
         //getElasticCacheClusterMetrics(awsCloudWatch, awsCredentials);
         //readConfigurations("conf/AWSConfigurations.xml");
-        //gatherRedshiftMetrics(awsCloudWatch, awsCredentials);
-        readConfigFileUsingStaxParser();
+        gatherRedshiftMetrics(awsCloudWatch, awsCredentials);
+        //readConfigFileUsingStaxParser();
+        System.out.println("done");
     }
     private static void setNamespaces() {
         try {
@@ -333,9 +336,9 @@ public class TestClass {
 
         //NodeIDFilter.setName("NodeID");
         DimensionFilter filter1 = new DimensionFilter();
-        filter1.setName("QueueName");
+        filter1.setName("StackId");
         DimensionFilter filter2 = new DimensionFilter();
-        filter2.setName("EngineName");
+        filter2.setName("LayerId");
        // ClusterIdentifierFilter.setValue("TestTable");
         List<DimensionFilter> filters = new ArrayList<DimensionFilter>();
         //filters.add(NodeIDFilter);
@@ -343,17 +346,17 @@ public class TestClass {
         //filters.add(filter2);
 
         ListMetricsRequest request = new ListMetricsRequest();
-        request.withNamespace("AWS/ELB");
+        request.withNamespace("AWS/OpsWorks");
         //request.withDimensions(filters);
         ListMetricsResult listMetricsResult = awsCloudWatch.listMetrics(request);
         List<Metric> metricsList = listMetricsResult.getMetrics();
 
 //        GetMetricStatisticsRequest getMetricStatisticsRequest = new GetMetricStatisticsRequest()
 //                .withStartTime(new Date(new Date().getTime() - 1000000000))
-//                .withNamespace("AWS/SQS")
-//                .withDimensions(new Dimension().withName("QueueName").withValue("myqueue1"))
+//                .withNamespace("AWS/OpsWorks")
+//                //.withDimensions(new Dimension().withName("QueueName").withValue("myqueue1"))
 //                .withPeriod(60 * 60)
-//                .withMetricName("NumberOfMessagesSent")
+//                .withMetricName("StackMetrics")
 //                .withStatistics("Average")
 //                .withEndTime(new Date());
 //         GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
@@ -389,15 +392,25 @@ public class TestClass {
                     StartElement startElement = event.asStartElement();
 
                     if (startElement.getName().getLocalPart() == "Metric") {
-                        System.out.println("--start of an item");
                         // attribute
                         Iterator<Attribute> attributes = startElement.getAttributes();
+                        String namespace="";
+                        String metricName="";
                         while (attributes.hasNext()) {
                             Attribute attribute = attributes.next();
-                            if (attribute.getName().toString().equals("id")) {
-                                System.out.println("id = " + attribute.getValue());
+
+                            String attributeName = attribute.getName().toString();
+                            if (attributeName.equals("namespace")) {
+                                namespace = attribute.getValue();
+                            }
+                            if (attributeName.equals("metricName")) {
+                                metricName = attribute.getValue();
                             }
                         }
+                        if (!disabledMetrics.containsKey(namespace)) {
+                            disabledMetrics.put(namespace, new HashSet<String>());
+                        }
+                        disabledMetrics.get(namespace).add(metricName);
                     }
 
                     // data
@@ -411,7 +424,10 @@ public class TestClass {
                             String secretKey = event.toString();
                         }
                         if (tagName.equals("Namespace")) {
-
+                            String namespace = event.toString();
+                            if (!availableNamespaces.contains(namespace)) {
+                                availableNamespaces.add(namespace);
+                            }
                         }
                     }
                 }
@@ -419,11 +435,7 @@ public class TestClass {
                 //reach the end of an item
                 if (event.isEndElement()) {
                     EndElement endElement = event.asEndElement();
-                    if (endElement.getName().getLocalPart() == "item") {
-                        System.out.println("--end of an item\n");
-                    }
                 }
-
             }
         }
         catch(Exception e) {

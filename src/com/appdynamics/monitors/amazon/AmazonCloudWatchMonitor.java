@@ -34,11 +34,12 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
     // The AWS Cloud Watch client that retrieves instance metrics by executing requests
     private AmazonCloudWatch awsCloudWatch;
     // This HashSet of disabled metrics is populated by reading the DisabledMetrics.xml file
-    private HashMap<String,HashSet<String>> disabledMetrics = new HashMap<String,HashSet<String>>();
+    private HashMap<String,HashSet<String>> disabledMetrics;
     // This HashSet of available namespaces is populated by reading the AvailableNamespaces.xml file
-    private HashSet<String> availableNamespaces = new HashSet<String>();
+    private HashSet<String> availableNamespaces;
 
     private AWSCredentials awsCredentials;
+    private Configuration awsConfiguration;
 
     public AmazonCloudWatchMonitor() {
         logger.setLevel(Level.INFO);
@@ -50,56 +51,19 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
      * @param taskArguments
      * @return
      */
-    private void initialize(Map<String, String> taskArguments) {
-        long startTime = System.currentTimeMillis();
+    public void initialize(Map<String,String> taskArguments) {
         if (!isInitialized) {
-            try {
-                //File configFile = new File(taskArguments.get("configurations"));
-                FileInputStream configFile = new FileInputStream(taskArguments.get("configurations"));
-                DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-                DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-                Document doc = dBuilder.parse(configFile);
-
-                // Initialize AmazonCloudWatch
-                Element credentialsFromFile = (Element)doc.getElementsByTagName("AWSCredentials").item(0);
-                String accessKey = credentialsFromFile.getElementsByTagName("AccessKey").item(0).getTextContent();
-                String secretKey = credentialsFromFile.getElementsByTagName("SecretKey").item(0).getTextContent();
-                awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
-                awsCloudWatch = new AmazonCloudWatchClient(awsCredentials);
-
-                // Initialize Namespaces
-                Element namespacesElement = (Element)doc.getElementsByTagName("SupportedNamespaces").item(0);
-                NodeList namespaces = namespacesElement.getElementsByTagName("Namespace");
-
-                for (int i = 0; i < namespaces.getLength(); i++) {
-                    String namespace = namespaces.item(i).getTextContent();
-                    if (!availableNamespaces.contains(namespace)) {
-                        availableNamespaces.add(namespaces.item(i).getTextContent());
-                    }
-                }
-
-                //Initialize Disabled Metrics
-                Element disabledMetricsElement = (Element) doc.getElementsByTagName("DisabledMetrics").item(0);
-                NodeList disabledMetricsList = disabledMetricsElement.getElementsByTagName("Metric");
-                for (int i = 0; i < disabledMetricsList.getLength(); i++) {
-                    String namespaceKey = disabledMetricsList.item(i).getAttributes().getNamedItem("namespace").getNodeValue();
-                    String metricName = disabledMetricsList.item(i).getAttributes().getNamedItem("metricName").getNodeValue();
-                    if (!disabledMetrics.containsKey(namespaceKey)) {
-                        disabledMetrics.put(namespaceKey, new HashSet<String>());
-                    }
-                    disabledMetrics.get(namespaceKey).add(metricName);
-                }
-                configFile.close();
-                isInitialized = true;
-            }
-            catch (Exception e) {
-                logger.error(e.getMessage());
-            }
+            long startTime = System.currentTimeMillis();
+            awsConfiguration = ConfigurationUtil.getConfigurations(taskArguments.get("configurations"));
+            awsCredentials = awsConfiguration.awsCredentials;
+            awsCloudWatch = new AmazonCloudWatchClient(awsCredentials);
+            disabledMetrics = awsConfiguration.disabledMetrics;
+            availableNamespaces = awsConfiguration.availableNamespaces;
+            long endTime = System.currentTimeMillis();
+            printExecutionTime(startTime, endTime);
+            isInitialized = true;
         }
-        long endTime = System.currentTimeMillis();
-        printExecutionTime(startTime, endTime);
     }
-
 
     /**
      * Main execution method that uploads the metrics to the AppDynamics Controller
@@ -148,7 +112,6 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
     public AWSCredentials getAWSCredentials() {
         return awsCredentials;
     }
-
     public boolean isMetricDisabled(String namespace, String metricName) {
         boolean result = false;
         if (disabledMetrics.get(namespace) != null) {
@@ -187,8 +150,7 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
      * Metric Prefix
      * @return	String
      */
-    private String getMetricPrefix()
-    {
+    private String getMetricPrefix() {
         return "Custom Metrics|Amazon Cloud Watch|";
     }
 

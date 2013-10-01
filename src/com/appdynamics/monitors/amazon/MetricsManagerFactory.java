@@ -43,6 +43,12 @@ public class MetricsManagerFactory {
         else if (namespace.equals("AWS/ElasticMapReduce")) {
             metricsManager = new ElasticMapReduceMetricsManager(amazonCloudWatchMonitor);
         }
+        else if (namespace.equals("AWS/StorageGateway")) {
+            metricsManager = new StorageGatewayMetricsManager(amazonCloudWatchMonitor);
+        }
+        else if (namespace.equals("AWS/OpsWorks")) {
+            metricsManager = new OpsWorksMetricsManager(amazonCloudWatchMonitor);
+        }
         else {
             throw new UnsupportedOperationException();
         }

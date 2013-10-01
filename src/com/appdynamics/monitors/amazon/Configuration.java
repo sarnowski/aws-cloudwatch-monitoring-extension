@@ -13,5 +13,4 @@ public class Configuration {
     public HashSet<String> availableNamespaces = new HashSet<String>();
 
     public AWSCredentials awsCredentials;
-
 }
