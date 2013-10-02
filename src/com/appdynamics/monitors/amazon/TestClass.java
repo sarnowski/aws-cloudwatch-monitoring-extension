@@ -336,7 +336,7 @@ public class TestClass {
 
         //NodeIDFilter.setName("NodeID");
         DimensionFilter filter1 = new DimensionFilter();
-        filter1.setName("StackId");
+        filter1.setName("Currency");
         DimensionFilter filter2 = new DimensionFilter();
         filter2.setName("LayerId");
        // ClusterIdentifierFilter.setValue("TestTable");
@@ -347,7 +347,7 @@ public class TestClass {
 
         ListMetricsRequest request = new ListMetricsRequest();
         request.withNamespace("AWS/Billing");
-        //request.withDimensions(filters);
+        request.withDimensions(filters);
         ListMetricsResult listMetricsResult = awsCloudWatch.listMetrics(request);
         List<Metric> metricsList = listMetricsResult.getMetrics();
 

@@ -17,8 +17,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public class AmazonCloudWatchMonitor extends AManagedMonitor {
 
@@ -26,16 +25,10 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
     private static boolean isInitialized = false;
 
     private MetricsManagerFactory metricsManagerFactory;
-
-    // The AWS Cloud Watch client that retrieves instance metrics by executing requests
     private AmazonCloudWatch awsCloudWatch;
-    // This HashSet of disabled metrics is populated by reading the DisabledMetrics.xml file
     private HashMap<String,HashSet<String>> disabledMetrics;
-    // This HashSet of available namespaces is populated by reading the AvailableNamespaces.xml file
     private HashSet<String> availableNamespaces;
-
     private AWSCredentials awsCredentials;
-
     private Configuration awsConfiguration;
 
     public AmazonCloudWatchMonitor() {
