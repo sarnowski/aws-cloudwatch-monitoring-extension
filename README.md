@@ -103,42 +103,64 @@ In the conf/AWSConfigurations.xml, there are three things that can be configured
  2) The supported AWS namespaces that you can retrieve metrics for (you can enable or disable metrics for specific namespaces)
  3) The list of disabled metrics associated with their corresponding AWS namespaces
  
-This is a sample configuration file: 
+This is a sample AWSConfigurations.xml file: 
 
-<?xml version="1.0"?>
-<Configurations>
+    <?xml version="1.0"?>
+    <Configurations>
+        <AWSCredentials>
+            <AccessKey>AKIAJTB7DYHGUBXOS7BQ</AccessKey>
+            <SecretKey>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</SecretKey>
+        </AWSCredentials>
+       <!--Individual namespaces can be disabled by simply commenting them out -->
+        <SupportedNamespaces>
+            <Namespace>AWS/EC2</Namespace>
+            <Namespace>AWS/AutoScaling</Namespace>
+            <Namespace>AWS/EBS</Namespace>
+            <Namespace>AWS/ELB</Namespace>
+            <Namespace>AWS/ElastiCache</Namespace>
+            <Namespace>AWS/Redshift</Namespace>
+            <Namespace>AWS/DynamoDB</Namespace>
+            <Namespace>AWS/RDS</Namespace>
+            <Namespace>AWS/Route53</Namespace>
+            <Namespace>AWS/SQS</Namespace>
+            <Namespace>AWS/ElasticMapReduce</Namespace>
+            <Namespace>AWS/StorageGateway</Namespace>
+            <Namespace>AWS/OpsWorks</Namespace>
+            <Namespace>AWS/SNS</Namespace>
+            <Namespace>AWS/Billing</Namespace>
+        </SupportedNamespaces>
+        <DisabledMetrics>
+            <Metric namespace="AWS/EC2" metricName="CPUUtilization"/>
+            <Metric namespace="AWS/EC2" metricName="Some Metric"/>
+        </DisabledMetrics>
+    </Configurations> 
+    
+The monitor.xml contains one parameter, which is the path to the AWSConfigurations.xml file.
 
-    <AWSCredentials>
-        <AccessKey>AKIAJTB7DYHGUBXOS7BQ</AccessKey>
-        <SecretKey>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</SecretKey>
-    </AWSCredentials>
+Here is the monitor.xml file:
 
-    <!-- MetricManagers for these namespaces have been implemented -->
-    <SupportedNamespaces>
-        <Namespace>AWS/EC2</Namespace>
-        <Namespace>AWS/AutoScaling</Namespace>
-        <Namespace>AWS/EBS</Namespace>
-        <Namespace>AWS/ELB</Namespace>
-        <Namespace>AWS/ElastiCache</Namespace>
-        <Namespace>AWS/Redshift</Namespace>
-        <Namespace>AWS/DynamoDB</Namespace>
-        <Namespace>AWS/RDS</Namespace>
-        <Namespace>AWS/Route53</Namespace>
-        <Namespace>AWS/SQS</Namespace>
-        <Namespace>AWS/ElasticMapReduce</Namespace>
-        <Namespace>AWS/StorageGateway</Namespace>
-        <Namespace>AWS/OpsWorks</Namespace>
-        <Namespace>AWS/SNS</Namespace>
-        <Namespace>AWS/Billing</Namespace>
-    </SupportedNamespaces>
-
-    <DisabledMetrics>
-        <Metric namespace="AWS/EC2" metricName="CPUUtilization"/>
-        <Metric namespace="AWS/EC2" metricName="Some Metric"/>
-    </DisabledMetrics>
-
-</Configurations> 
- 
+    <monitor>
+        <name>AmazonMonitor</name>
+        <type>managed</type>
+        <description>Amazon cloud watch monitor</description>
+        <monitor-configuration></monitor-configuration>
+        <monitor-run-task>
+                <execution-style>periodic</execution-style>
+                <execution-frequency-in-seconds>60</execution-frequency-in-seconds>
+                <name>Amazon Cloud Watch Monitor Run Task</name>
+                <display-name>Cloud Watch Monitor Task</display-name>
+                <description>Cloud Watch Monitor Task</description>
+                <type>java</type>
+                <execution-timeout-in-secs>60</execution-timeout-in-secs>
+                <java-task>
+                    <classpath>AmazonMonitor.jar;lib/aws-java-sdk-1.5.6.jar;lib/commons-codec-1.8.jar;lib/log4j-1.2.15.jar;lib/machineagent.jar;lib/httpclient-4.2.3.jar;lib/httpcore-4.2.jar;lib/commons-logging-1.1.1.jar</classpath>
+                        <impl-class>com.appdynamics.monitors.amazon.AmazonCloudWatchMonitor</impl-class>
+                </java-task>
+                <task-arguments>
+                    <argument name="configurations" is-required="true" default-value="/mnt/appdynamics/machineagent/monitors/AmazonMonitor/conf/AWSConfigurations.xml"/>
+                </task-arguments>
+        </monitor-run-task>
+</monitor>
  
 Directory Structure
 -------------------
