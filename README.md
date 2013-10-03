@@ -84,3 +84,44 @@ Installation
  2. Download the AmazonMonitor.zip found in the 'dist' directory into <machineagent install dir>/monitors/
  3. Unzip the downloaded zip file
  4. In the newly created "AmazonMonitor" directory, edit the "AWSConfigurations.xml" file configuring the parameters specified below 
+ 5. Restart the machine agent
+ 6. In the AppDynamics Metric Browser, look for: Application Infrastructure Performance | Amazon Cloud Watch
+
+
+Rebuilding the Project
+----------------------
+
+ 1. At the command line, go to the root directory of this extension
+ 2. Run 'ant'. This will update the dist directory
+
+Directory Structure
+-------------------
+
+<table>
+  <tr>
+    <th align="left">File/Folder</th>
+    <th align="left">Description</th>
+  </tr>
+  <tr>
+    <td> conf </td>
+    <td> Contains monitor.xml and AWSConfigurations.xml</td>
+  </tr>
+  <tr>
+    <td> lib </td>
+    <td> Contains third-party project references</td>
+  </tr>
+  <tr>
+    <td> src</td>
+    <td> Contains the source code for aws-cloudwatch-extension</td>
+  </tr>
+  <tr>
+    <td> dist </td>
+    <td> The directory created when 'ant' is run. Run 'ant build' to generate the binaries. Run 'ant package' to generate distributable .zip file.</td>
+  </tr>
+  <tr>
+    <td> build.xml </td>
+    <td> Ant build script to package the project (required only if changing the Java code)</td>
+  </tr>
+</table>  
+
+Main Java File: 
