@@ -36,7 +36,7 @@ public class ConfigurationUtil {
 
                     StartElement startElement = event.asStartElement();
 
-                    if (startElement.getName().getLocalPart() == "Metric") {
+                    if (startElement.getName().getLocalPart().equals("Metric")) {
 
                         // attribute
                         Iterator<Attribute> attributes = startElement.getAttributes();
@@ -46,10 +46,10 @@ public class ConfigurationUtil {
                             Attribute attribute = attributes.next();
 
                             String attributeName = attribute.getName().toString();
-                            if (attributeName.equals("Namespace")) {
+                            if (attributeName.equals("namespace")) {
                                 namespace = attribute.getValue();
                             }
-                            if (attributeName.equals("MetricName")) {
+                            if (attributeName.equals("metricName")) {
                                 metricName = attribute.getValue();
                             }
                         }

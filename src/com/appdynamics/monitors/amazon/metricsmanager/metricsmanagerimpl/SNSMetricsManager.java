@@ -1,14 +1,15 @@
-package com.appdynamics.monitors.amazon.metricsmanager;
+package com.appdynamics.monitors.amazon.metricsmanager.metricsmanagerimpl;
 
-import com.amazonaws.services.cloudwatch.model.*;
+import com.amazonaws.services.cloudwatch.model.Datapoint;
 import com.appdynamics.monitors.amazon.AmazonCloudWatchMonitor;
+import com.appdynamics.monitors.amazon.metricsmanager.MetricsManager;
 import com.singularity.ee.agent.systemagent.api.MetricWriter;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-public class SNSMetricsManager extends MetricsManager{
+public class SNSMetricsManager extends MetricsManager {
 
     private static final String NAMESPACE = "AWS/SNS";
 
@@ -20,9 +21,9 @@ public class SNSMetricsManager extends MetricsManager{
     public Object gatherMetrics() {
         HashMap<String, HashMap<String, HashMap<String, List<Datapoint>>>> snsMetrics = new HashMap<String, HashMap<String, HashMap<String, List<Datapoint>>>>();
 
-        HashMap<String, HashMap<String, List<Datapoint>>> applicationMetrics = getDimensionMetrics("Application");
-        HashMap<String, HashMap<String, List<Datapoint>>> platformMetrics = getDimensionMetrics("Platform");
-        HashMap<String, HashMap<String, List<Datapoint>>> topicNameMetrics = getDimensionMetrics("TopicName");
+        HashMap<String, HashMap<String, List<Datapoint>>> applicationMetrics = (HashMap)gatherMetricsHelper(NAMESPACE,"Application");
+        HashMap<String, HashMap<String, List<Datapoint>>> platformMetrics = (HashMap)gatherMetricsHelper(NAMESPACE,"Platform");
+        HashMap<String, HashMap<String, List<Datapoint>>> topicNameMetrics = (HashMap)gatherMetricsHelper(NAMESPACE,"TopicName");
 
         snsMetrics.put("Application", applicationMetrics);
         snsMetrics.put("Platform", platformMetrics);
@@ -63,28 +64,5 @@ public class SNSMetricsManager extends MetricsManager{
     @Override
     public String getNamespacePrefix() {
         return NAMESPACE.substring(4,NAMESPACE.length()) + "|";
-    }
-
-    private HashMap<String, HashMap<String, List<Datapoint>>> getDimensionMetrics(String dimensionFilterName) {
-        HashMap<String, HashMap<String, List<Datapoint>>> dimensionMetrics = new HashMap<String, HashMap<String, List<Datapoint>>>();
-
-        List<Metric> metricsList = getMetrics(NAMESPACE, dimensionFilterName);
-
-        for (com.amazonaws.services.cloudwatch.model.Metric metric : metricsList) {
-            List<Dimension> dimensions = metric.getDimensions();
-            String dimensionName = dimensions.get(0).getValue();
-            if (!dimensionMetrics.containsKey(dimensionName)) {
-                dimensionMetrics.put(dimensionName, new HashMap<String, List<Datapoint>>());
-            }
-            if (!dimensionMetrics.get(dimensionName).containsKey(metric.getMetricName())) {
-
-                if (!amazonCloudWatchMonitor.isMetricDisabled(NAMESPACE, metric.getMetricName())) {
-                    GetMetricStatisticsRequest getMetricStatisticsRequest = createGetMetricStatisticsRequest(NAMESPACE, metric.getMetricName(), "Average", dimensions);
-                    GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
-                    dimensionMetrics.get(dimensionName).put(metric.getMetricName(), getMetricStatisticsResult.getDatapoints());
-                }
-            }
-        }
-        return dimensionMetrics;
     }
 }

@@ -1,6 +1,8 @@
-package com.appdynamics.monitors.amazon;
+package com.appdynamics.monitors.amazon.metricsmanager;
 
+import com.appdynamics.monitors.amazon.AmazonCloudWatchMonitor;
 import com.appdynamics.monitors.amazon.metricsmanager.*;
+import com.appdynamics.monitors.amazon.metricsmanager.metricsmanagerimpl.*;
 
 public class MetricsManagerFactory {
 
@@ -54,7 +56,7 @@ public class MetricsManagerFactory {
         else if (namespace.equals("AWS/SNS")) {
             metricsManager = new SNSMetricsManager(amazonCloudWatchMonitor);
         }
-        else if (namespace.equals("Billing")) {
+        else if (namespace.equals("AWS/Billing")) {
             metricsManager = new BillingMetricsManager(amazonCloudWatchMonitor);
         }
         else {

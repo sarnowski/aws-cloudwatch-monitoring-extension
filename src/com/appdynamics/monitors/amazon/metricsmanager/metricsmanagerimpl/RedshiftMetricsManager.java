@@ -1,17 +1,18 @@
-package com.appdynamics.monitors.amazon.metricsmanager;
+package com.appdynamics.monitors.amazon.metricsmanager.metricsmanagerimpl;
 
 import com.amazonaws.services.cloudwatch.model.Datapoint;
 import com.amazonaws.services.cloudwatch.model.Dimension;
 import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsRequest;
 import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsResult;
 import com.appdynamics.monitors.amazon.AmazonCloudWatchMonitor;
+import com.appdynamics.monitors.amazon.metricsmanager.MetricsManager;
 import com.singularity.ee.agent.systemagent.api.MetricWriter;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-public class RedshiftMetricsManager extends MetricsManager{
+public class RedshiftMetricsManager extends MetricsManager {
 
     private static final String NAMESPACE = "AWS/Redshift";
 

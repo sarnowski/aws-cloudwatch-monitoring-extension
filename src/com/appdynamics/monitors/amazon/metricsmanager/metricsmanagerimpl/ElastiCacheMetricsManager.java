@@ -1,14 +1,15 @@
-package com.appdynamics.monitors.amazon.metricsmanager;
+package com.appdynamics.monitors.amazon.metricsmanager.metricsmanagerimpl;
 
 import com.amazonaws.services.cloudwatch.model.*;
 import com.appdynamics.monitors.amazon.AmazonCloudWatchMonitor;
+import com.appdynamics.monitors.amazon.metricsmanager.MetricsManager;
 import com.singularity.ee.agent.systemagent.api.MetricWriter;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-public class ElastiCacheMetricsManager extends MetricsManager{
+public class ElastiCacheMetricsManager extends MetricsManager {
 
     private static final String NAMESPACE = "AWS/ElastiCache";
 

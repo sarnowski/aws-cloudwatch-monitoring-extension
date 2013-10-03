@@ -5,6 +5,8 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
 import com.amazonaws.services.cloudwatch.model.*;
+import com.appdynamics.monitors.amazon.configuration.Configuration;
+import com.appdynamics.monitors.amazon.configuration.ConfigurationUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -44,8 +46,8 @@ public class TestClass {
 
 
     public static void main(String[] args) {
-        //AWSCredentials awsCredentials = new BasicAWSCredentials("AKIAJTB7DYHGUBXOS7BQ", "jbW+aoHbYjFHSoTKrp+U1LEzdMZpvuGLETZuiMyc");
-        AWSCredentials awsCredentials = new BasicAWSCredentials("AKIAI2BVWFZKH275ZSXA", "S1PZilsK8A9JtERc5VIzdayoJakSnsDnQ/GHzhUT");
+        AWSCredentials awsCredentials = new BasicAWSCredentials("AKIAJTB7DYHGUBXOS7BQ", "jbW+aoHbYjFHSoTKrp+U1LEzdMZpvuGLETZuiMyc");
+        //AWSCredentials awsCredentials = new BasicAWSCredentials("AKIAI2BVWFZKH275ZSXA", "S1PZilsK8A9JtERc5VIzdayoJakSnsDnQ/GHzhUT");
         AmazonCloudWatch awsCloudWatch = new AmazonCloudWatchClient(awsCredentials);
         //setNamespaces();
         //setDisabledMetrics();
@@ -55,8 +57,9 @@ public class TestClass {
         //getEC2InstanceMetrics(awsCloudWatch);
         //getElasticCacheClusterMetrics(awsCloudWatch, awsCredentials);
         //readConfigurations("conf/AWSConfigurations.xml");
-        gatherRedshiftMetrics(awsCloudWatch, awsCredentials);
+        //gatherRedshiftMetrics(awsCloudWatch, awsCredentials);
         //readConfigFileUsingStaxParser();
+        testDisabledMetrics();
         System.out.println("done");
     }
     private static void setNamespaces() {
@@ -346,8 +349,8 @@ public class TestClass {
         //filters.add(filter2);
 
         ListMetricsRequest request = new ListMetricsRequest();
-        request.withNamespace("AWS/Billing");
-        request.withDimensions(filters);
+        request.withNamespace("AWS/AutoScaling");
+        //request.withDimensions(filters);
         ListMetricsResult listMetricsResult = awsCloudWatch.listMetrics(request);
         List<Metric> metricsList = listMetricsResult.getMetrics();
 
@@ -443,5 +446,18 @@ public class TestClass {
         catch(Exception e) {
             System.out.println(e.getMessage());
         }
+    }
+    private static String testStringBuilder() {
+        String testString = "AWS/Billing";
+        String id = "ServiceName";
+
+        StringBuilder sb = new StringBuilder(testString.substring(4,testString.length()));
+        sb.append("|").append(id).append("|");
+        return sb.toString();
+    }
+
+    private static void testDisabledMetrics() {
+        Configuration config = ConfigurationUtil.getConfigurations("conf/AWSConfigurations.xml");
+        System.out.println("done");
     }
 }

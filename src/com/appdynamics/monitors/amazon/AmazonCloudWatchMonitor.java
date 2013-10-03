@@ -6,6 +6,7 @@ import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
 import com.appdynamics.monitors.amazon.configuration.Configuration;
 import com.appdynamics.monitors.amazon.configuration.ConfigurationUtil;
 import com.appdynamics.monitors.amazon.metricsmanager.MetricsManager;
+import com.appdynamics.monitors.amazon.metricsmanager.MetricsManagerFactory;
 import com.singularity.ee.agent.systemagent.api.AManagedMonitor;
 import com.singularity.ee.agent.systemagent.api.MetricWriter;
 import com.singularity.ee.agent.systemagent.api.TaskExecutionContext;
@@ -17,7 +18,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class AmazonCloudWatchMonitor extends AManagedMonitor {
 
@@ -71,12 +73,16 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
             Thread metricManagerThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    MetricsManager metricsManager = metricsManagerFactory.createMetricsManager(namespace);
-                    Object metrics = metricsManager.gatherMetrics();
-                    logger.info("Gathered metrics for namespace: " + namespace + "       Size of metrics: " + ((HashMap) metrics).size());
-                    metricsManager.printMetrics(metrics);
-                    logger.info("Printed metrics for namespace: " + namespace + "       Size of metrics: " + ((HashMap) metrics).size());
-                    latch.countDown();
+                    try {
+                        MetricsManager metricsManager = metricsManagerFactory.createMetricsManager(namespace);
+                        Object metrics = metricsManager.gatherMetrics();
+                        metricsManager.printMetrics(metrics);
+                        logger.info(String.format("%15s: %30s %15s %5d" , "Namespace", namespace, " # Metrics",  ((HashMap)metrics).size()));
+                        latch.countDown();
+                    }
+                    catch(Exception e) {
+                        logger.error("Exception: ", e);
+                    }
                 }
             });
             metricManagerThread.start();
