@@ -94,6 +94,52 @@ Rebuilding the Project
  1. At the command line, go to the root directory of this extension
  2. Run 'ant'. This will update the dist directory
 
+Configuration
+-------------
+
+In the conf/AWSConfigurations.xml, there are three things that can be configured:
+
+ 1) The AWS account credentials (i.e. the access key and the secret key)
+ 2) The supported AWS namespaces that you can retrieve metrics for (you can enable or disable metrics for specific namespaces)
+ 3) The list of disabled metrics associated with their corresponding AWS namespaces
+ 
+This is a sample configuration file: 
+
+<?xml version="1.0"?>
+<Configurations>
+
+    <AWSCredentials>
+        <AccessKey>AKIAJTB7DYHGUBXOS7BQ</AccessKey>
+        <SecretKey>jbW+aoHbYjFHSoTKrp+U1LEzdMZpvuGLETZuiMyc</SecretKey>
+    </AWSCredentials>
+
+    <!-- MetricManagers for these namespaces have been implemented -->
+    <SupportedNamespaces>
+        <Namespace>AWS/EC2</Namespace>
+        <Namespace>AWS/AutoScaling</Namespace>
+        <Namespace>AWS/EBS</Namespace>
+        <Namespace>AWS/ELB</Namespace>
+        <Namespace>AWS/ElastiCache</Namespace>
+        <Namespace>AWS/Redshift</Namespace>
+        <Namespace>AWS/DynamoDB</Namespace>
+        <Namespace>AWS/RDS</Namespace>
+        <Namespace>AWS/Route53</Namespace>
+        <Namespace>AWS/SQS</Namespace>
+        <Namespace>AWS/ElasticMapReduce</Namespace>
+        <Namespace>AWS/StorageGateway</Namespace>
+        <Namespace>AWS/OpsWorks</Namespace>
+        <Namespace>AWS/SNS</Namespace>
+        <Namespace>AWS/Billing</Namespace>
+    </SupportedNamespaces>
+
+    <DisabledMetrics>
+        <Metric namespace="AWS/EC2" metricName="CPUUtilization"/>
+        <Metric namespace="AWS/EC2" metricName="Some Metric"/>
+    </DisabledMetrics>
+
+</Configurations> 
+ 
+ 
 Directory Structure
 -------------------
 
@@ -124,4 +170,4 @@ Directory Structure
   </tr>
 </table>  
 
-Main Java File: 
+***Main Java File***: **src/com/appdynamics/monitors/amazon/AmazonCloudWatchMonitor.java** 
