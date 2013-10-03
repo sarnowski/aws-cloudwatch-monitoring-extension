@@ -25,8 +25,4 @@ Metrics are categorized under the AWS Product Namespaces:
     AWS/SNS                 (Simple Notification Service)
     AWS/SQS                 (Simple Queue Service)
     AWS/StorageGateway
-    
-
-
-
-
+ 
