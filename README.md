@@ -4,7 +4,7 @@ AppDynamics AWS CloudWatch Monitoring Extension
 Use Case
 -------- 
 
-The AWS CloudWatch custom monitor captures statistics from Amazon CloudWatch and displays them in the AppDynamics Metric Broswer.
+The AWS CloudWatch custom monitor captures statistics from Amazon CloudWatch and displays them in the AppDynamics Metric Browser.
 
 Metrics are categorized under the AWS Product Namespaces:
 
@@ -76,3 +76,11 @@ Metrics are categorized under the AWS Product Namespaces:
 </table>
 
 Specific metrics under each of these namespaces can be found at this link http://docs.aws.amazon.com/AmazonCloudWatch/latest/DeveloperGuide/CW_Support_For_AWS.html
+
+Installation
+------------
+
+ 1. Run 'ant-package' from the aws-cloudwatch-monitoring-extension directory
+ 2. Download the AmazonMonitor.zip found in the 'dist' directory into <machineagent install dir>/monitors/
+ 3. Unzip the downloaded zip file
+ 4. In the newly created "AmazonMonitor" directory, edit the "AWSConfigurations.xml" file configuring the parameters specified below 
