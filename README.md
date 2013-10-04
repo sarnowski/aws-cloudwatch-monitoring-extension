@@ -193,3 +193,19 @@ Directory Structure
 </table>  
 
 ***Main Java File***: **src/com/appdynamics/monitors/amazon/AmazonCloudWatchMonitor.java** 
+
+Contributing
+------------
+
+Always feel free to fork and contribute any changes directly via <a href="https://github.com/Appdynamics/aws-cloudwatch-monitoring-extension">GitHub</a>
+
+
+Community
+---------
+
+Find out more in the <a href="http://appsphere.appdynamics.com/t5/Extensions/MongoDB-Monitoring-Extension/idi-p/831">AppSphere</a>
+
+Support
+-------
+
+For any questions or feature request, please contact <a href="mailto:ace-request@appdynamics.com">AppDynamics Center of Excellence</a> 
