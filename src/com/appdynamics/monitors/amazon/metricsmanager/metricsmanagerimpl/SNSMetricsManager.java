@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-public class SNSMetricsManager extends MetricsManager {
+public final class SNSMetricsManager extends MetricsManager {
 
     private static final String NAMESPACE = "AWS/SNS";
 

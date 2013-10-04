@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-public class Route53MetricsManager extends MetricsManager {
+public final class Route53MetricsManager extends MetricsManager {
 
     private static final String NAMESPACE = "AWS/Route53";
     private AmazonRoute53 amazonRoute53;

@@ -3,7 +3,7 @@ package com.appdynamics.monitors.amazon.metricsmanager.metricsmanagerimpl;
 import com.appdynamics.monitors.amazon.AmazonCloudWatchMonitor;
 import com.appdynamics.monitors.amazon.metricsmanager.MetricsManager;
 
-public class DynamoDBMetricsManager extends MetricsManager {
+public final class DynamoDBMetricsManager extends MetricsManager {
 
     private static final String NAMESPACE = "AWS/DynamoDB";
 

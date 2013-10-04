@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class AmazonCloudWatchMonitor extends AManagedMonitor {
+public final class AmazonCloudWatchMonitor extends AManagedMonitor {
 
     private Logger logger = Logger.getLogger(this.getClass().getName());
     private static boolean isInitialized = false;

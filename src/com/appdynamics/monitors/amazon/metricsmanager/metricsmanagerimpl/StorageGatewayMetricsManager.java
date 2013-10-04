@@ -3,7 +3,7 @@ package com.appdynamics.monitors.amazon.metricsmanager.metricsmanagerimpl;
 import com.appdynamics.monitors.amazon.AmazonCloudWatchMonitor;
 import com.appdynamics.monitors.amazon.metricsmanager.MetricsManager;
 
-public class StorageGatewayMetricsManager extends MetricsManager {
+public final class StorageGatewayMetricsManager extends MetricsManager {
 
     private static final String NAMESPACE = "AWS/StorageGateway";
 

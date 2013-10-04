@@ -4,7 +4,7 @@ import com.appdynamics.monitors.amazon.AmazonCloudWatchMonitor;
 import com.appdynamics.monitors.amazon.metricsmanager.MetricsManager;
 import org.apache.log4j.Logger;
 
-public class EBSMetricsManager extends MetricsManager {
+public final class EBSMetricsManager extends MetricsManager {
 
     private static final String NAMESPACE = "AWS/EBS";
     private Logger logger = Logger.getLogger(this.getClass().getName());

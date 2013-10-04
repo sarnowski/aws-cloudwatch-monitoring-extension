@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-public class ElastiCacheMetricsManager extends MetricsManager {
+public final class ElastiCacheMetricsManager extends MetricsManager {
 
     private static final String NAMESPACE = "AWS/ElastiCache";
 

@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-public class ELBMetricsManager extends MetricsManager {
+public final class ELBMetricsManager extends MetricsManager {
 
     private static final String NAMESPACE = "AWS/ELB";
 

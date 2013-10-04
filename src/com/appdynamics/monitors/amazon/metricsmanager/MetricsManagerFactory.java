@@ -1,10 +1,9 @@
 package com.appdynamics.monitors.amazon.metricsmanager;
 
 import com.appdynamics.monitors.amazon.AmazonCloudWatchMonitor;
-import com.appdynamics.monitors.amazon.metricsmanager.*;
 import com.appdynamics.monitors.amazon.metricsmanager.metricsmanagerimpl.*;
 
-public class MetricsManagerFactory {
+public final class MetricsManagerFactory {
 
     private MetricsManager metricsManager;
     private AmazonCloudWatchMonitor amazonCloudWatchMonitor;
