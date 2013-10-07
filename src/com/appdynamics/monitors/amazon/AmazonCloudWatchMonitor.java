@@ -107,6 +107,18 @@ public final class AmazonCloudWatchMonitor extends AManagedMonitor {
         return this.disabledMetrics;
     }
     /**
+     * Set the Amazon Cloud Watch Client
+     */
+    public void setAmazonCloudWatch(AmazonCloudWatch awsCloudWatch) {
+        this.awsCloudWatch = awsCloudWatch;
+    }
+    /**
+     * Set the hashmap of disabled metrics
+     */
+    public void setDisabledMetrics(Map disabledMetrics) {
+        this.disabledMetrics = disabledMetrics;
+    }
+    /**
      * Get the AWS Credentials
      * @return	AWSCredentials
      */

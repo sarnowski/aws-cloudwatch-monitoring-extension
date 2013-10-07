@@ -14,10 +14,6 @@ public final class SNSMetricsManager extends MetricsManager {
 
     private static final String NAMESPACE = "AWS/SNS";
 
-    public SNSMetricsManager(AmazonCloudWatchMonitor amazonCloudWatchMonitor) {
-        super(amazonCloudWatchMonitor);
-    }
-
     /**
      * Gather metrics for AWS/SNS
      * @return	Map     Map containing metrics

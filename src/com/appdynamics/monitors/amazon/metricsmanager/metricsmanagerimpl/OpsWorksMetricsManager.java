@@ -14,10 +14,6 @@ public final class OpsWorksMetricsManager extends MetricsManager {
 
     private static final String NAMESPACE = "AWS/OpsWorks";
 
-    public OpsWorksMetricsManager(AmazonCloudWatchMonitor amazonCloudWatchMonitor) {
-        super(amazonCloudWatchMonitor);
-    }
-
     /**
      * Gather metrics for AWS/OpsWorks
      * @return	Map     Map containing metrics

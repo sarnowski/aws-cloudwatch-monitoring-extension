@@ -9,10 +9,6 @@ public final class DynamoDBMetricsManager extends MetricsManager {
 
     private static final String NAMESPACE = "AWS/DynamoDB";
 
-    public DynamoDBMetricsManager(AmazonCloudWatchMonitor amazonCloudWatchMonitor){
-        super(amazonCloudWatchMonitor);
-    }
-
     /**
      * Gather metrics for AWS/DynamoDB
      * @return	Map     Map containing metrics

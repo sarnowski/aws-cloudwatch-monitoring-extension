@@ -9,10 +9,6 @@ public final class AutoScalingMetricsManager extends MetricsManager {
 
     private static final String NAMESPACE = "AWS/AutoScaling";
 
-    public AutoScalingMetricsManager(AmazonCloudWatchMonitor amazonCloudWatchMonitor) {
-        super(amazonCloudWatchMonitor);
-    }
-
     /**
      * Gather metrics for AWS/AutoScaling
      * @return	Map     Map containing metrics

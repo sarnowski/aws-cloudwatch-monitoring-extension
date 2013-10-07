@@ -17,10 +17,6 @@ public final class RedshiftMetricsManager extends MetricsManager {
 
     private static final String NAMESPACE = "AWS/Redshift";
 
-    public RedshiftMetricsManager(AmazonCloudWatchMonitor amazonCloudWatchMonitor){
-        super(amazonCloudWatchMonitor);
-    }
-
     /**
      * Gather metrics for AWS/Redshift
      * @return	Map     Map containing metrics

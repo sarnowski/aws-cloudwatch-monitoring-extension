@@ -9,10 +9,6 @@ public final class SQSMetricsManager extends MetricsManager {
 
     private static final String NAMESPACE = "AWS/SQS";
 
-    public SQSMetricsManager(AmazonCloudWatchMonitor amazonCloudWatchMonitor) {
-        super(amazonCloudWatchMonitor);
-    }
-
     /**
      * Gather metrics for AWS/SQS
      * @return	Map     Map containing metrics

@@ -15,15 +15,12 @@ public abstract class MetricsManager{
     protected AmazonCloudWatch awsCloudWatch;
     protected Map<String,HashSet<String>> disabledMetrics;
 
-    public MetricsManager(AmazonCloudWatchMonitor amazonCloudWatchMonitor) {
-        this.amazonCloudWatchMonitor = amazonCloudWatchMonitor;
-    }
-
     /**
      * Intializes the amazon cloud watch client and the hashmap of disabled metrics
      * @return	String
      */
-    public void initialize() {
+    public void initialize(AmazonCloudWatchMonitor amazonCloudWatchMonitor) {
+        this.amazonCloudWatchMonitor = amazonCloudWatchMonitor;
         this.awsCloudWatch = amazonCloudWatchMonitor.getAmazonCloudWatch();
         this.disabledMetrics = amazonCloudWatchMonitor.getDisabledMetrics();
     }

@@ -9,10 +9,6 @@ public final class BillingMetricsManager extends MetricsManager {
 
     private static final String NAMESPACE = "AWS/Billing";
 
-    public BillingMetricsManager(AmazonCloudWatchMonitor amazonCloudWatchMonitor) {
-        super(amazonCloudWatchMonitor);
-    }
-
     /**
      * Gather metrics for AWS/Billing
      * @return	Map     Map containing metrics

@@ -9,10 +9,6 @@ public final class StorageGatewayMetricsManager extends MetricsManager {
 
     private static final String NAMESPACE = "AWS/StorageGateway";
 
-    public StorageGatewayMetricsManager(AmazonCloudWatchMonitor amazonCloudWatchMonitor) {
-        super(amazonCloudWatchMonitor);
-    }
-
     /**
      * Gather metrics for AWS/StorageGateway
      * @return	Map     Map containing metrics

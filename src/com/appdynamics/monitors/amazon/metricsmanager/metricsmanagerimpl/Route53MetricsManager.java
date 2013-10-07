@@ -19,11 +19,6 @@ public final class Route53MetricsManager extends MetricsManager {
     private static final String NAMESPACE = "AWS/Route53";
     private AmazonRoute53 amazonRoute53;
 
-    public Route53MetricsManager(AmazonCloudWatchMonitor amazonCloudWatchMonitor){
-        super(amazonCloudWatchMonitor);
-        amazonRoute53 = new AmazonRoute53Client(amazonCloudWatchMonitor.getAWSCredentials());
-    }
-
     /**
      * Gather metrics for AWS/Route53
      * @return	Map     Map containing metrics

@@ -14,10 +14,6 @@ public final class ElastiCacheMetricsManager extends MetricsManager {
 
     private static final String NAMESPACE = "AWS/ElastiCache";
 
-    public ElastiCacheMetricsManager(AmazonCloudWatchMonitor amazonCloudWatchMonitor){
-        super(amazonCloudWatchMonitor);
-    }
-
     /**
      * Gather metrics for AWS/ElastiCache
      * @return	Map     Map containing metrics

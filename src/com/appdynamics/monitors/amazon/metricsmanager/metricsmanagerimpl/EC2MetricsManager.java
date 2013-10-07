@@ -9,10 +9,6 @@ public final class EC2MetricsManager extends MetricsManager {
 
     private static final String NAMESPACE = "AWS/EC2";
 
-    public EC2MetricsManager(AmazonCloudWatchMonitor amazonCloudWatchMonitor){
-        super(amazonCloudWatchMonitor);
-    }
-
     /**
      * Gather metrics for AWS/EC2
      * @return	Map     Map containing metrics

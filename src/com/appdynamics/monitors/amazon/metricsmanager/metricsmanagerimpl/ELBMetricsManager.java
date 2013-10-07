@@ -17,10 +17,6 @@ public final class ELBMetricsManager extends MetricsManager {
 
     private static final String NAMESPACE = "AWS/ELB";
 
-    public ELBMetricsManager(AmazonCloudWatchMonitor amazonCloudWatchMonitor){
-        super(amazonCloudWatchMonitor);
-    }
-
     /**
      * Gather metrics for AWS/ELB
      * @return	Map     Map containing metrics

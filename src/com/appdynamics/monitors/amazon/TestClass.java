@@ -1,37 +1,90 @@
 package com.appdynamics.monitors.amazon;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
 import com.amazonaws.services.cloudwatch.model.*;
 import com.appdynamics.monitors.amazon.configuration.Configuration;
 import com.appdynamics.monitors.amazon.configuration.ConfigurationUtil;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
+import com.appdynamics.monitors.amazon.metricsmanager.MetricsManager;
+import com.appdynamics.monitors.amazon.metricsmanager.MetricsManagerFactory;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.events.Attribute;
-import javax.xml.stream.events.EndElement;
-import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 public class TestClass {
 
-    public static void main(String[] args) {
-        Configuration config = ConfigurationUtil.getConfigurations("conf/AWSConfigurations.xml");
+    private static Configuration config;
+    private static AmazonCloudWatch awsCloudWatch;
+    private static AmazonCloudWatchMonitor monitor;
+    private static MetricsManagerFactory metricsManagerFactory;
 
-        AmazonCloudWatch awsCloudWatch = new AmazonCloudWatchClient(config.awsCredentials);
+    // Initialzation for local testing. Bit hacky since we are not using the monitor->execute()
+    public static void init() {
+        config = ConfigurationUtil.getConfigurations("conf/AWSConfigurations.xml");
+        awsCloudWatch = new AmazonCloudWatchClient(config.awsCredentials);
+        monitor = new AmazonCloudWatchMonitor();
+        monitor.setAmazonCloudWatch(awsCloudWatch);
+        monitor.setDisabledMetrics(config.disabledMetrics);
+        metricsManagerFactory = new MetricsManagerFactory(monitor);
+    }
+
+    public static void main(String[] args) {
+        init();
+        //testRedshiftMetrics();
+        //List<Metric> metrics = getListMetrics("AWS/Redshift", "ClusterIdentifier");
+        testDimensions();
         System.out.println("done");
     }
+
+    public static void testRedshiftMetrics() {
+        MetricsManager redshift = metricsManagerFactory.createMetricsManager("AWS/Redshift");
+        Map metrics = redshift.gatherMetrics();
+        System.out.println("Done collecting Redshfit metrics");
+    }
+
+    public static void testDimensions() {
+        ArrayList<Dimension> dimensions = new ArrayList<Dimension>();
+        Dimension d1 = new Dimension();
+        d1.setName("ClusterIdentifier");
+        d1.setValue("cluster1");
+        dimensions.add(d1);
+        GetMetricStatisticsRequest request = createGetMetricStatisticsRequest("AWS/Redshift", "CPUUtilization", "Average", dimensions);
+        GetMetricStatisticsResult result = awsCloudWatch.getMetricStatistics(request);
+        System.out.println("done");
+    }
+
+    public static List<Metric> getListMetrics(String namespace, String...filterNames) {
+        ListMetricsRequest request = new ListMetricsRequest();
+        List<DimensionFilter> filters = new ArrayList<DimensionFilter>();
+
+        for (String filterName : filterNames) {
+            DimensionFilter dimensionFilter = new DimensionFilter();
+            dimensionFilter.withName(filterName);
+            filters.add(dimensionFilter);
+        }
+
+        request.withNamespace(namespace);
+        request.withDimensions(filters);
+
+        ListMetricsResult listMetricsResult = awsCloudWatch.listMetrics(request);
+        return listMetricsResult.getMetrics();
+    }
+
+    public static GetMetricStatisticsRequest createGetMetricStatisticsRequest(String namespace,
+                                                                          String metricName,
+                                                                          String statisticsType,
+                                                                          List<Dimension> dimensions) {
+        GetMetricStatisticsRequest getMetricStatisticsRequest = new GetMetricStatisticsRequest()
+                .withStartTime(new Date(new Date().getTime() - 1800000))
+                .withNamespace(namespace)
+                .withDimensions(dimensions)
+                .withPeriod(60 * 60)
+                .withMetricName(metricName)
+                .withStatistics(statisticsType)
+                .withEndTime(new Date());
+        return getMetricStatisticsRequest;
+    }
+
 }

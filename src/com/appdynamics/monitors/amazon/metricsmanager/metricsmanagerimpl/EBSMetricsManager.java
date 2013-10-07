@@ -11,10 +11,6 @@ public final class EBSMetricsManager extends MetricsManager {
     private static final String NAMESPACE = "AWS/EBS";
     private Logger logger = Logger.getLogger(this.getClass().getName());
 
-    public EBSMetricsManager(AmazonCloudWatchMonitor amazonCloudWatchMonitor){
-        super(amazonCloudWatchMonitor);
-    }
-
     /**
      * Gather metrics for AWS/EBS
      * @return	Map     Map containing metrics

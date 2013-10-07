@@ -9,10 +9,6 @@ public final class ElasticMapReduceMetricsManager extends MetricsManager {
 
     private static final String NAMESPACE = "AWS/ElasticMapReduce";
 
-    public ElasticMapReduceMetricsManager(AmazonCloudWatchMonitor amazonCloudWatchMonitor){
-        super(amazonCloudWatchMonitor);
-    }
-
     /**
      * Gather metrics for AWS/ElasticMapReduce
      * @return	Map     Map containing metrics

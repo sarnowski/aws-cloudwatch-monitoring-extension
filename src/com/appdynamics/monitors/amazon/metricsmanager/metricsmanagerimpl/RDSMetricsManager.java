@@ -9,10 +9,6 @@ public final class RDSMetricsManager extends MetricsManager {
 
     private static final String NAMESPACE = "AWS/RDS";
 
-    public RDSMetricsManager(AmazonCloudWatchMonitor amazonCloudWatchMonitor){
-        super(amazonCloudWatchMonitor);
-    }
-
     /**
      * Gather metrics for AWS/RDS
      * @return	Map     Map containing metrics

@@ -35,55 +35,55 @@ public final class MetricsManagerFactory {
      */
     public MetricsManager createMetricsManager(String namespace) {
         if (namespace.equals(AWS_EC2_NAMESPACE)){
-            metricsManager = new EC2MetricsManager(amazonCloudWatchMonitor);
+            metricsManager = new EC2MetricsManager();
         }
         else if (namespace.equals(AWS_AUTOSCALING_NAMESPACE)) {
-            metricsManager = new AutoScalingMetricsManager(amazonCloudWatchMonitor);
+            metricsManager = new AutoScalingMetricsManager();
         }
         else if (namespace.equals(AWS_EBS_NAMESPACE)) {
-            metricsManager = new EBSMetricsManager(amazonCloudWatchMonitor);
+            metricsManager = new EBSMetricsManager();
         }
         else if (namespace.equals(AWS_ELB_NAMESPACE)) {
-            metricsManager = new ELBMetricsManager(amazonCloudWatchMonitor);
+            metricsManager = new ELBMetricsManager();
         }
         else if (namespace.equals(AWS_ELASTI_CACHE_NAMESPACE)) {
-            metricsManager = new ElastiCacheMetricsManager(amazonCloudWatchMonitor);
+            metricsManager = new ElastiCacheMetricsManager();
         }
         else if (namespace.equals(AWS_REDSHIFT_NAMESPACE)) {
-            metricsManager = new RedshiftMetricsManager(amazonCloudWatchMonitor);
+            metricsManager = new RedshiftMetricsManager();
         }
         else if (namespace.equals(AWS_DYNAMO_DB_NAMESPACE)) {
-            metricsManager = new DynamoDBMetricsManager(amazonCloudWatchMonitor);
+            metricsManager = new DynamoDBMetricsManager();
         }
         else if (namespace.equals(AWS_RDS_NAMESPACE)) {
-            metricsManager = new RDSMetricsManager(amazonCloudWatchMonitor);
+            metricsManager = new RDSMetricsManager();
         }
         else if (namespace.equals(AWS_ROUTE53_NAMESPACE)) {
-            metricsManager = new Route53MetricsManager(amazonCloudWatchMonitor);
+            metricsManager = new Route53MetricsManager();
         }
         else if (namespace.equals(AWS_SQS_NAMESPACE)) {
-            metricsManager = new SQSMetricsManager(amazonCloudWatchMonitor);
+            metricsManager = new SQSMetricsManager();
         }
         else if (namespace.equals(AWS_ELASTIC_MAP_REDUCE_NAMESPACE)) {
-            metricsManager = new ElasticMapReduceMetricsManager(amazonCloudWatchMonitor);
+            metricsManager = new ElasticMapReduceMetricsManager();
         }
         else if (namespace.equals(AWS_STORAGE_GATEWAY_NAMESPACE)) {
-            metricsManager = new StorageGatewayMetricsManager(amazonCloudWatchMonitor);
+            metricsManager = new StorageGatewayMetricsManager();
         }
         else if (namespace.equals(AWS_OPS_WORKS_NAMESPACE)) {
-            metricsManager = new OpsWorksMetricsManager(amazonCloudWatchMonitor);
+            metricsManager = new OpsWorksMetricsManager();
         }
         else if (namespace.equals(AWS_SNS_NAMESPACE)) {
-            metricsManager = new SNSMetricsManager(amazonCloudWatchMonitor);
+            metricsManager = new SNSMetricsManager();
         }
         else if (namespace.equals(AWS_BILLING_NAMESPACE)) {
-            metricsManager = new BillingMetricsManager(amazonCloudWatchMonitor);
+            metricsManager = new BillingMetricsManager();
         }
         else {
             throw new UnsupportedOperationException();
         }
 
-        metricsManager.initialize();
+        metricsManager.initialize(amazonCloudWatchMonitor);
         return metricsManager;
     }
 }
