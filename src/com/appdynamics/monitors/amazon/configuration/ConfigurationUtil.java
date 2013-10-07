@@ -15,6 +15,12 @@ import java.util.Iterator;
 
 public class ConfigurationUtil {
 
+    public static final String METRIC_TAG = "Metric";
+    public static final String NAMESPACE_TAG = "namespace";
+    public static final String METRIC_NAME_TAG = "metricName";
+    public static final String ACCESS_KEY_TAG = "AccessKey";
+    public static final String SECRET_KEY_TAG = "SecretKey";
+
     public static Configuration getConfigurations(String filePath) {
         Configuration awsConfiguration = new Configuration();
         String accessKey= "";
@@ -36,7 +42,7 @@ public class ConfigurationUtil {
 
                     StartElement startElement = event.asStartElement();
 
-                    if (startElement.getName().getLocalPart().equals("Metric")) {
+                    if (startElement.getName().getLocalPart().equals(METRIC_TAG)) {
 
                         // attribute
                         Iterator<Attribute> attributes = startElement.getAttributes();
@@ -46,30 +52,30 @@ public class ConfigurationUtil {
                             Attribute attribute = attributes.next();
 
                             String attributeName = attribute.getName().toString();
-                            if (attributeName.equals("namespace")) {
+                            if (attributeName.equals(NAMESPACE_TAG)) {
                                 namespace = attribute.getValue();
                             }
-                            if (attributeName.equals("metricName")) {
+                            if (attributeName.equals(METRIC_NAME_TAG)) {
                                 metricName = attribute.getValue();
                             }
                         }
                         if (!awsConfiguration.disabledMetrics.containsKey(namespace)) {
                             awsConfiguration.disabledMetrics.put(namespace, new HashSet<String>());
                         }
-                        awsConfiguration.disabledMetrics.get(namespace).add(metricName);
+                        ((HashSet)awsConfiguration.disabledMetrics.get(namespace)).add(metricName);
                     }
 
                     // data
                     if (event.isStartElement()) {
                         String tagName = event.asStartElement().getName().getLocalPart();
                         event = eventReader.nextEvent();
-                        if(tagName.equals("AccessKey")) {
+                        if(tagName.equals(ACCESS_KEY_TAG)) {
                             accessKey = event.toString();
                         }
-                        if(tagName.equals("SecretKey")) {
+                        if(tagName.equals(SECRET_KEY_TAG)) {
                             secretKey = event.toString();
                         }
-                        if(tagName.equals("Namespace")) {
+                        if(tagName.equals(NAMESPACE_TAG)) {
                             String namespace = event.toString();
                             if (!awsConfiguration.availableNamespaces.contains(namespace)) {
                                 awsConfiguration.availableNamespaces.add(namespace);
@@ -91,53 +97,3 @@ public class ConfigurationUtil {
         return awsConfiguration;
     }
 }
-
-/*private void initialize(Map<String, String> taskArguments) {
-    long startTime = System.currentTimeMillis();
-    if (!isInitialized) {
-        try {
-            //File configFile = new File(taskArguments.get("configurations"));
-            FileInputStream configFile = new FileInputStream(taskArguments.get("configurations"));
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(configFile);
-
-            // Initialize AmazonCloudWatch
-            Element credentialsFromFile = (Element)doc.getElementsByTagName("AWSCredentials").item(0);
-            String accessKey = credentialsFromFile.getElementsByTagName("AccessKey").item(0).getTextContent();
-            String secretKey = credentialsFromFile.getElementsByTagName("SecretKey").item(0).getTextContent();
-            awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
-            awsCloudWatch = new AmazonCloudWatchClient(awsCredentials);
-
-            // Initialize Namespaces
-            Element namespacesElement = (Element)doc.getElementsByTagName("SupportedNamespaces").item(0);
-            NodeList namespaces = namespacesElement.getElementsByTagName("Namespace");
-
-            for (int i = 0; i < namespaces.getLength(); i++) {
-                String namespace = namespaces.item(i).getTextContent();
-                if (!availableNamespaces.contains(namespace)) {
-                    availableNamespaces.add(namespaces.item(i).getTextContent());
-                }
-            }
-
-            //Initialize Disabled Metrics
-            Element disabledMetricsElement = (Element) doc.getElementsByTagName("DisabledMetrics").item(0);
-            NodeList disabledMetricsList = disabledMetricsElement.getElementsByTagName("Metric");
-            for (int i = 0; i < disabledMetricsList.getLength(); i++) {
-                String namespaceKey = disabledMetricsList.item(i).getAttributes().getNamedItem("namespace").getNodeValue();
-                String metricName = disabledMetricsList.item(i).getAttributes().getNamedItem("metricName").getNodeValue();
-                if (!disabledMetrics.containsKey(namespaceKey)) {
-                    disabledMetrics.put(namespaceKey, new HashSet<String>());
-                }
-                disabledMetrics.get(namespaceKey).add(metricName);
-            }
-            configFile.close();
-            isInitialized = true;
-        }
-        catch (Exception e) {
-            logger.error(e.getMessage());
-        }
-    }
-    long endTime = System.currentTimeMillis();
-    printExecutionTime(startTime, endTime);
-}*/

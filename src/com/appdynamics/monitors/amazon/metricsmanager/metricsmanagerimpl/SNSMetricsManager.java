@@ -8,6 +8,7 @@ import com.singularity.ee.agent.systemagent.api.MetricWriter;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public final class SNSMetricsManager extends MetricsManager {
 
@@ -17,8 +18,12 @@ public final class SNSMetricsManager extends MetricsManager {
         super(amazonCloudWatchMonitor);
     }
 
+    /**
+     * Gather metrics for AWS/SNS
+     * @return	Map     Map containing metrics
+     */
     @Override
-    public Object gatherMetrics() {
+    public Map gatherMetrics() {
         HashMap<String, HashMap<String, HashMap<String, List<Datapoint>>>> snsMetrics = new HashMap<String, HashMap<String, HashMap<String, List<Datapoint>>>>();
 
         HashMap<String, HashMap<String, List<Datapoint>>> applicationMetrics = (HashMap)gatherMetricsHelper(NAMESPACE,"Application");
@@ -32,8 +37,12 @@ public final class SNSMetricsManager extends MetricsManager {
         return snsMetrics;
     }
 
+    /**
+     * Print metrics for AWS/SNS
+     * @param metrics   Map containing metrics
+     */
     @Override
-    public void printMetrics(Object metrics) {
+    public void printMetrics(Map metrics) {
         HashMap<String, HashMap<String, HashMap<String, List<Datapoint>>>> snsMetrics = (HashMap<String, HashMap<String,HashMap<String,List<Datapoint>>>>) metrics;
         Iterator dimensionFilterIterator = snsMetrics.keySet().iterator();
 
@@ -61,6 +70,10 @@ public final class SNSMetricsManager extends MetricsManager {
         }
     }
 
+    /**
+     * Construct namespace prefix for AWS/SNS
+     * @return String   Namespace prefix
+     */
     @Override
     public String getNamespacePrefix() {
         return NAMESPACE.substring(4,NAMESPACE.length()) + "|";

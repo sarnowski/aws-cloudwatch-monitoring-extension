@@ -12,10 +12,7 @@ import com.appdynamics.monitors.amazon.AmazonCloudWatchMonitor;
 import com.appdynamics.monitors.amazon.metricsmanager.MetricsManager;
 import com.singularity.ee.agent.systemagent.api.MetricWriter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public final class Route53MetricsManager extends MetricsManager {
 
@@ -27,8 +24,12 @@ public final class Route53MetricsManager extends MetricsManager {
         amazonRoute53 = new AmazonRoute53Client(amazonCloudWatchMonitor.getAWSCredentials());
     }
 
+    /**
+     * Gather metrics for AWS/Route53
+     * @return	Map     Map containing metrics
+     */
     @Override
-    public Object gatherMetrics() {
+    public Map gatherMetrics() {
         ListHealthChecksResult listHealthChecksResult = amazonRoute53.listHealthChecks();
         List<HealthCheck> healthChecks = listHealthChecksResult.getHealthChecks();
         HashMap<String,List<Datapoint>> healthCheckMetrics = new HashMap<String, List<Datapoint>>();
@@ -51,8 +52,12 @@ public final class Route53MetricsManager extends MetricsManager {
         return healthCheckMetrics;
     }
 
+    /**
+     * Print metrics for AWS/Route53
+     * @param metrics   Map containing metrics
+     */
     @Override
-    public void printMetrics(Object metrics) {
+    public void printMetrics(Map metrics) {
         HashMap<String,List<Datapoint>> healthCheckMetrics = (HashMap<String,List<Datapoint>> )metrics;
         Iterator healthCheckIdIterator = healthCheckMetrics.keySet().iterator();
 
@@ -69,6 +74,10 @@ public final class Route53MetricsManager extends MetricsManager {
         }
     }
 
+    /**
+     * Construct namespace prefix for AWS/Route53
+     * @return String   Namespace prefix
+     */
     @Override
     public String getNamespacePrefix() {
         return NAMESPACE.substring(4,NAMESPACE.length()) + "|" + "HealthCheckId|";

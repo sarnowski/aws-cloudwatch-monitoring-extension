@@ -8,6 +8,7 @@ import com.singularity.ee.agent.systemagent.api.MetricWriter;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public final class OpsWorksMetricsManager extends MetricsManager {
 
@@ -17,8 +18,12 @@ public final class OpsWorksMetricsManager extends MetricsManager {
         super(amazonCloudWatchMonitor);
     }
 
+    /**
+     * Gather metrics for AWS/OpsWorks
+     * @return	Map     Map containing metrics
+     */
     @Override
-    public Object gatherMetrics() {
+    public Map gatherMetrics() {
         HashMap<String, HashMap<String, HashMap<String, List<Datapoint>>>> opsWorksMetrics = new HashMap<String, HashMap<String, HashMap<String, List<Datapoint>>>>();
 
         HashMap<String, HashMap<String, List<Datapoint>>> stackMetrics = (HashMap)gatherMetricsHelper(NAMESPACE,"StackId");
@@ -32,8 +37,12 @@ public final class OpsWorksMetricsManager extends MetricsManager {
         return opsWorksMetrics;
     }
 
+    /**
+     * Print metrics for AWS/OpsWorks
+     * @param metrics   Map containing metrics
+     */
     @Override
-    public void printMetrics(Object metrics) {
+    public void printMetrics(Map metrics) {
         HashMap<String, HashMap<String, HashMap<String, List<Datapoint>>>> opsWorksMetrics = (HashMap<String, HashMap<String,HashMap<String,List<Datapoint>>>>) metrics;
         Iterator dimensionFilterIterator = opsWorksMetrics.keySet().iterator();
 
@@ -61,6 +70,10 @@ public final class OpsWorksMetricsManager extends MetricsManager {
         }
     }
 
+    /**
+     * Construct namespace prefix for AWS/OpsWorks
+     * @return String   Namespace prefix
+     */
     @Override
     public String getNamespacePrefix() {
         return NAMESPACE.substring(4,NAMESPACE.length()) + "|";

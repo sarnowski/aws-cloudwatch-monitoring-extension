@@ -8,6 +8,7 @@ import com.singularity.ee.agent.systemagent.api.MetricWriter;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public final class ElastiCacheMetricsManager extends MetricsManager {
 
@@ -17,8 +18,12 @@ public final class ElastiCacheMetricsManager extends MetricsManager {
         super(amazonCloudWatchMonitor);
     }
 
+    /**
+     * Gather metrics for AWS/ElastiCache
+     * @return	Map     Map containing metrics
+     */
     @Override
-    public Object gatherMetrics() {
+    public Map gatherMetrics() {
         List<Metric> metricsList = getMetrics(NAMESPACE, "CacheClusterId", "CacheNodeId");
 
         //Top level     -- Key = CacheClusterIds,       Value = HashMap of cache nodes
@@ -48,8 +53,12 @@ public final class ElastiCacheMetricsManager extends MetricsManager {
         return cacheClusterMetrics;
     }
 
+    /**
+     * Print metrics for AWS/ElastiCache
+     * @param metrics   Map containing metrics
+     */
     @Override
-    public void printMetrics(Object metrics) {
+    public void printMetrics(Map metrics) {
         HashMap<String, HashMap<String, HashMap<String, List<Datapoint>>>> elastiCacheMetrics = (HashMap<String, HashMap<String,HashMap<String,List<Datapoint>>>>) metrics;
         Iterator cacheClusterIterator = elastiCacheMetrics.keySet().iterator();
 
@@ -77,6 +86,10 @@ public final class ElastiCacheMetricsManager extends MetricsManager {
         }
     }
 
+    /**
+     * Construct namespace prefix for AWS/ElastiCache
+     * @return String   Namespace prefix
+     */
     @Override
     public String getNamespacePrefix() {
         return NAMESPACE.substring(4,NAMESPACE.length()) + "|" + "Cache Cluster Id|";

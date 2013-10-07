@@ -460,4 +460,19 @@ public class TestClass {
         Configuration config = ConfigurationUtil.getConfigurations("conf/AWSConfigurations.xml");
         System.out.println("done");
     }
+
+    public static void testHashmap() {
+        Map map = new HashMap<String, String>();
+        map.put("hello", "hello2");
+        map.put("hello", "hello3");
+
+        Iterator iterator = map.keySet().iterator();
+
+        while (iterator.hasNext()) {
+            String key = iterator.next().toString();
+            String value = map.get(key).toString();
+            String formattedString = String.format("Key: %10s Value: %10s", key, value);
+            System.out.println(formattedString);
+        }
+    }
 }

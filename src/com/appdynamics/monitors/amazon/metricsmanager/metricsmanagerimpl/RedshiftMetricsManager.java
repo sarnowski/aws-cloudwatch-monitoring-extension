@@ -11,6 +11,7 @@ import com.singularity.ee.agent.systemagent.api.MetricWriter;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public final class RedshiftMetricsManager extends MetricsManager {
 
@@ -20,8 +21,12 @@ public final class RedshiftMetricsManager extends MetricsManager {
         super(amazonCloudWatchMonitor);
     }
 
+    /**
+     * Gather metrics for AWS/Redshift
+     * @return	Map     Map containing metrics
+     */
     @Override
-    public Object gatherMetrics() {
+    public Map gatherMetrics() {
         HashMap<String, HashMap<String, HashMap<String, List<Datapoint>>>> redshiftMetrics = new HashMap<String, HashMap<String,HashMap<String,List<Datapoint>>>>();
         List<com.amazonaws.services.cloudwatch.model.Metric> metrics = getMetrics(NAMESPACE, "ClusterIdentifier", "NodeID");
         for (com.amazonaws.services.cloudwatch.model.Metric metric : metrics) {
@@ -47,8 +52,12 @@ public final class RedshiftMetricsManager extends MetricsManager {
         return redshiftMetrics;
     }
 
+    /**
+     * Print metrics for AWS/Redshift
+     * @param metrics   Map containing metrics
+     */
     @Override
-    public void printMetrics(Object metrics) {
+    public void printMetrics(Map metrics) {
         HashMap<String, HashMap<String, HashMap<String, List<Datapoint>>>> redshiftMetrics = (HashMap<String, HashMap<String,HashMap<String,List<Datapoint>>>>) metrics;
         Iterator clusterIdIterator = redshiftMetrics.keySet().iterator();
 
@@ -76,6 +85,10 @@ public final class RedshiftMetricsManager extends MetricsManager {
         }
     }
 
+    /**
+     * Construct namespace prefix for AWS/Redshift
+     * @return String   Namespace prefix
+     */
     @Override
     public String getNamespacePrefix() {
         return NAMESPACE.substring(4,NAMESPACE.length()) + "|" + "ClusterIdentifier|";

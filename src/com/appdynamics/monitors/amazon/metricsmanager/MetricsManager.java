@@ -19,15 +19,42 @@ public abstract class MetricsManager{
         this.amazonCloudWatchMonitor = amazonCloudWatchMonitor;
     }
 
+    /**
+     * Intializes the amazon cloud watch client and the hashmap of disabled metrics
+     * @return	String
+     */
     public void initialize() {
         this.awsCloudWatch = amazonCloudWatchMonitor.getAmazonCloudWatch();
         this.disabledMetrics = amazonCloudWatchMonitor.getDisabledMetrics();
     }
 
-    public abstract Object gatherMetrics();
-    public abstract void printMetrics(Object metrics);
+    /**
+     * Gather metrics for a particular namespace
+     * @return Map
+     */
+    public abstract Map gatherMetrics();
+
+    /**
+     * Print metrics for a particular namespace
+     * @param metrics Map
+     */
+    public abstract void printMetrics(Map metrics);
+
+    /**
+     * Get namespace prefix
+     * @return String
+     */
     public abstract String getNamespacePrefix();
 
+
+    /**
+     * Create a GetMetricStatisticsRequest for a particular namespace
+     * @param namespace             Name of the Namespace
+     * @param metricName            Name of the Metric
+     * @param statisticsType        Type of Statistics (i.e. Average, Sum)
+     * @param dimensions            List of dimensions used to filter metrics
+     * @return GetMetricStatisticsRequest
+     */
     protected GetMetricStatisticsRequest createGetMetricStatisticsRequest(String namespace,
                                                                        String metricName,
                                                                        String statisticsType,
@@ -43,6 +70,12 @@ public abstract class MetricsManager{
         return getMetricStatisticsRequest;
     }
 
+    /**
+     * Retrieve metrics for a particular namespace using the specified filter names
+     * @param namespace     Name of the namespace
+     * @param filterNames   List of filter names (used to filter metrics)
+     * @return List<Metric> List of filtered metrics for a particular namespace
+     */
     protected List<Metric> getMetrics(String namespace, String... filterNames) {
         ListMetricsRequest request = new ListMetricsRequest();
         List<DimensionFilter> filters = new ArrayList<DimensionFilter>();
@@ -60,7 +93,13 @@ public abstract class MetricsManager{
         return listMetricsResult.getMetrics();
     }
 
-    protected Object gatherMetricsHelper(String namespace, String...filterNames) {
+    /**
+     * Helper method to gather metrics for a particular namespace using certain filter names
+     * @param namespace     Name of the namespace
+     * @param filterNames   List of filter names (used to filter metrics)
+     * @return Map          Map containing metrics for a particular namespace
+     */
+    protected Map gatherMetricsHelper(String namespace, String...filterNames) {
         HashMap<String, HashMap<String,List<Datapoint>>> metrics = new HashMap<String,HashMap<String,List<Datapoint>>>();
         List<Metric> metricsList = getMetrics(namespace, filterNames);
 
@@ -80,7 +119,12 @@ public abstract class MetricsManager{
         }
         return metrics;
     }
-    protected void printMetricsHelper(Object metricsMap, String prefix) {
+    /**
+     * Helper method to print metrics for a particular namespace
+     * @param metricsMap    Map that contains metrics for a particular namespace
+     * @param prefix        Prefix to be used to display metrics on AppDynamics Metric Browser
+     */
+    protected void printMetricsHelper(Map metricsMap, String prefix) {
         HashMap<String, HashMap<String,List<Datapoint>>> metrics = (HashMap<String,HashMap<String,List<Datapoint>>>) metricsMap;
         Iterator outerIterator = metrics.keySet().iterator();
 
@@ -101,6 +145,13 @@ public abstract class MetricsManager{
             }
         }
     }
+
+    /**
+     * Helper method to get the namespace prefix
+     * @param namespace     Name of the namespace
+     * @param id            Id(s) used for a namespace
+     * @return String       The constructed prefix
+     */
     protected String getNamespacePrefixHelper(String namespace, String id){
         StringBuilder sb = new StringBuilder(namespace.substring(4,namespace.length()));
         sb.append("|").append(id).append("|");

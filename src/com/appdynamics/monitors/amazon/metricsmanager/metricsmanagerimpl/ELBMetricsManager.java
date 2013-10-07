@@ -11,6 +11,7 @@ import com.singularity.ee.agent.systemagent.api.MetricWriter;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public final class ELBMetricsManager extends MetricsManager {
 
@@ -20,8 +21,12 @@ public final class ELBMetricsManager extends MetricsManager {
         super(amazonCloudWatchMonitor);
     }
 
+    /**
+     * Gather metrics for AWS/ELB
+     * @return	Map     Map containing metrics
+     */
     @Override
-    public Object gatherMetrics() {
+    public Map gatherMetrics() {
         List<com.amazonaws.services.cloudwatch.model.Metric> elbMetricsList = getMetrics(NAMESPACE, "LoadBalancerName", "AvailabilityZone");
 
         //Top level     -- Key = LoadBalancerName,      Value = HashMap of availability zones
@@ -52,8 +57,12 @@ public final class ELBMetricsManager extends MetricsManager {
         return elbMetrics;
     }
 
+    /**
+     * Print metrics for AWS/ELB
+     * @param metrics   Map containing metrics
+     */
     @Override
-    public void printMetrics(Object metrics) {
+    public void printMetrics(Map metrics) {
         HashMap<String, HashMap<String, HashMap<String, List<Datapoint>>>> elbMetrics = (HashMap<String, HashMap<String,HashMap<String,List<Datapoint>>>>) metrics;
         Iterator loadBalancerIterator = elbMetrics.keySet().iterator();
 
@@ -81,6 +90,10 @@ public final class ELBMetricsManager extends MetricsManager {
         }
     }
 
+    /**
+     * Construct namespace prefix for AWS/ELB
+     * @return String   Namespace prefix
+     */
     @Override
     public String getNamespacePrefix() {
         return NAMESPACE.substring(4,NAMESPACE.length()) + "|" + "Load Balancer Name|";

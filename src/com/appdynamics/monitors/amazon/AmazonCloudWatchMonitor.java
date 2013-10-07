@@ -14,12 +14,8 @@ import com.singularity.ee.agent.systemagent.api.TaskOutput;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 public final class AmazonCloudWatchMonitor extends AManagedMonitor {
 
@@ -28,8 +24,8 @@ public final class AmazonCloudWatchMonitor extends AManagedMonitor {
 
     private MetricsManagerFactory metricsManagerFactory;
     private AmazonCloudWatch awsCloudWatch;
-    private HashMap<String,HashSet<String>> disabledMetrics;
-    private HashSet<String> availableNamespaces;
+    private Map disabledMetrics;
+    private Set availableNamespaces;
     private AWSCredentials awsCredentials;
     private Configuration awsConfiguration;
 
@@ -45,14 +41,11 @@ public final class AmazonCloudWatchMonitor extends AManagedMonitor {
      */
     public void initialize(Map<String,String> taskArguments) {
         if (!isInitialized) {
-            long startTime = System.currentTimeMillis();
             awsConfiguration = ConfigurationUtil.getConfigurations(taskArguments.get("configurations"));
             awsCredentials = awsConfiguration.awsCredentials;
             awsCloudWatch = new AmazonCloudWatchClient(awsCredentials);
             disabledMetrics = awsConfiguration.disabledMetrics;
             availableNamespaces = awsConfiguration.availableNamespaces;
-            long endTime = System.currentTimeMillis();
-            printExecutionTime(startTime, endTime);
             isInitialized = true;
         }
     }
@@ -75,7 +68,7 @@ public final class AmazonCloudWatchMonitor extends AManagedMonitor {
                 public void run() {
                     try {
                         MetricsManager metricsManager = metricsManagerFactory.createMetricsManager(namespace);
-                        Object metrics = metricsManager.gatherMetrics();
+                        Map metrics = metricsManager.gatherMetrics();
                         metricsManager.printMetrics(metrics);
                         logger.info(String.format("%15s: %30s %15s %5d" , "Namespace", namespace, " # Metrics",  ((HashMap)metrics).size()));
                         latch.countDown();
@@ -99,19 +92,35 @@ public final class AmazonCloudWatchMonitor extends AManagedMonitor {
         return new TaskOutput("AWS Cloud Watch Metric Upload Complete");
     }
 
+    /**
+     * Get the Amazon Cloud Watch Client
+     * @return	AmazonCloudWatch
+     */
     public AmazonCloudWatch getAmazonCloudWatch() {
         return this.awsCloudWatch;
     }
-    public HashMap<String,HashSet<String>> getDisabledMetrics() {
+    /**
+     * Get the hashmap of disabled metrics
+     * @return  HashMap
+     */
+    public Map getDisabledMetrics() {
         return this.disabledMetrics;
     }
+    /**
+     * Get the AWS Credentials
+     * @return	AWSCredentials
+     */
     public AWSCredentials getAWSCredentials() {
         return awsCredentials;
     }
+    /**
+     * Check for disabled metrics in particular namespaces
+     * @return	boolean
+     */
     public boolean isMetricDisabled(String namespace, String metricName) {
         boolean result = false;
         if (disabledMetrics.get(namespace) != null) {
-            if (disabledMetrics.get(namespace).contains(metricName)) {
+            if (((HashSet)disabledMetrics.get(namespace)).contains(metricName)) {
                 result = true;
             }
         }
@@ -148,15 +157,5 @@ public final class AmazonCloudWatchMonitor extends AManagedMonitor {
      */
     private String getMetricPrefix() {
         return "Custom Metrics|Amazon Cloud Watch|";
-    }
-
-    private void printExecutionTime(long startTime, long endTime) {
-        long executionTime = endTime - startTime;
-        String formattedTime = String.format("%d min, %d sec",
-                TimeUnit.MILLISECONDS.toMinutes(executionTime),
-                TimeUnit.MILLISECONDS.toSeconds(executionTime) -
-                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(executionTime))
-        );
-        logger.info("   EXECUTION TIME: " + formattedTime);
     }
 }
