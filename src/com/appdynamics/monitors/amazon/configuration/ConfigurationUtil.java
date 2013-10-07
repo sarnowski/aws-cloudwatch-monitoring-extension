@@ -21,6 +21,11 @@ public class ConfigurationUtil {
     public static final String ACCESS_KEY_TAG = "AccessKey";
     public static final String SECRET_KEY_TAG = "SecretKey";
 
+    /**
+     * Reads the config file in the conf/ directory and retrieves AWS credentials, disabled metrics, and available namespaces
+     * @param filePath          Path to the configuration file
+     * @return Configuration    Configuration object containing AWS credentials, disabled metrics, and available namespaces
+     */
     public static Configuration getConfigurations(String filePath) {
         Configuration awsConfiguration = new Configuration();
         String accessKey= "";

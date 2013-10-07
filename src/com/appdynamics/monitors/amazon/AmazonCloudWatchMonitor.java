@@ -85,7 +85,7 @@ public final class AmazonCloudWatchMonitor extends AManagedMonitor {
             logger.info("All threads finished");
         }
         catch(InterruptedException e) {
-            logger.error(e.getMessage());
+            logger.error("Error: ", e);
         }
         logger.info("Finished Executing AmazonMonitor...");
 
@@ -147,7 +147,7 @@ public final class AmazonCloudWatchMonitor extends AManagedMonitor {
 
             metricWriter.printMetric(String.valueOf((long) metricValue));
         } catch (NullPointerException e){
-            logger.info("NullPointerException: " + e.getMessage());
+            logger.error("NullPointerException: ", e);
         }
     }
 
