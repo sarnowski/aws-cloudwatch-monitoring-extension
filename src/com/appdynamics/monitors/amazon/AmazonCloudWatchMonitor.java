@@ -14,7 +14,10 @@ import com.singularity.ee.agent.systemagent.api.TaskOutput;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
 public final class AmazonCloudWatchMonitor extends AManagedMonitor {
@@ -70,7 +73,7 @@ public final class AmazonCloudWatchMonitor extends AManagedMonitor {
                         MetricsManager metricsManager = metricsManagerFactory.createMetricsManager(namespace);
                         Map metrics = metricsManager.gatherMetrics();
                         metricsManager.printMetrics(metrics);
-                        logger.info(String.format("%15s: %30s %15s %5d" , "Namespace", namespace, " # Metrics",  ((HashMap)metrics).size()));
+                        logger.info(String.format("%15s: %30s %15s %5d" , "Namespace", namespace, " # Metrics",  metrics.size()));
                         latch.countDown();
                     }
                     catch(Exception e) {
@@ -85,7 +88,7 @@ public final class AmazonCloudWatchMonitor extends AManagedMonitor {
             logger.info("All threads finished");
         }
         catch(InterruptedException e) {
-            logger.error("Error: ", e);
+            logger.error("Interrupted Exception: ", e);
         }
         logger.info("Finished Executing AmazonMonitor...");
 

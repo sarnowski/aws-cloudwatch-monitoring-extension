@@ -1,6 +1,5 @@
 package com.appdynamics.monitors.amazon.metricsmanager.metricsmanagerimpl;
 
-import com.appdynamics.monitors.amazon.AmazonCloudWatchMonitor;
 import com.appdynamics.monitors.amazon.metricsmanager.MetricsManager;
 
 import java.util.Map;

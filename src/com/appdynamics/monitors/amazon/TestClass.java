@@ -34,7 +34,8 @@ public class TestClass {
         init();
         //testRedshiftMetrics();
         //List<Metric> metrics = getListMetrics("AWS/Redshift", "ClusterIdentifier");
-        testDimensions();
+        testRoute53Metrics();
+        //testDimensions();
         System.out.println("done");
     }
 
@@ -87,4 +88,10 @@ public class TestClass {
         return getMetricStatisticsRequest;
     }
 
+    public static void testRoute53Metrics() {
+        ListMetricsRequest request = new ListMetricsRequest();
+        request.withNamespace("AWS/Route53");
+        ListMetricsResult result = awsCloudWatch.listMetrics(request);
+        System.out.println("Done collecting Route53 metrics");
+    }
 }

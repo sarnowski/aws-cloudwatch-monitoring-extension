@@ -1,7 +1,6 @@
 package com.appdynamics.monitors.amazon.metricsmanager.metricsmanagerimpl;
 
 import com.amazonaws.services.cloudwatch.model.*;
-import com.appdynamics.monitors.amazon.AmazonCloudWatchMonitor;
 import com.appdynamics.monitors.amazon.metricsmanager.MetricsManager;
 import com.singularity.ee.agent.systemagent.api.MetricWriter;
 

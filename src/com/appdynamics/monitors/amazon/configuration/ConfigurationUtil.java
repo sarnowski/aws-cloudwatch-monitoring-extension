@@ -16,6 +16,7 @@ import java.util.Iterator;
 public class ConfigurationUtil {
 
     public static final String METRIC_TAG = "Metric";
+    public static final String SUPPORTED_NAMESPACE_TAG = "SupportedNamespace";
     public static final String NAMESPACE_TAG = "namespace";
     public static final String METRIC_NAME_TAG = "metricName";
     public static final String ACCESS_KEY_TAG = "AccessKey";
@@ -80,7 +81,7 @@ public class ConfigurationUtil {
                         if(tagName.equals(SECRET_KEY_TAG)) {
                             secretKey = event.toString();
                         }
-                        if(tagName.equals(NAMESPACE_TAG)) {
+                        if(tagName.equals(SUPPORTED_NAMESPACE_TAG)) {
                             String namespace = event.toString();
                             if (!awsConfiguration.availableNamespaces.contains(namespace)) {
                                 awsConfiguration.availableNamespaces.add(namespace);
