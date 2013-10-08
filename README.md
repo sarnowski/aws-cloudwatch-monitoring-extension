@@ -194,6 +194,11 @@ Directory Structure
 
 ***Main Java File***: **src/com/appdynamics/monitors/amazon/AmazonCloudWatchMonitor.java** 
 
+Custom Dashboard
+----------------
+
+![alt tag](https://raw.github.com/Appdynamics/aws-cloudwatch-monitoring-extension/master/images/custom_dashboard.png?login=rvasanda&token=3cb0844b5b6f014a94b7f1e90fe3bbc2)
+
 Contributing
 ------------
 
