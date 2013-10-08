@@ -80,12 +80,13 @@ Specific metrics under each of these namespaces can be found at this link http:/
 Installation
 ------------
 
- 1. Run 'ant package' from the aws-cloudwatch-monitoring-extension directory.
- 2. Download the CloudWatchMonitor.zip found in the 'dist' directory into <machineagent install dir>/monitors/
- 3. Unzip the downloaded zip file.
- 4. In the newly created "CloudWatchMonitor" directory, edit the "AWSConfigurations.xml" file configuring the parameters specified below.
- 5. Restart the machine agent.
- 6. In the AppDynamics Metric Browser, look for: Application Infrastructure Performance | Amazon Cloud Watch
+ 1. Clone aws-cloudwatch-monitoring-extension from GitHub https://github.com/Appdynamics/aws-cloudwatch-monitoring-extension
+ 2. Run 'ant package' from the aws-cloudwatch-monitoring-extension directory.
+ 3. Download the CloudWatchMonitor.zip found in the 'dist' directory into <machineagent install dir>/monitors/
+ 4. Unzip the downloaded zip file.
+ 5. In the newly created "CloudWatchMonitor" directory, edit the "AWSConfigurations.xml" file configuring the parameters specified below.
+ 6. Restart the machine agent.
+ 7. In the AppDynamics Metric Browser, look for: Application Infrastructure Performance | Amazon Cloud Watch
 
 
 Rebuilding the Project
@@ -180,7 +181,7 @@ Directory Structure
   </tr>
   <tr>
     <td> src</td>
-    <td> Contains the source code for aws-cloudwatch-extension</td>
+    <td> Contains the source code for aws-cloudwatch-monitoring-extension</td>
   </tr>
   <tr>
     <td> dist </td>
@@ -192,7 +193,7 @@ Directory Structure
   </tr>
 </table>  
 
-***Main Java File***: **src/com/appdynamics/monitors/amazon/AmazonCloudWatchMonitor.java** 
+***Main Java File***: **src/com/appdynamics/monitors/cloudwatch/AmazonCloudWatchMonitor.java** 
 
 Custom Dashboard
 ----------------
