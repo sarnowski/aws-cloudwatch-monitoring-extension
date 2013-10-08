@@ -100,9 +100,9 @@ Configuration
 
 In the conf/AWSConfigurations.xml, there are three things that can be configured:
 
- 1) The AWS account credentials (i.e. the access key and the secret key)
- 2) The supported AWS namespaces that you can retrieve metrics for (you can enable or disable metrics for specific namespaces)
- 3) The list of disabled metrics associated with their corresponding AWS namespaces
+    1) The AWS account credentials (i.e. the access key and the secret key)
+    2) The supported AWS namespaces that you can retrieve metrics for (you can enable or disable metrics for specific namespaces)
+    3) The list of disabled metrics associated with their corresponding AWS namespaces
  
 This is a sample AWSConfigurations.xml file: 
 
