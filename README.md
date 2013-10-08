@@ -80,8 +80,8 @@ Specific metrics under each of these namespaces can be found at this link http:/
 Installation
 ------------
 
- 1. Clone aws-cloudwatch-monitoring-extension from GitHub https://github.com/Appdynamics/aws-cloudwatch-monitoring-extension
- 2. Run 'ant package' from the aws-cloudwatch-monitoring-extension directory.
+ 1. Clone aws-cloudwatch-monitoring-extension from GitHub https://github.com/Appdynamics
+ 2. Run 'ant package' from the cloned aws-cloudwatch-monitoring-extension directory.
  3. Download the CloudWatchMonitor.zip found in the 'dist' directory into <machineagent install dir>/monitors/
  4. Unzip the downloaded zip file.
  5. In the newly created "CloudWatchMonitor" directory, edit the "AWSConfigurations.xml" file configuring the parameters specified below.
