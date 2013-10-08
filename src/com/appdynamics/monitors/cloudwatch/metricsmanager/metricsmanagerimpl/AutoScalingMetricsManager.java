@@ -1,6 +1,6 @@
-package com.appdynamics.monitors.amazon.metricsmanager.metricsmanagerimpl;
+package com.appdynamics.monitors.cloudwatch.metricsmanager.metricsmanagerimpl;
 
-import com.appdynamics.monitors.amazon.metricsmanager.MetricsManager;
+import com.appdynamics.monitors.cloudwatch.metricsmanager.MetricsManager;
 import java.util.Map;
 
 public final class AutoScalingMetricsManager extends MetricsManager {

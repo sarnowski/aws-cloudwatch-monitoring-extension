@@ -1,12 +1,12 @@
-package com.appdynamics.monitors.amazon;
+package com.appdynamics.monitors.cloudwatch;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
-import com.appdynamics.monitors.amazon.configuration.Configuration;
-import com.appdynamics.monitors.amazon.configuration.ConfigurationUtil;
-import com.appdynamics.monitors.amazon.metricsmanager.MetricsManager;
-import com.appdynamics.monitors.amazon.metricsmanager.MetricsManagerFactory;
+import com.appdynamics.monitors.cloudwatch.configuration.Configuration;
+import com.appdynamics.monitors.cloudwatch.configuration.ConfigurationUtil;
+import com.appdynamics.monitors.cloudwatch.metricsmanager.MetricsManager;
+import com.appdynamics.monitors.cloudwatch.metricsmanager.MetricsManagerFactory;
 import com.singularity.ee.agent.systemagent.api.AManagedMonitor;
 import com.singularity.ee.agent.systemagent.api.MetricWriter;
 import com.singularity.ee.agent.systemagent.api.TaskExecutionContext;

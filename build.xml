@@ -1,7 +1,7 @@
 <project default="build">
     <property name="build.dir" value="dist" />
     <property name="conf.dir" value="conf" />
-    <property name="project.name" value="AmazonMonitor"/>
+    <property name="project.name" value="CloudWatchMonitor"/>
     <property name="lib.dir" value="lib"/>
 
     <path id="myClassPath">
@@ -13,33 +13,33 @@
     <target name="build">
         <mkdir dir="${build.dir}/classes"/>
         <javac destdir="${build.dir}/classes" srcdir="src/" classpathref="myClassPath" debug="on"/>
-        <mkdir dir="${build.dir}/AmazonMonitor"/>
-        <mkdir dir="${build.dir}/AmazonMonitor/lib"/>
-        <mkdir dir="${build.dir}/AmazonMonitor/conf"/>
+        <mkdir dir="${build.dir}/CloudWatchMonitor"/>
+        <mkdir dir="${build.dir}/CloudWatchMonitor/lib"/>
+        <mkdir dir="${build.dir}/CloudWatchMonitor/conf"/>
 
-        <jar destfile="${build.dir}/AmazonMonitor/${project.name}.jar">
+        <jar destfile="${build.dir}/CloudWatchMonitor/${project.name}.jar">
             <fileset dir="${build.dir}/classes"/>
             <manifest>
                 <attribute name="Class-Path" value="${build.dir}/${project.name}/${project.name}.jar"/>
             </manifest>
 
         </jar>
-        <copy todir="${build.dir}/AmazonMonitor/lib/">
+        <copy todir="${build.dir}/CloudWatchMonitor/lib/">
             <fileset dir="${lib.dir}" includes="*.jar"/>
         </copy>
-        <copy todir="${build.dir}/AmazonMonitor/">
+        <copy todir="${build.dir}/CloudWatchMonitor/">
             <fileset dir="${conf.dir}" includes="monitor.xml"/>
         </copy>
-        <copy todir="${build.dir}/AmazonMonitor/${conf.dir}">
+        <copy todir="${build.dir}/CloudWatchMonitor/${conf.dir}">
             <fileset dir="${conf.dir}" includes="*.*" excludes="monitor.xml"/>
         </copy>
         <delete dir="${build.dir}/classes"/>
     </target>
     <target name="package" depends="build">
-        <zip destfile="${build.dir}/AmazonMonitor.zip">
-            <zipfileset dir="${build.dir}/AmazonMonitor" filemode="755" prefix="AmazonMonitor/"/>
+        <zip destfile="${build.dir}/CloudWatchMonitor.zip">
+            <zipfileset dir="${build.dir}/CloudWatchMonitor" filemode="755" prefix="CloudWatchMonitor/"/>
         </zip>
-        <delete dir="${build.dir}/AmazonMonitor"/>
+        <delete dir="${build.dir}/CloudWatchMonitor"/>
     </target>
     <target name="clean">
         <delete dir="${build.dir}"/>

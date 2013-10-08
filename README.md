@@ -154,7 +154,7 @@ Here is the monitor.xml file:
                 <execution-timeout-in-secs>60</execution-timeout-in-secs>
                 <java-task>
                     <classpath>AmazonMonitor.jar;lib/aws-java-sdk-1.5.6.jar;lib/commons-codec-1.8.jar;lib/log4j-1.2.15.jar;lib/machineagent.jar;lib/httpclient-4.2.3.jar;lib/httpcore-4.2.jar;lib/commons-logging-1.1.1.jar</classpath>
-                        <impl-class>com.appdynamics.monitors.amazon.AmazonCloudWatchMonitor</impl-class>
+                        <impl-class>com.appdynamics.monitors.cloudwatch.AmazonCloudWatchMonitor</impl-class>
                 </java-task>
                 <task-arguments>
                     <argument name="configurations" is-required="true" default-value="/mnt/appdynamics/machineagent/monitors/AmazonMonitor/conf/AWSConfigurations.xml"/>

@@ -1,7 +1,7 @@
-package com.appdynamics.monitors.amazon.metricsmanager.metricsmanagerimpl;
+package com.appdynamics.monitors.cloudwatch.metricsmanager.metricsmanagerimpl;
 
 import com.amazonaws.services.cloudwatch.model.Datapoint;
-import com.appdynamics.monitors.amazon.metricsmanager.MetricsManager;
+import com.appdynamics.monitors.cloudwatch.metricsmanager.MetricsManager;
 import com.singularity.ee.agent.systemagent.api.MetricWriter;
 
 import java.util.HashMap;

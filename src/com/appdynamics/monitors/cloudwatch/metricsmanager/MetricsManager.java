@@ -1,8 +1,8 @@
-package com.appdynamics.monitors.amazon.metricsmanager;
+package com.appdynamics.monitors.cloudwatch.metricsmanager;
 
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.model.*;
-import com.appdynamics.monitors.amazon.AmazonCloudWatchMonitor;
+import com.appdynamics.monitors.cloudwatch.AmazonCloudWatchMonitor;
 import com.singularity.ee.agent.systemagent.api.MetricWriter;
 import org.apache.log4j.Logger;
 
@@ -16,7 +16,7 @@ public abstract class MetricsManager{
     protected Map<String,HashSet<String>> disabledMetrics;
 
     /**
-     * Intializes the amazon cloud watch client and the hashmap of disabled metrics
+     * Intializes the cloudwatch cloud watch client and the hashmap of disabled metrics
      * @return	String
      */
     public void initialize(AmazonCloudWatchMonitor amazonCloudWatchMonitor) {

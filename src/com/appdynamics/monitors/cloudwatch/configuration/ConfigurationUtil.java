@@ -1,4 +1,4 @@
-package com.appdynamics.monitors.amazon.configuration;
+package com.appdynamics.monitors.cloudwatch.configuration;
 
 import com.amazonaws.auth.BasicAWSCredentials;
 

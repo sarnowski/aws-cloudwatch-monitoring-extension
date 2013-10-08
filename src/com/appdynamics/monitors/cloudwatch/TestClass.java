@@ -1,12 +1,12 @@
-package com.appdynamics.monitors.amazon;
+package com.appdynamics.monitors.cloudwatch;
 
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
 import com.amazonaws.services.cloudwatch.model.*;
-import com.appdynamics.monitors.amazon.configuration.Configuration;
-import com.appdynamics.monitors.amazon.configuration.ConfigurationUtil;
-import com.appdynamics.monitors.amazon.metricsmanager.MetricsManager;
-import com.appdynamics.monitors.amazon.metricsmanager.MetricsManagerFactory;
+import com.appdynamics.monitors.cloudwatch.configuration.Configuration;
+import com.appdynamics.monitors.cloudwatch.configuration.ConfigurationUtil;
+import com.appdynamics.monitors.cloudwatch.metricsmanager.MetricsManager;
+import com.appdynamics.monitors.cloudwatch.metricsmanager.MetricsManagerFactory;
 
 import java.util.ArrayList;
 import java.util.Date;

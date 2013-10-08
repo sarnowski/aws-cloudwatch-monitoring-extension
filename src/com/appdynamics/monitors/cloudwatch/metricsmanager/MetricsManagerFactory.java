@@ -1,7 +1,7 @@
-package com.appdynamics.monitors.amazon.metricsmanager;
+package com.appdynamics.monitors.cloudwatch.metricsmanager;
 
-import com.appdynamics.monitors.amazon.AmazonCloudWatchMonitor;
-import com.appdynamics.monitors.amazon.metricsmanager.metricsmanagerimpl.*;
+import com.appdynamics.monitors.cloudwatch.AmazonCloudWatchMonitor;
+import com.appdynamics.monitors.cloudwatch.metricsmanager.metricsmanagerimpl.*;
 
 public final class MetricsManagerFactory {
 
