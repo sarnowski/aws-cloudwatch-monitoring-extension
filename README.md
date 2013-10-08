@@ -80,7 +80,7 @@ Specific metrics under each of these namespaces can be found at this link http:/
 Installation
 ------------
 
- 1. Run 'ant-package' from the aws-cloudwatch-monitoring-extension directory
+ 1. Run 'ant package' from the aws-cloudwatch-monitoring-extension directory
  2. Download the AmazonMonitor.zip found in the 'dist' directory into <machineagent install dir>/monitors/
  3. Unzip the downloaded zip file
  4. In the newly created "AmazonMonitor" directory, edit the "AWSConfigurations.xml" file configuring the parameters specified below 
