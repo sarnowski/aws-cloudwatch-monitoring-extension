@@ -203,15 +203,15 @@ Custom Dashboard
 Contributing
 ------------
 
-Always feel free to fork and contribute any changes directly via <a href="https://github.com/Appdynamics/aws-cloudwatch-monitoring-extension">GitHub</a>
+Always feel free to fork and contribute any changes directly via <a href="https://github.com/Appdynamics/aws-cloudwatch-monitoring-extension">GitHub</a>.
 
 
 Community
 ---------
 
-Find out more in the <a href="http://appsphere.appdynamics.com/t5/Extensions/MongoDB-Monitoring-Extension/idi-p/831">AppSphere</a>
+Find out more in the <a href="http://appsphere.appdynamics.com/t5/eXchange/AWS-CloudWatch-Monitoring-Extension/idi-p/3541">AppSphere</a>.
 
 Support
 -------
 
-For any questions or feature request, please contact <a href="mailto:ace-request@appdynamics.com">AppDynamics Center of Excellence</a> 
+For any questions or feature request, please contact <a href="mailto:ace-request@appdynamics.com">AppDynamics Center of Excellence</a>.
