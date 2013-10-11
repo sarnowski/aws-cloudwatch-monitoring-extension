@@ -20,7 +20,7 @@ public class TestClass {
     private static AmazonCloudWatchMonitor monitor;
     private static MetricsManagerFactory metricsManagerFactory;
 
-    // Initialzation for local testing. Bit hacky since we are not using the monitor->execute()
+    // Initialization for local testing. Bit hacky since we are not using the monitor->execute()
     public static void init() {
         config = ConfigurationUtil.getConfigurations("conf/AWSConfigurations.xml");
         awsCloudWatch = new AmazonCloudWatchClient(config.awsCredentials);
@@ -32,10 +32,10 @@ public class TestClass {
 
     public static void main(String[] args) {
         init();
-        //testRedshiftMetrics();
-        //List<Metric> metrics = getListMetrics("AWS/Redshift", "ClusterIdentifier");
-        testRoute53Metrics();
+        //testRoute53Metrics();
         //testDimensions();
+        testAutoScalingMetrics();
+        testBillingMetrics();
         System.out.println("done");
     }
 
@@ -94,4 +94,22 @@ public class TestClass {
         ListMetricsResult result = awsCloudWatch.listMetrics(request);
         System.out.println("Done collecting Route53 metrics");
     }
+
+    private static void testAutoScalingMetrics() {
+        MetricsManager autoScalingMetricsManager = metricsManagerFactory.createMetricsManager("AWS/AutoScaling");
+        Map metrics = autoScalingMetricsManager.gatherMetrics();
+        System.out.println("done");
+    }
+
+    private static void testBillingMetrics() {
+        MetricsManager billingMetricsManager = metricsManagerFactory.createMetricsManager("AWS/Billing");
+        Map metrics = billingMetricsManager.gatherMetrics();
+        System.out.println(metrics.size());
+    }
+
+//    AmazonAutoScaling amazonAutoScalingClient = new AmazonAutoScalingClient(config.awsCredentials);
+//    EnableMetricsCollectionRequest request = new EnableMetricsCollectionRequest();
+//    request.setAutoScalingGroupName("MyGroup");
+//    request.setGranularity("1Minute");
+//    amazonAutoScalingClient.enableMetricsCollection(request);
 }

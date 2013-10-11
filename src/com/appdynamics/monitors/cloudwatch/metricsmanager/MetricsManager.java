@@ -57,7 +57,7 @@ public abstract class MetricsManager{
                                                                        String statisticsType,
                                                                        List<Dimension> dimensions) {
         GetMetricStatisticsRequest getMetricStatisticsRequest = new GetMetricStatisticsRequest()
-                .withStartTime(new Date(new Date().getTime() - 1000000000))
+                .withStartTime(new Date(new Date().getTime()- 60000))
                 .withNamespace(namespace)
                 .withDimensions(dimensions)
                 .withPeriod(60 * 60)
