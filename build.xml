@@ -12,7 +12,7 @@
 
     <target name="build">
         <mkdir dir="${build.dir}/classes"/>
-        <javac destdir="${build.dir}/classes" srcdir="src/" classpathref="myClassPath" debug="on"/>
+        <javac destdir="${build.dir}/classes" source="1.5" target="1.5" srcdir="src/" classpathref="myClassPath" debug="on"/>
         <mkdir dir="${build.dir}/CloudWatchMonitor"/>
         <mkdir dir="${build.dir}/CloudWatchMonitor/lib"/>
         <mkdir dir="${build.dir}/CloudWatchMonitor/conf"/>
