@@ -1,6 +1,7 @@
 package com.appdynamics.monitors.cloudwatch.metricsmanager.metricsmanagerimpl;
 
 import com.appdynamics.monitors.cloudwatch.metricsmanager.MetricsManager;
+
 import java.util.Map;
 
 public final class EC2MetricsManager extends MetricsManager {

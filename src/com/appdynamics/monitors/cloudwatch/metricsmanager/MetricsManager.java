@@ -10,6 +10,7 @@ import java.util.*;
 
 public abstract class MetricsManager{
 
+    private static final int ONE_MINUTE = 60000;
     private Logger logger = Logger.getLogger(this.getClass().getName());
     protected AmazonCloudWatchMonitor amazonCloudWatchMonitor;
     protected AmazonCloudWatch awsCloudWatch;
@@ -57,7 +58,7 @@ public abstract class MetricsManager{
                                                                        String statisticsType,
                                                                        List<Dimension> dimensions) {
         GetMetricStatisticsRequest getMetricStatisticsRequest = new GetMetricStatisticsRequest()
-                .withStartTime(new Date(new Date().getTime()- 60000))
+                .withStartTime(new Date(new Date().getTime()- ONE_MINUTE))
                 .withNamespace(namespace)
                 .withDimensions(dimensions)
                 .withPeriod(60 * 60)

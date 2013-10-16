@@ -2,10 +2,10 @@
 <Configurations>
 
     <AWSCredentials>
-        <AccessKey>AKIAJTB7DYHGUBXOS7BQ</AccessKey>
-        <SecretKey>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</SecretKey>
-        <!--<AccessKey>AKIAI2BVWFZKH275ZSXA</AccessKey>-->
-        <!--<SecretKey>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</SecretKey>-->
+        <!--<AccessKey>AKIAJTB7DYHGUBXOS7BQ</AccessKey>-->
+        <!--<SecretKey>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</SecretKey>-->
+        <AccessKey>AKIAI2BVWFZKH275ZSXA</AccessKey>
+        <SecretKey>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</SecretKey>
     </AWSCredentials>
 
     <!-- MetricManagers for these namespaces have been implemented -->
@@ -28,7 +28,7 @@
     </SupportedNamespaces>
 
     <DisabledMetrics>
-        <Metric namespace="AWS/EC2" metricName="CPUUtilization"/>
+        <!--<Metric namespace="AWS/EC2" metricName="CPUUtilization"/>-->
         <Metric namespace="AWS/EC2" metricName="Some Metric"/>
     </DisabledMetrics>
 

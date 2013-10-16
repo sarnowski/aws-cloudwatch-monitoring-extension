@@ -2,7 +2,9 @@ package com.appdynamics.monitors.cloudwatch;
 
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
-import com.amazonaws.services.cloudwatch.model.*;
+import com.amazonaws.services.cloudwatch.model.Dimension;
+import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsRequest;
+import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsResult;
 import com.appdynamics.monitors.cloudwatch.configuration.Configuration;
 import com.appdynamics.monitors.cloudwatch.configuration.ConfigurationUtil;
 import com.appdynamics.monitors.cloudwatch.metricsmanager.MetricsManager;
@@ -32,17 +34,8 @@ public class TestClass {
 
     public static void main(String[] args) {
         init();
-        //testRoute53Metrics();
-        //testDimensions();
-        testAutoScalingMetrics();
-        testBillingMetrics();
-        System.out.println("done");
-    }
-
-    public static void testRedshiftMetrics() {
-        MetricsManager redshift = metricsManagerFactory.createMetricsManager("AWS/Redshift");
-        Map metrics = redshift.gatherMetrics();
-        System.out.println("Done collecting Redshfit metrics");
+        // testMetrics("AWS/Billing");
+        System.out.println("Finished execution");
     }
 
     public static void testDimensions() {
@@ -54,23 +47,6 @@ public class TestClass {
         GetMetricStatisticsRequest request = createGetMetricStatisticsRequest("AWS/Redshift", "CPUUtilization", "Average", dimensions);
         GetMetricStatisticsResult result = awsCloudWatch.getMetricStatistics(request);
         System.out.println("done");
-    }
-
-    public static List<Metric> getListMetrics(String namespace, String...filterNames) {
-        ListMetricsRequest request = new ListMetricsRequest();
-        List<DimensionFilter> filters = new ArrayList<DimensionFilter>();
-
-        for (String filterName : filterNames) {
-            DimensionFilter dimensionFilter = new DimensionFilter();
-            dimensionFilter.withName(filterName);
-            filters.add(dimensionFilter);
-        }
-
-        request.withNamespace(namespace);
-        request.withDimensions(filters);
-
-        ListMetricsResult listMetricsResult = awsCloudWatch.listMetrics(request);
-        return listMetricsResult.getMetrics();
     }
 
     public static GetMetricStatisticsRequest createGetMetricStatisticsRequest(String namespace,
@@ -88,28 +64,9 @@ public class TestClass {
         return getMetricStatisticsRequest;
     }
 
-    public static void testRoute53Metrics() {
-        ListMetricsRequest request = new ListMetricsRequest();
-        request.withNamespace("AWS/Route53");
-        ListMetricsResult result = awsCloudWatch.listMetrics(request);
-        System.out.println("Done collecting Route53 metrics");
+    private static void testMetrics(String namespace) {
+        MetricsManager metricsManager = metricsManagerFactory.createMetricsManager(namespace);
+        Map metrics = metricsManager.gatherMetrics();
+        System.out.println("Finished testing metrics");
     }
-
-    private static void testAutoScalingMetrics() {
-        MetricsManager autoScalingMetricsManager = metricsManagerFactory.createMetricsManager("AWS/AutoScaling");
-        Map metrics = autoScalingMetricsManager.gatherMetrics();
-        System.out.println("done");
-    }
-
-    private static void testBillingMetrics() {
-        MetricsManager billingMetricsManager = metricsManagerFactory.createMetricsManager("AWS/Billing");
-        Map metrics = billingMetricsManager.gatherMetrics();
-        System.out.println(metrics.size());
-    }
-
-//    AmazonAutoScaling amazonAutoScalingClient = new AmazonAutoScalingClient(config.awsCredentials);
-//    EnableMetricsCollectionRequest request = new EnableMetricsCollectionRequest();
-//    request.setAutoScalingGroupName("MyGroup");
-//    request.setGranularity("1Minute");
-//    amazonAutoScalingClient.enableMetricsCollection(request);
 }
