@@ -9,7 +9,13 @@ import com.appdynamics.monitors.cloudwatch.configuration.Configuration;
 import com.appdynamics.monitors.cloudwatch.configuration.ConfigurationUtil;
 import com.appdynamics.monitors.cloudwatch.metricsmanager.MetricsManager;
 import com.appdynamics.monitors.cloudwatch.metricsmanager.MetricsManagerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -24,7 +30,12 @@ public class TestClass {
 
     // Initialization for local testing. Bit hacky since we are not using the monitor->execute()
     public static void init() {
-        config = ConfigurationUtil.getConfigurations("conf/AWSConfigurations.xml");
+        try {
+            config = ConfigurationUtil.getConfigurations("conf/AWSConfigurations.xml");
+        }
+        catch (Exception e){
+            System.out.println(e.getMessage());
+        }
         awsCloudWatch = new AmazonCloudWatchClient(config.awsCredentials);
         monitor = new AmazonCloudWatchMonitor();
         monitor.setAmazonCloudWatch(awsCloudWatch);
@@ -69,5 +80,4 @@ public class TestClass {
         Map metrics = metricsManager.gatherMetrics();
         System.out.println("Finished testing metrics");
     }
-
 }

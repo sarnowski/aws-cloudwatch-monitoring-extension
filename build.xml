@@ -22,7 +22,6 @@
             <manifest>
                 <attribute name="Class-Path" value="${build.dir}/${project.name}/${project.name}.jar"/>
             </manifest>
-
         </jar>
         <copy todir="${build.dir}/CloudWatchMonitor/lib/">
             <fileset dir="${lib.dir}" includes="*.jar"/>

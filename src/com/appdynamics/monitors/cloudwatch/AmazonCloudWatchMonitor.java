@@ -42,7 +42,7 @@ public final class AmazonCloudWatchMonitor extends AManagedMonitor {
      * @param taskArguments
      * @return
      */
-    public void initialize(Map<String,String> taskArguments) {
+    public void initialize(Map<String,String> taskArguments) throws Exception{
         if (!isInitialized) {
             awsConfiguration = ConfigurationUtil.getConfigurations(taskArguments.get("configurations"));
             awsCredentials = awsConfiguration.awsCredentials;
@@ -50,6 +50,7 @@ public final class AmazonCloudWatchMonitor extends AManagedMonitor {
             disabledMetrics = awsConfiguration.disabledMetrics;
             availableNamespaces = awsConfiguration.availableNamespaces;
             isInitialized = true;
+            logger.info("AmazonMonitor initialized");
         }
     }
 
@@ -57,42 +58,35 @@ public final class AmazonCloudWatchMonitor extends AManagedMonitor {
      * Main execution method that uploads the metrics to the AppDynamics Controller
      * @see com.singularity.ee.agent.systemagent.api.ITask#execute(java.util.Map, com.singularity.ee.agent.systemagent.api.TaskExecutionContext)
      */
-    @Override
     public TaskOutput execute(Map<String, String> taskArguments, TaskExecutionContext taskExecutionContext) {
-        logger.info("Executing AmazonMonitor...");
-        initialize(taskArguments);
-        logger.info("AmazonMonitor initialized");
-        final Iterator namespaceIterator = availableNamespaces.iterator();
-        final CountDownLatch latch = new CountDownLatch(availableNamespaces.size());
-        while (namespaceIterator.hasNext()) {
-            final String namespace = (String) namespaceIterator.next();
-            Thread metricManagerThread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
+        try {
+            logger.info("Executing CloudWatchMonitor...");
+            initialize(taskArguments);
+
+            final Iterator namespaceIterator = availableNamespaces.iterator();
+            final CountDownLatch latch = new CountDownLatch(availableNamespaces.size());
+            while (namespaceIterator.hasNext()) {
+                final String namespace = (String) namespaceIterator.next();
+                Thread metricManagerThread = new Thread(new Runnable() {
+                    public void run() {
                         MetricsManager metricsManager = metricsManagerFactory.createMetricsManager(namespace);
                         Map metrics = metricsManager.gatherMetrics();
                         metricsManager.printMetrics(metrics);
                         logger.info(String.format("%15s: %30s %15s %5d" , "Namespace", namespace, " # Metrics",  metrics.size()));
                         latch.countDown();
                     }
-                    catch(Exception e) {
-                        logger.error("Exception: ", e);
-                    }
-                }
-            });
-            metricManagerThread.start();
-        }
-        try {
+                });
+                metricManagerThread.start();
+            }
             latch.await();
             logger.info("All threads finished");
+            logger.info("Finished Executing CloudWatchMonitor...");
+            return new TaskOutput("AWS Cloud Watch Metric Upload Complete Successfully");
         }
-        catch(InterruptedException e) {
-            logger.error("Interrupted Exception: ", e);
+        catch(Exception e) {
+            logger.error("Exception ", e);
+            return new TaskOutput("AWS Cloud Watch Metric Upload Failed");
         }
-        logger.info("Finished Executing AmazonMonitor...");
-
-        return new TaskOutput("AWS Cloud Watch Metric Upload Complete");
     }
 
     /**
