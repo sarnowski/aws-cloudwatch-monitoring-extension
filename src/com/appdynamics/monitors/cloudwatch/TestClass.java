@@ -54,7 +54,7 @@ public class TestClass {
                                                                           String statisticsType,
                                                                           List<Dimension> dimensions) {
         GetMetricStatisticsRequest getMetricStatisticsRequest = new GetMetricStatisticsRequest()
-                .withStartTime(new Date(new Date().getTime() - 1800000))
+                .withStartTime(new Date(new Date().getTime() - 60000))
                 .withNamespace(namespace)
                 .withDimensions(dimensions)
                 .withPeriod(60 * 60)
@@ -69,4 +69,5 @@ public class TestClass {
         Map metrics = metricsManager.gatherMetrics();
         System.out.println("Finished testing metrics");
     }
+
 }
