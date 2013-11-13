@@ -1,7 +1,7 @@
 AppDynamics AWS CloudWatch Monitoring Extension
 ===============================================
 
-This extension works only with the Java agent.
+This extension works only with the standalone machine agent.
 
 Use Case
 -------- 
