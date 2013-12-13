@@ -200,7 +200,7 @@ Directory Structure
 Custom Dashboard
 ----------------
 
-![alt tag](https://raw.github.com/Appdynamics/aws-cloudwatch-monitoring-extension/master/images/custom_dashboard.png)
+![alt tag](https://raw.github.com/Appdynamics/aws-cloudwatch-monitoring-extension/master/images/AWSCloudWatchDashboard.png)
 
 Contributing
 ------------
