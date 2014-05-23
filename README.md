@@ -83,19 +83,13 @@ Installation
 ------------
 
  1. Clone aws-cloudwatch-monitoring-extension from GitHub https://github.com/Appdynamics
- 2. Run 'ant package' from the cloned aws-cloudwatch-monitoring-extension directory.
- 3. Download the CloudWatchMonitor.zip found in the 'dist' directory into <machineagent install dir>/monitors/
+ 2. Run 'mvn clean install' from the cloned aws-cloudwatch-monitoring-extension directory.
+ 3. Download the CloudWatchMonitor.zip found in the 'target' directory into <machineagent install dir>/monitors/
  4. Unzip the downloaded zip file.
  5. In the newly created "CloudWatchMonitor" directory, edit the "AWSConfigurations.xml" file configuring the parameters specified below.
  6. Restart the machine agent.
  7. In the AppDynamics Metric Browser, look for: Application Infrastructure Performance | Amazon Cloud Watch
 
-
-Rebuilding the Project
-----------------------
-
- 1. At the command line, go to the root directory of this extension
- 2. Run 'ant'. This will update the dist directory
 
 Configuration
 -------------
@@ -156,8 +150,8 @@ Here is the monitor.xml file:
                 <type>java</type>
                 <execution-timeout-in-secs>60</execution-timeout-in-secs>
                 <java-task>
-                    <classpath>AmazonMonitor.jar;lib/aws-java-sdk-1.5.6.jar;lib/commons-codec-1.8.jar;lib/log4j-1.2.15.jar;lib/machineagent.jar;lib/httpclient-4.2.3.jar;lib/httpcore-4.2.jar;lib/commons-logging-1.1.1.jar</classpath>
-                        <impl-class>com.appdynamics.monitors.cloudwatch.AmazonCloudWatchMonitor</impl-class>
+                    <classpath>AmazonMonitor.jar;lib/aws-java-sdk-1.5.6.jar;lib/httpclient-4.2.3.jar;lib/httpcore-4.2.jar;lib/commons-logging-1.1.1.jar</classpath>
+                        <impl-class>com.appdynamics.extensions.cloudwatch.AmazonCloudWatchMonitor</impl-class>
                 </java-task>
                 <task-arguments>
                     <argument name="configurations" is-required="true" default-value="/mnt/appdynamics/machineagent/monitors/AmazonMonitor/conf/AWSConfigurations.xml"/>
@@ -174,28 +168,24 @@ Directory Structure
     <th align="left">Description</th>
   </tr>
   <tr>
-    <td> conf </td>
+    <td> src/main/resources/conf </td>
     <td> Contains monitor.xml and AWSConfigurations.xml</td>
   </tr>
   <tr>
-    <td> lib </td>
-    <td> Contains third-party project references</td>
-  </tr>
-  <tr>
-    <td> src</td>
+    <td> src/main/java</td>
     <td> Contains the source code for aws-cloudwatch-monitoring-extension</td>
   </tr>
   <tr>
-    <td> dist </td>
-    <td> The directory created when 'ant' is run. Run 'ant build' to generate the binaries. Run 'ant package' to generate distributable .zip file.</td>
+    <td> target </td>
+    <td> The directory created when 'maven' is run. Run 'mvn clean install' to generate distributable .zip file.</td>
   </tr>
   <tr>
-    <td> build.xml </td>
-    <td> Ant build script to package the project (required only if changing the Java code)</td>
+    <td> pom.xml </td>
+    <td> Maven build script to package the project (required only if changing the Java code)</td>
   </tr>
 </table>  
 
-***Main Java File***: **src/com/appdynamics/monitors/cloudwatch/AmazonCloudWatchMonitor.java** 
+***Main Java File***: **src/com/appdynamics/extensions/cloudwatch/AmazonCloudWatchMonitor.java** 
 
 Custom Dashboard
 ----------------
