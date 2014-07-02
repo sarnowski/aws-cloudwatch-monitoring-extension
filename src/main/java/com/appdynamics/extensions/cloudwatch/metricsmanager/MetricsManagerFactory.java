@@ -46,9 +46,10 @@ public final class MetricsManagerFactory {
     /**
      * Creates an instance of a MetricsManager specific to a namespace
      * @param   namespace       The name of the namespace
+     * @param regionUrl 
      * @return	MetricsManager  An instance of MetricsManager specific to the namespace
      */
-    public MetricsManager createMetricsManager(String namespace) {
+    public MetricsManager createMetricsManager(String namespace, String regionUrl) {
         if (namespace.equals(AWS_EC2_NAMESPACE)){
             metricsManager = new EC2MetricsManager();
         }
@@ -98,7 +99,7 @@ public final class MetricsManagerFactory {
             throw new UnsupportedOperationException();
         }
 
-        metricsManager.initialize(amazonCloudWatchMonitor);
+        metricsManager.initialize(amazonCloudWatchMonitor, regionUrl);
         return metricsManager;
     }
 }

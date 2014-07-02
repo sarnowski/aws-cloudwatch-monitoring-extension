@@ -15,14 +15,18 @@
 */
 package com.appdynamics.extensions.cloudwatch.metricsmanager.metricsmanagerimpl;
 
-import com.amazonaws.services.cloudwatch.model.*;
-import com.appdynamics.extensions.cloudwatch.metricsmanager.MetricsManager;
-import com.singularity.ee.agent.systemagent.api.MetricWriter;
-
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+
+import com.amazonaws.services.cloudwatch.model.Datapoint;
+import com.amazonaws.services.cloudwatch.model.Dimension;
+import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsRequest;
+import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsResult;
+import com.amazonaws.services.cloudwatch.model.Metric;
+import com.appdynamics.extensions.cloudwatch.metricsmanager.MetricsManager;
+import com.singularity.ee.agent.systemagent.api.MetricWriter;
 
 public final class ElastiCacheMetricsManager extends MetricsManager {
 
@@ -39,14 +43,14 @@ public final class ElastiCacheMetricsManager extends MetricsManager {
         //Top level     -- Key = CacheClusterIds,       Value = HashMap of cache nodes
         //Mid level     -- Key = CacheNodeIds,          Value = HashMap of Metrics
         //Bottom level  -- Key = MetricName,            Value = List of datapoints
-        HashMap<String, HashMap<String, HashMap<String, List<Datapoint>>>> cacheClusterMetrics = new HashMap<String, HashMap<String,HashMap<String,List<Datapoint>>>>();
+        Map<String, Map<String, Map<String, List<Datapoint>>>> cacheClusterMetrics = new HashMap<String, Map<String, Map<String,List<Datapoint>>>>();
 
         for (com.amazonaws.services.cloudwatch.model.Metric metric : metricsList) {
             List<Dimension> dimensions = metric.getDimensions();
             String cacheClusterId = dimensions.get(0).getValue();
             String cacheNodeId = dimensions.get(1).getValue();
             if (!cacheClusterMetrics.containsKey(cacheClusterId)) {
-                cacheClusterMetrics.put(cacheClusterId, new HashMap<String, HashMap<String, List<Datapoint>>>());
+                cacheClusterMetrics.put(cacheClusterId, new HashMap<String, Map<String, List<Datapoint>>>());
             }
             if (!cacheClusterMetrics.get(cacheClusterId).containsKey(cacheNodeId)) {
                 cacheClusterMetrics.get(cacheClusterId).put(cacheNodeId, new HashMap<String, List<Datapoint>>());
@@ -68,31 +72,27 @@ public final class ElastiCacheMetricsManager extends MetricsManager {
      * @param metrics   Map containing metrics
      */
     @Override
-    public void printMetrics(Map metrics) {
-        HashMap<String, HashMap<String, HashMap<String, List<Datapoint>>>> elastiCacheMetrics = (HashMap<String, HashMap<String,HashMap<String,List<Datapoint>>>>) metrics;
-        Iterator cacheClusterIterator = elastiCacheMetrics.keySet().iterator();
-
-        while (cacheClusterIterator.hasNext()) {
-            String cacheClusterId = cacheClusterIterator.next().toString();
-            HashMap<String, HashMap<String,List<Datapoint>>> cacheNodes = elastiCacheMetrics.get(cacheClusterId);
-            Iterator cacheNodesIterator = cacheNodes.keySet().iterator();
-            while (cacheNodesIterator.hasNext()) {
-                String cacheNodeId = cacheNodesIterator.next().toString();
-                HashMap<String, List<Datapoint>> metricsMap = cacheNodes.get(cacheNodeId);
-                Iterator metricsIterator = metricsMap.keySet().iterator();
-                while (metricsIterator.hasNext()) {
-                    String metricName = metricsIterator.next().toString();
-                    List<Datapoint> datapoints = metricsMap.get(metricName);
-                    if (datapoints != null && datapoints.size() > 0) {
+    public void printMetrics(String region, Map metrics) {
+        Map<String, Map<String, Map<String, List<Datapoint>>>> elastiCacheMetrics = (Map<String, Map<String, Map<String, List<Datapoint>>>>) metrics;
+        for(Entry<String, Map<String, Map<String, List<Datapoint>>>> cacheClusterIterator : elastiCacheMetrics.entrySet()) {
+        	String cacheClusterId = cacheClusterIterator.getKey();
+        	Map<String, Map<String, List<Datapoint>>> cacheNodes = cacheClusterIterator.getValue();
+        	for(Entry<String, Map<String, List<Datapoint>>> cacheNodesIterator : cacheNodes.entrySet()) {
+        		String cacheNodeId = cacheNodesIterator.getKey();
+        		Map<String, List<Datapoint>> metricsMap = cacheNodesIterator.getValue();
+        		for(Entry<String, List<Datapoint>> metricsIterator : metricsMap.entrySet()) {
+        			String metricName = metricsIterator.getKey();
+        			List<Datapoint> datapoints = metricsIterator.getValue();
+        			if (datapoints != null && datapoints.size() > 0) {
                         Datapoint data = datapoints.get(0);
-                        amazonCloudWatchMonitor.printMetric(getNamespacePrefix() + cacheClusterId + "|" + "Cache Node Id|" +  cacheNodeId + "|",metricName + "(" + data.getUnit() + ")", data.getAverage(),
+                        amazonCloudWatchMonitor.printMetric(region + "|", getNamespacePrefix() + cacheClusterId + "|" + "Cache Node Id|" +  cacheNodeId + "|",metricName + "(" + data.getUnit() + ")", data.getAverage(),
                                 MetricWriter.METRIC_AGGREGATION_TYPE_OBSERVATION,
                                 MetricWriter.METRIC_TIME_ROLLUP_TYPE_AVERAGE,
                                 MetricWriter.METRIC_CLUSTER_ROLLUP_TYPE_INDIVIDUAL);
 
                     }
-                }
-            }
+        		}
+        	}
         }
     }
 

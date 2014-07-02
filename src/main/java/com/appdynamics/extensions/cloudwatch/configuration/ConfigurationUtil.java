@@ -15,16 +15,22 @@
 */
 package com.appdynamics.extensions.cloudwatch.configuration;
 
-import com.amazonaws.auth.BasicAWSCredentials;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.HashSet;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.util.HashSet;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.appdynamics.extensions.PathResolver;
+import com.google.common.base.Strings;
+import com.singularity.ee.agent.systemagent.api.AManagedMonitor;
 
 public class ConfigurationUtil {
 
@@ -38,7 +44,8 @@ public class ConfigurationUtil {
         BufferedInputStream configFile = null;
 
         try {
-            configFile = new BufferedInputStream(new FileInputStream(filePath));
+        	String fileName = getConfigFilename(filePath);
+            configFile = new BufferedInputStream(new FileInputStream(fileName));
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document doc = dBuilder.parse(configFile);
@@ -59,6 +66,15 @@ public class ConfigurationUtil {
                   awsConfiguration.availableNamespaces.add(namespaces.item(i).getTextContent());
                 }
             }
+            
+            Element regionElement = (Element) doc.getElementsByTagName("Regions").item(0);
+            NodeList regions = regionElement.getElementsByTagName("Region");
+            for (int i = 0; i < regions.getLength(); i++) {
+				String region = regions.item(i).getTextContent();
+				if (!awsConfiguration.availableRegions.contains(region)) {
+	                  awsConfiguration.availableRegions.add(region);
+	                }
+			}
 
             //Initialize Disabled Metrics
             Element disabledMetricsElement = (Element) doc.getElementsByTagName("DisabledMetrics").item(0);
@@ -69,7 +85,7 @@ public class ConfigurationUtil {
                 if (!awsConfiguration.disabledMetrics.containsKey(namespaceKey)) {
                   awsConfiguration.disabledMetrics.put(namespaceKey, new HashSet<String>());
                 }
-                ((HashSet)awsConfiguration.disabledMetrics.get(namespaceKey)).add(metricName);
+                (awsConfiguration.disabledMetrics.get(namespaceKey)).add(metricName);
             }
             return awsConfiguration;
         }
@@ -79,5 +95,22 @@ public class ConfigurationUtil {
         finally {
             configFile.close();
         }
+    }
+    
+    private static String getConfigFilename(String filename) {
+        if(filename == null){
+            return "";
+        }
+        //for absolute paths
+        if(new File(filename).exists()){
+            return filename;
+        }
+        //for relative paths
+        File jarPath = PathResolver.resolveDirectory(AManagedMonitor.class);
+        String configFileName = "";
+        if(!Strings.isNullOrEmpty(filename)){
+            configFileName = jarPath + File.separator + filename;
+        }
+        return configFileName;
     }
 }

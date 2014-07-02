@@ -52,7 +52,7 @@ public final class SNSMetricsManager extends MetricsManager {
      * @param metrics   Map containing metrics
      */
     @Override
-    public void printMetrics(Map metrics) {
+    public void printMetrics(String region, Map metrics) {
         HashMap<String, HashMap<String, HashMap<String, List<Datapoint>>>> snsMetrics = (HashMap<String, HashMap<String,HashMap<String,List<Datapoint>>>>) metrics;
         Iterator dimensionFilterIterator = snsMetrics.keySet().iterator();
 
@@ -69,7 +69,7 @@ public final class SNSMetricsManager extends MetricsManager {
                     List<Datapoint> datapoints = metricsMap.get(metricName);
                     if (datapoints != null && datapoints.size() > 0) {
                         Datapoint data = datapoints.get(0);
-                        amazonCloudWatchMonitor.printMetric(getNamespacePrefix() + metricType + "|" +  dimensionId + "|",metricName + "(" + data.getUnit() + ")", data.getAverage(),
+                        amazonCloudWatchMonitor.printMetric(region + "|", getNamespacePrefix() + metricType + "|" +  dimensionId + "|",metricName + "(" + data.getUnit() + ")", data.getAverage(),
                                 MetricWriter.METRIC_AGGREGATION_TYPE_OBSERVATION,
                                 MetricWriter.METRIC_TIME_ROLLUP_TYPE_AVERAGE,
                                 MetricWriter.METRIC_CLUSTER_ROLLUP_TYPE_INDIVIDUAL);

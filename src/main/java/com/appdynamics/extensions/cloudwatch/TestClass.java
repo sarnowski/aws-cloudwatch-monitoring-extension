@@ -15,28 +15,24 @@
 */
 package com.appdynamics.extensions.cloudwatch;
 
-import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
-import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
-import com.amazonaws.services.cloudwatch.model.Dimension;
-import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsRequest;
-import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsResult;
-import com.appdynamics.extensions.cloudwatch.configuration.Configuration;
-import com.appdynamics.extensions.cloudwatch.configuration.ConfigurationUtil;
-import com.appdynamics.extensions.cloudwatch.metricsmanager.MetricsManager;
-import com.appdynamics.extensions.cloudwatch.metricsmanager.MetricsManagerFactory;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
+import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
+import com.amazonaws.services.cloudwatch.model.Dimension;
+import com.amazonaws.services.cloudwatch.model.DimensionFilter;
+import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsRequest;
+import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsResult;
+import com.amazonaws.services.cloudwatch.model.ListMetricsRequest;
+import com.amazonaws.services.cloudwatch.model.ListMetricsResult;
+import com.amazonaws.services.cloudwatch.model.StandardUnit;
+import com.appdynamics.extensions.cloudwatch.configuration.Configuration;
+import com.appdynamics.extensions.cloudwatch.configuration.ConfigurationUtil;
+import com.appdynamics.extensions.cloudwatch.metricsmanager.MetricsManager;
+import com.appdynamics.extensions.cloudwatch.metricsmanager.MetricsManagerFactory;
 
 public class TestClass {
 
@@ -48,7 +44,7 @@ public class TestClass {
     // Initialization for local testing. Bit hacky since we are not using the monitor->execute()
     public static void init() {
         try {
-            config = ConfigurationUtil.getConfigurations("conf/AWSConfigurations.xml");
+            config = ConfigurationUtil.getConfigurations("src/main/resources/conf/AWSConfigurations.xml");
         }
         catch (Exception e){
             System.out.println(e.getMessage());
@@ -63,8 +59,22 @@ public class TestClass {
     public static void main(String[] args) {
         init();
         // testMetrics("AWS/Billing");
+        //testForMetrics();
+        testForDataPoints();
         System.out.println("Finished execution");
     }
+    
+    private static void testForDataPoints() {
+		awsCloudWatch.setEndpoint(monitor.getRegionvsurls().get("us-east-1"));
+		List<Dimension> dimensions = new ArrayList<Dimension>();
+		Dimension dimension = new Dimension();
+		dimension.setName("InstanceId");
+		dimension.setValue("i-2aa66f4e");
+		dimensions.add(dimension);
+		GetMetricStatisticsRequest getMetricStatisticsRequest = createGetMetricStatisticsRequest("AWS/EC2", "CPUUtilization", "Average", dimensions);
+        GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
+        System.out.println(getMetricStatisticsResult.getDatapoints());
+	}
 
     public static void testDimensions() {
         ArrayList<Dimension> dimensions = new ArrayList<Dimension>();
@@ -82,19 +92,32 @@ public class TestClass {
                                                                           String statisticsType,
                                                                           List<Dimension> dimensions) {
         GetMetricStatisticsRequest getMetricStatisticsRequest = new GetMetricStatisticsRequest()
-                .withStartTime(new Date(new Date().getTime() - 60000))
+                .withStartTime(new Date(new Date().getTime() - 1000 * 60 * 60 * 24))
                 .withNamespace(namespace)
                 .withDimensions(dimensions)
                 .withPeriod(60 * 60)
                 .withMetricName(metricName)
-                .withStatistics(statisticsType)
-                .withEndTime(new Date());
+                .withStatistics(statisticsType, "Maximum")
+                .withEndTime(new Date()).withUnit(StandardUnit.Percent);
         return getMetricStatisticsRequest;
     }
 
     private static void testMetrics(String namespace) {
-        MetricsManager metricsManager = metricsManagerFactory.createMetricsManager(namespace);
+        MetricsManager metricsManager = metricsManagerFactory.createMetricsManager(namespace, "monitoring.us-west-2.amazonaws.com");
         Map metrics = metricsManager.gatherMetrics();
         System.out.println("Finished testing metrics");
+    }
+    
+    private static void testForMetrics() {
+    	awsCloudWatch.setEndpoint("monitoring.us-west-2.amazonaws.com");
+		ListMetricsRequest request = new ListMetricsRequest();
+		List<DimensionFilter> filters = new ArrayList<DimensionFilter>();
+		DimensionFilter dimensionFilter = new DimensionFilter();
+		dimensionFilter.withName("InstanceId");
+		filters.add(dimensionFilter);
+		request.setNamespace("AWS/EC2");
+		request.setDimensions(filters);
+		ListMetricsResult listMetrics = awsCloudWatch.listMetrics(request);
+		System.out.println(listMetrics.getMetrics());
     }
 }

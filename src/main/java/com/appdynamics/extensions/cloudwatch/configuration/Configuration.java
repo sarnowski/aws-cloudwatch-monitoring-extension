@@ -22,14 +22,17 @@ import java.util.*;
 public class Configuration {
 
     // This HashSet of disabled metrics is populated by reading the DisabledMetrics.xml file
-    public Map disabledMetrics;
+    public Map<String, Set<String>> disabledMetrics;
     // This HashSet of available namespaces is populated by reading the AvailableNamespaces.xml file
-    public Set availableNamespaces;
+    public Set<String> availableNamespaces;
+    
+    public Set<String> availableRegions;
 
     public AWSCredentials awsCredentials;
 
     public Configuration() {
-        disabledMetrics = Collections.synchronizedMap(new HashMap<String, HashSet<String>>());
+        disabledMetrics = Collections.synchronizedMap(new HashMap<String, Set<String>>());
         availableNamespaces = new HashSet<String>();
+        availableRegions = new HashSet<String>();
     }
 }

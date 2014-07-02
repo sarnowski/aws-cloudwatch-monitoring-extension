@@ -2,14 +2,14 @@
 <Configurations>
 
     <AWSCredentials>
-        <AccessKey></AccessKey>
-        <SecretKey></SecretKey>
+        <AccessKey>AKIAJBH4GOPKMGNESTPQ</AccessKey>
+        <SecretKey>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</SecretKey>
     </AWSCredentials>
 
     <!-- MetricManagers for these namespaces have been implemented -->
     <SupportedNamespaces>
         <SupportedNamespace>AWS/EC2</SupportedNamespace>
-        <SupportedNamespace>AWS/AutoScaling</SupportedNamespace>
+        <!-- <SupportedNamespace>AWS/AutoScaling</SupportedNamespace>
         <SupportedNamespace>AWS/EBS</SupportedNamespace>
         <SupportedNamespace>AWS/ELB</SupportedNamespace>
         <SupportedNamespace>AWS/ElastiCache</SupportedNamespace>
@@ -22,12 +22,22 @@
         <SupportedNamespace>AWS/StorageGateway</SupportedNamespace>
         <SupportedNamespace>AWS/OpsWorks</SupportedNamespace>
         <SupportedNamespace>AWS/SNS</SupportedNamespace>
-        <SupportedNamespace>AWS/Billing</SupportedNamespace>
+        <SupportedNamespace>AWS/Billing</SupportedNamespace> -->
     </SupportedNamespaces>
+    
+    <Regions>
+        <Region>us-east-1</Region> 
+        <Region>us-west-2</Region>
+        <Region>us-west-1</Region>
+        <Region>eu-west-1</Region>
+        <Region>ap-southeast-1</Region>
+        <Region>ap-southeast-2</Region>
+        <Region>ap-northeast-1</Region>
+        <Region>sa-east-1</Region>
+    </Regions>
 
     <DisabledMetrics>
         <!--<Metric namespace="AWS/EC2" metricName="CPUUtilization"/>-->
-        <Metric namespace="AWS/EC2" metricName="Some Metric"/>
     </DisabledMetrics>
 
 </Configurations>

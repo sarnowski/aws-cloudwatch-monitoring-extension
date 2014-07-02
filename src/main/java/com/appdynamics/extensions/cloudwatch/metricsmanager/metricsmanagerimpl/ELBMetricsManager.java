@@ -72,7 +72,7 @@ public final class ELBMetricsManager extends MetricsManager {
      * @param metrics   Map containing metrics
      */
     @Override
-    public void printMetrics(Map metrics) {
+    public void printMetrics(String region, Map metrics) {
         HashMap<String, HashMap<String, HashMap<String, List<Datapoint>>>> elbMetrics = (HashMap<String, HashMap<String,HashMap<String,List<Datapoint>>>>) metrics;
         Iterator loadBalancerIterator = elbMetrics.keySet().iterator();
 
@@ -89,7 +89,7 @@ public final class ELBMetricsManager extends MetricsManager {
                     List<Datapoint> datapoints = metricsMap.get(metricName);
                     if (datapoints != null && datapoints.size() > 0) {
                         Datapoint data = datapoints.get(0);
-                        amazonCloudWatchMonitor.printMetric(getNamespacePrefix() + loadBalancerName + "|" + "Availability Zone|" +  zoneName + "|",metricName + "(" + data.getUnit() + ")", data.getAverage(),
+                        amazonCloudWatchMonitor.printMetric(region + "|", getNamespacePrefix() + loadBalancerName + "|" + "Availability Zone|" +  zoneName + "|",metricName + "(" + data.getUnit() + ")", data.getAverage(),
                                 MetricWriter.METRIC_AGGREGATION_TYPE_OBSERVATION,
                                 MetricWriter.METRIC_TIME_ROLLUP_TYPE_AVERAGE,
                                 MetricWriter.METRIC_CLUSTER_ROLLUP_TYPE_INDIVIDUAL);

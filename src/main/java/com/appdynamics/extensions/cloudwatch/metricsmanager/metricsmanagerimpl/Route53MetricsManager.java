@@ -15,8 +15,10 @@
 */
 package com.appdynamics.extensions.cloudwatch.metricsmanager.metricsmanagerimpl;
 
+import com.amazonaws.services.cloudwatch.model.Datapoint;
 import com.appdynamics.extensions.cloudwatch.metricsmanager.MetricsManager;
 
+import java.util.List;
 import java.util.Map;
 
 public final class Route53MetricsManager extends MetricsManager {
@@ -28,7 +30,7 @@ public final class Route53MetricsManager extends MetricsManager {
      * @return	Map     Map containing metrics
      */
     @Override
-    public Map gatherMetrics() {
+    public Map<String, Map<String,List<Datapoint>>> gatherMetrics() {
         return gatherMetricsHelper(NAMESPACE, "HealthCheckId");
     }
 
@@ -37,8 +39,8 @@ public final class Route53MetricsManager extends MetricsManager {
      * @param metrics   Map containing metrics
      */
     @Override
-    public void printMetrics(Map metrics) {
-        printMetricsHelper(metrics, getNamespacePrefix());
+    public void printMetrics(String region, Map<String, Map<String,List<Datapoint>>> metrics) {
+        printMetricsHelper(region, NAMESPACE, metrics, getNamespacePrefix());
     }
 
     /**
