@@ -17,8 +17,12 @@ package com.appdynamics.extensions.cloudwatch;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
@@ -28,7 +32,6 @@ import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsRequest;
 import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsResult;
 import com.amazonaws.services.cloudwatch.model.ListMetricsRequest;
 import com.amazonaws.services.cloudwatch.model.ListMetricsResult;
-import com.amazonaws.services.cloudwatch.model.StandardUnit;
 import com.appdynamics.extensions.cloudwatch.configuration.Configuration;
 import com.appdynamics.extensions.cloudwatch.configuration.ConfigurationUtil;
 import com.appdynamics.extensions.cloudwatch.metricsmanager.MetricsManager;
@@ -40,7 +43,7 @@ public class TestClass {
     private static AmazonCloudWatch awsCloudWatch;
     private static AmazonCloudWatchMonitor monitor;
     private static MetricsManagerFactory metricsManagerFactory;
-
+    
     // Initialization for local testing. Bit hacky since we are not using the monitor->execute()
     public static void init() {
         try {
@@ -61,15 +64,18 @@ public class TestClass {
         // testMetrics("AWS/Billing");
         //testForMetrics();
         testForDataPoints();
-        System.out.println("Finished execution");
+        //System.out.println("Finished execution");
+        /*Map<String, String> taskArguments = new HashMap<String, String>();
+        taskArguments.put("configurations", "src/main/resources/conf/AWSConfigurations.xml");
+        monitor.execute(taskArguments, null);*/
     }
     
     private static void testForDataPoints() {
-		awsCloudWatch.setEndpoint(monitor.getRegionvsurls().get("us-east-1"));
+		awsCloudWatch.setEndpoint(monitor.getRegionvsurls().get("us-west-2"));
 		List<Dimension> dimensions = new ArrayList<Dimension>();
 		Dimension dimension = new Dimension();
 		dimension.setName("InstanceId");
-		dimension.setValue("i-2aa66f4e");
+		dimension.setValue("i-170b3b1f");
 		dimensions.add(dimension);
 		GetMetricStatisticsRequest getMetricStatisticsRequest = createGetMetricStatisticsRequest("AWS/EC2", "CPUUtilization", "Average", dimensions);
         GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
@@ -91,14 +97,16 @@ public class TestClass {
                                                                           String metricName,
                                                                           String statisticsType,
                                                                           List<Dimension> dimensions) {
+    	Date startTime = new Date(new Date().getTime() - 1000 * 60 * 5 );
+    	Date endDate = new Date(new Date().getTime() - 1000 * 60 *3 );
         GetMetricStatisticsRequest getMetricStatisticsRequest = new GetMetricStatisticsRequest()
-                .withStartTime(new Date(new Date().getTime() - 1000 * 60 * 60 * 24))
+                .withStartTime(DateTime.now(DateTimeZone.UTC).minusMinutes(10).toDate())
                 .withNamespace(namespace)
                 .withDimensions(dimensions)
-                .withPeriod(60 * 60)
+                .withPeriod(60)
                 .withMetricName(metricName)
-                .withStatistics(statisticsType, "Maximum")
-                .withEndTime(new Date()).withUnit(StandardUnit.Percent);
+                .withStatistics(statisticsType)
+                .withEndTime(DateTime.now(DateTimeZone.UTC).minusMinutes(5).toDate());
         return getMetricStatisticsRequest;
     }
 

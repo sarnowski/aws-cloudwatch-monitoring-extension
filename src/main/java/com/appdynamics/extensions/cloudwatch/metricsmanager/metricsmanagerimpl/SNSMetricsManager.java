@@ -24,7 +24,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 public final class SNSMetricsManager extends MetricsManager {
+	
+	private Logger logger = Logger.getLogger("com.singularity.extensions.SNSMetricsManager");
 
     private static final String NAMESPACE = "AWS/SNS";
 

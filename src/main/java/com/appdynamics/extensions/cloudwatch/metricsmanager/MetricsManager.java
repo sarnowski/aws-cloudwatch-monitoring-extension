@@ -21,13 +21,14 @@ import com.appdynamics.extensions.cloudwatch.AmazonCloudWatchMonitor;
 import com.singularity.ee.agent.systemagent.api.MetricWriter;
 
 import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import java.util.*;
 import java.util.Map.Entry;
 
 public abstract class MetricsManager {
 
-    private static final int ONE_MINUTE = 60000;
     private Logger logger = Logger.getLogger("com.singularity.extensions.MetricsManager");
     protected AmazonCloudWatchMonitor amazonCloudWatchMonitor;
     protected AmazonCloudWatch awsCloudWatch;
@@ -79,13 +80,13 @@ public abstract class MetricsManager {
                                                                        String statisticsType,
                                                                        List<Dimension> dimensions) {
         GetMetricStatisticsRequest getMetricStatisticsRequest = new GetMetricStatisticsRequest()
-                .withStartTime(new Date(new Date().getTime()- ONE_MINUTE))
+                .withStartTime(DateTime.now(DateTimeZone.UTC).minusMinutes(10).toDate())
                 .withNamespace(namespace)
                 .withDimensions(dimensions)
-                .withPeriod(60 * 60)
+                .withPeriod(60)
                 .withMetricName(metricName)
                 .withStatistics(statisticsType)
-                .withEndTime(new Date());
+                .withEndTime(DateTime.now(DateTimeZone.UTC).minusMinutes(5).toDate());
         return getMetricStatisticsRequest;
     }
 
@@ -134,6 +135,9 @@ public abstract class MetricsManager {
                     GetMetricStatisticsRequest getMetricStatisticsRequest = createGetMetricStatisticsRequest(namespace, metricName, "Average", metric.getDimensions());
                     GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
                     metrics.get(key).put(metricName, getMetricStatisticsResult.getDatapoints());
+                    if(logger.isDebugEnabled()) {
+                    	logger.debug("Metric " + metricName + " datapoints retrieved: " + getMetricStatisticsResult.getDatapoints());
+                    }
                 }
             }
         }
@@ -149,7 +153,9 @@ public abstract class MetricsManager {
             for(Entry<String, Map<String, List<Datapoint>>> entry : instanceMetricsMap.entrySet()) {
             	String instandeId = entry.getKey();
             	Map<String, List<Datapoint>> metricStatistics = entry.getValue();
-            	logger.info(String.format("Collected Metrics %5s:%-5s %5s:%-5s %5s:%-5s %5s:%-5d" , "Region", region, "Namespace", namespace, "InstanceID", instandeId, " #Metrics",  metricStatistics.size()));
+            	if(logger.isDebugEnabled()) {
+            		logger.debug(String.format("Collected Metrics %5s:%-5s %5s:%-5s %5s:%-5s %5s:%-5d" , "Region", region, "Namespace", namespace, "InstanceID", instandeId, " #Metrics",  metricStatistics.size()));
+            	}
             	int printedMetricsSize = 0;
             	for(Entry<String, List<Datapoint>> entry2 : metricStatistics.entrySet()) {
             		String metricName = entry2.getKey();

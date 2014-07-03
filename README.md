@@ -98,7 +98,10 @@ In the conf/AWSConfigurations.xml, there are three things that can be configured
 
     1) The AWS account credentials (i.e. the access key and the secret key)
     2) The supported AWS namespaces that you can retrieve metrics for (you can enable or disable metrics for specific namespaces)
+	3) Regions (enable regions to monitor the running AWS Products in the corresponding region)
     3) The list of disabled metrics associated with their corresponding AWS namespaces
+
+List of Amazon Cloudwatch Regions can be found at this link http://docs.aws.amazon.com/general/latest/gr/rande.html#cw_region
  
 This is a sample AWSConfigurations.xml file: 
 
@@ -126,6 +129,16 @@ This is a sample AWSConfigurations.xml file:
             <Namespace>AWS/SNS</Namespace>
             <Namespace>AWS/Billing</Namespace>
         </SupportedNamespaces>
+		<Regions>
+        	<Region>us-east-1</Region> 
+	        <Region>us-west-2</Region>
+    	    <Region>us-west-1</Region>
+    	    <Region>eu-west-1</Region>
+        	<Region>ap-southeast-1</Region>
+    	    <Region>ap-southeast-2</Region>
+    	    <Region>ap-northeast-1</Region>
+    	    <Region>sa-east-1</Region>
+	    </Regions>
         <DisabledMetrics>
             <Metric namespace="AWS/EC2" metricName="CPUUtilization"/>
             <Metric namespace="AWS/EC2" metricName="Some Metric"/>
@@ -150,7 +163,7 @@ Here is the monitor.xml file:
                 <type>java</type>
                 <execution-timeout-in-secs>60</execution-timeout-in-secs>
                 <java-task>
-                    <classpath>AmazonMonitor.jar;lib/aws-java-sdk-1.5.6.jar;lib/httpclient-4.2.3.jar;lib/httpcore-4.2.jar;lib/commons-logging-1.1.1.jar</classpath>
+                    <classpath>CloudWatchMonitor.jar;lib/aws-java-sdk-1.5.6.jar;lib/httpclient-4.2.3.jar;lib/httpcore-4.2.2.jar;lib/commons-logging-1.1.1.jar;lib/joda-time-2.3.jar</classpath>
                         <impl-class>com.appdynamics.extensions.cloudwatch.AmazonCloudWatchMonitor</impl-class>
                 </java-task>
                 <task-arguments>

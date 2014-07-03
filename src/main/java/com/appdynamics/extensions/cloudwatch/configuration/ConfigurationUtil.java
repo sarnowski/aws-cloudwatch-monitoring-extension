@@ -23,6 +23,7 @@ import java.util.HashSet;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -33,17 +34,20 @@ import com.google.common.base.Strings;
 import com.singularity.ee.agent.systemagent.api.AManagedMonitor;
 
 public class ConfigurationUtil {
+	
+	private static Logger logger = Logger.getLogger("com.singularity.extensions.ConfigurationUtil");
 
     /**
      * Reads the config file in the conf/ directory and retrieves AWS credentials, disabled metrics, and available namespaces
      * @param filePath          Path to the configuration file
      * @return Configuration    Configuration object containing AWS credentials, disabled metrics, and available namespaces
      */
-    public static Configuration getConfigurations(String filePath) throws Exception{
+    public static Configuration getConfigurations(String filePath) throws Exception {
         Configuration awsConfiguration = new Configuration();
         BufferedInputStream configFile = null;
 
         try {
+        	logger.info("Reading config file::" + filePath);
         	String fileName = getConfigFilename(filePath);
             configFile = new BufferedInputStream(new FileInputStream(fileName));
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -87,9 +91,14 @@ public class ConfigurationUtil {
                 }
                 (awsConfiguration.disabledMetrics.get(namespaceKey)).add(metricName);
             }
+            if(logger.isDebugEnabled()) {
+            	logger.debug("Enabled namespaces: " + awsConfiguration.availableNamespaces);
+            	logger.debug("Enabled regions: " + awsConfiguration.availableRegions);
+            }
             return awsConfiguration;
         }
         catch (Exception e) {
+        	logger.error("Exception while reading configuration file", e);
             throw e;
         }
         finally {
