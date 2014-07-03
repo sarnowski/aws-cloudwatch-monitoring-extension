@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -105,25 +106,18 @@ public final class AmazonCloudWatchMonitor extends AManagedMonitor {
 		try {
 			logger.info("Executing CloudWatchMonitor...");
 			initialize(taskArguments);
-
-			ExecutorService threadPool = Executors.newFixedThreadPool(availableNamespaces.size() * availableRegions.size());
 			for (final String namespace : availableNamespaces) {
 				for (final String region : availableRegions) {
-					threadPool.execute(new Runnable() {
-						public void run() {
-							final String regionUrl = regionVsURLs.get(region);
-							MetricsManager metricsManager = metricsManagerFactory.createMetricsManager(namespace, regionUrl);
-							Map<String, Map<String, List<Datapoint>>> metrics = metricsManager.gatherMetrics();
-							// Logging number of instances for which metrics
-							// were collected
-							logger.info(String.format("Running Instances Count in AWS - %5s:%-5s %5s:%-5s %5s:%-5d", "Region", region, "Namespace", namespace,
-									"#Instances", metrics.size()));
-							metricsManager.printMetrics(region, metrics);
-						}
-					});
+					String regionUrl = regionVsURLs.get(region);
+					MetricsManager metricsManager = metricsManagerFactory.createMetricsManager(namespace, regionUrl);
+					Map<String, Map<String, List<Datapoint>>> metrics = metricsManager.gatherMetrics();
+					// Logging number of instances for which metrics
+					// were collected
+					logger.info(String.format("Running Instances Count in AWS - %5s:%-5s %5s:%-5s %5s:%-5d", "Region", region, "Namespace",
+							namespace, "#Instances", metrics.size()));
+					metricsManager.printMetrics(region, metrics);
 				}
 			}
-			threadPool.shutdown();
 			logger.info("Finished Executing CloudWatchMonitor...");
 			return new TaskOutput("AWS Cloud Watch Metric Upload Complete Successfully");
 		} catch (Exception e) {
@@ -220,7 +214,7 @@ public final class AmazonCloudWatchMonitor extends AManagedMonitor {
 			String cluster) {
 		try {
 			MetricWriter metricWriter = getMetricWriter(getMetricPrefix() + region + namespacePrefix + metricName, aggregation, timeRollup, cluster);
-			if(logger.isDebugEnabled()) {
+			if (logger.isDebugEnabled()) {
 				logger.debug("Metric: " + getMetricPrefix() + region + namespacePrefix + metricName + " value: " + metricValue);
 			}
 			metricWriter.printMetric(String.valueOf((long) metricValue));
