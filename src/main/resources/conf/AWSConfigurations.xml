@@ -2,8 +2,8 @@
 <Configurations>
 
     <AWSCredentials>
-        <AccessKey>AKIAI2SRCZ7H7R3F6CAQ</AccessKey>
-        <SecretKey>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</SecretKey>
+        <AccessKey></AccessKey>
+        <SecretKey></SecretKey>
     </AWSCredentials>
 
     <!-- MetricManagers for these namespaces have been implemented -->
