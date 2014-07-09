@@ -30,6 +30,8 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
 import com.amazonaws.services.cloudwatch.model.Datapoint;
+import com.appdynamics.TaskInputArgs;
+import com.appdynamics.extensions.ArgumentsValidator;
 import com.appdynamics.extensions.cloudwatch.configuration.Configuration;
 import com.appdynamics.extensions.cloudwatch.configuration.ConfigurationUtil;
 import com.appdynamics.extensions.cloudwatch.metricsmanager.MetricsManager;
@@ -51,6 +53,7 @@ public final class AmazonCloudWatchMonitor extends AManagedMonitor {
 	private Set<String> availableRegions;
 	private AWSCredentials credentials;
 	private Configuration configuration;
+	private String metric_prefix;
 
 	private static final Map<String, String> regionVsURLs;
 
@@ -68,6 +71,13 @@ public final class AmazonCloudWatchMonitor extends AManagedMonitor {
 
 		regionVsURLs = Collections.unmodifiableMap(tmpRegionVsURLs);
 	}
+	
+	private static final Map<String, String> DEFAULT_ARGS = new HashMap<String, String>() {
+		{
+			put("configurations", "monitors/CloudWatchMonitor/conf/AWSConfigurations.xml");
+			put(TaskInputArgs.METRIC_PREFIX, "Custom Metrics|Amazon Cloud Watch|");
+		}
+	};
 
 	public AmazonCloudWatchMonitor() {
 		String msg = "Using Monitor Version [" + getImplementationVersion() + "]";
@@ -84,6 +94,8 @@ public final class AmazonCloudWatchMonitor extends AManagedMonitor {
 	 */
 	public void initialize(Map<String, String> taskArguments) throws Exception {
 		if (!isInitialized) {
+			taskArguments = ArgumentsValidator.validateArguments(taskArguments, DEFAULT_ARGS);
+			metric_prefix = taskArguments.get(TaskInputArgs.METRIC_PREFIX);
 			configuration = ConfigurationUtil.getConfigurations(taskArguments.get("configurations"));
 			credentials = configuration.awsCredentials;
 			awsCloudWatch = new AmazonCloudWatchClient(credentials);
@@ -229,7 +241,7 @@ public final class AmazonCloudWatchMonitor extends AManagedMonitor {
 	 * @return String
 	 */
 	private String getMetricPrefix() {
-		return "Custom Metrics|Amazon Cloud Watch|";
+		return metric_prefix + "|";
 	}
 
 	public static String getImplementationVersion() {

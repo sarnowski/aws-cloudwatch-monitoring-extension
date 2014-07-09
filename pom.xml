@@ -31,7 +31,7 @@
 		<dependency>
    <groupId>com.appdynamics</groupId>
    <artifactId>appd-exts-commons</artifactId>
-   <version>1.0.7</version>
+   <version>1.0.3</version>
   </dependency>
   <dependency>
    <groupId>joda-time</groupId>
@@ -112,7 +112,7 @@
                   <phase>install</phase>
                   <configuration>
                       <target>
-                          <property name="target.dir" value="${build.directory}/CloudWatchMonitor"/>
+                          <property name="target.dir" value="${project.build.directory}/CloudWatchMonitor"/>
                           <mkdir dir="${target.dir}"/>
                           <copy todir="${target.dir}">
                               <fileset dir="src/main/resources/conf" includes="monitor.xml"/>
@@ -124,7 +124,7 @@
                               <fileset dir="src/main/resources/conf" includes="remoteHelper.sh"/>
                           </copy>
                           <copy todir="${target.dir}">
-                              <fileset dir="${build.directory}" includes="${project.build.finalName}.${project.packaging}"/>
+                              <fileset dir="${project.build.directory}" includes="${project.build.finalName}.${project.packaging}"/>
                           </copy>
                           <zip destfile="${target.dir}-${project.version}.zip">
                               <zipfileset dir="${target.dir}" filemode="755" prefix="CloudWatchMonitor/"/>
