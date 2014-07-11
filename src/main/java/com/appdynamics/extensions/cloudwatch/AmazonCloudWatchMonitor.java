@@ -238,7 +238,7 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
             String value = new BigDecimal(metricValue).setScale(0, RoundingMode.HALF_UP).toString();
             MetricWriter metricWriter = getMetricWriter(getMetricPrefix() + region + namespacePrefix + metricName, aggregation, timeRollup, cluster);
 			if (logger.isDebugEnabled()) {
-				logger.debug("Metric: " + getMetricPrefix() + region + namespacePrefix + metricName + " value: " + value);
+				logger.debug("Metric: " + getMetricPrefix() + region + namespacePrefix + metricName + " value: "+metricValue+" -> " + value);
 			}
 			metricWriter.printMetric(value);
 		} catch (Exception e) {
