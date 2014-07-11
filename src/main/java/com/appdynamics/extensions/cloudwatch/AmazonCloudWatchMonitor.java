@@ -47,7 +47,6 @@ public final class AmazonCloudWatchMonitor extends AManagedMonitor {
 	private static boolean isInitialized = false;
 
 	private MetricsManagerFactory metricsManagerFactory;
-	private AmazonCloudWatch awsCloudWatch;
 	private Map<String, Set<String>> disabledMetrics;
 	private Set<String> availableNamespaces;
 	private Set<String> availableRegions;
@@ -71,7 +70,7 @@ public final class AmazonCloudWatchMonitor extends AManagedMonitor {
 
 		regionVsURLs = Collections.unmodifiableMap(tmpRegionVsURLs);
 	}
-	
+
 	private static final Map<String, String> DEFAULT_ARGS = new HashMap<String, String>() {
 		{
 			put("configurations", "monitors/CloudWatchMonitor/conf/AWSConfigurations.xml");
@@ -98,7 +97,6 @@ public final class AmazonCloudWatchMonitor extends AManagedMonitor {
 			metric_prefix = taskArguments.get(TaskInputArgs.METRIC_PREFIX);
 			configuration = ConfigurationUtil.getConfigurations(taskArguments.get("configurations"));
 			credentials = configuration.awsCredentials;
-			awsCloudWatch = new AmazonCloudWatchClient(credentials);
 			disabledMetrics = configuration.disabledMetrics;
 			availableNamespaces = configuration.availableNamespaces;
 			availableRegions = configuration.availableRegions;
@@ -118,18 +116,22 @@ public final class AmazonCloudWatchMonitor extends AManagedMonitor {
 		try {
 			logger.info("Executing CloudWatchMonitor...");
 			initialize(taskArguments);
-			for (final String namespace : availableNamespaces) {
-				for (final String region : availableRegions) {
-					String regionUrl = regionVsURLs.get(region);
-					MetricsManager metricsManager = metricsManagerFactory.createMetricsManager(namespace, regionUrl);
-					Map<String, Map<String, List<Datapoint>>> metrics = metricsManager.gatherMetrics();
-					// Logging number of instances for which metrics
-					// were collected
-					logger.info(String.format("Running Instances Count in AWS - %5s:%-5s %5s:%-5s %5s:%-5d", "Region", region, "Namespace",
-							namespace, "#Instances", metrics.size()));
-					metricsManager.printMetrics(region, metrics);
+
+			final CountDownLatch taskChecker = new CountDownLatch(availableNamespaces.size() * availableRegions.size());
+			ExecutorService threadPool = Executors.newFixedThreadPool(availableNamespaces.size() * availableRegions.size());
+			for (final String region : availableRegions) {
+				final AmazonCloudWatch awsCloudWatch = new AmazonCloudWatchClient(credentials);
+				for (final String namespace : availableNamespaces) {
+					threadPool.execute(new Runnable() {
+						public void run() {
+							fetchAndPrintMetrics(awsCloudWatch, namespace, region);
+							taskChecker.countDown();
+						}
+					});
 				}
 			}
+			taskChecker.await();
+			threadPool.shutdown();
 			logger.info("Finished Executing CloudWatchMonitor...");
 			return new TaskOutput("AWS Cloud Watch Metric Upload Complete Successfully");
 		} catch (Exception e) {
@@ -138,14 +140,23 @@ public final class AmazonCloudWatchMonitor extends AManagedMonitor {
 		}
 	}
 
+	private void fetchAndPrintMetrics(AmazonCloudWatch awsCloudWatch, String namespace, String region) {
+		MetricsManager metricsManager = metricsManagerFactory.createMetricsManager(namespace);
+		awsCloudWatch.setEndpoint(regionVsURLs.get(region));
+		Map<String, Map<String, List<Datapoint>>> metrics = metricsManager.gatherMetrics(awsCloudWatch, region);
+		// Logging number of instances for which metrics
+		// were collected
+		logger.info(String.format("Running Instances Count in AWS - %5s:%-5s %5s:%-5s %5s:%-5d", "Region", region, "Namespace", namespace,
+				"#Instances", metrics.size()));
+		metricsManager.printMetrics(region, metrics);
+
+	}
+
 	/**
 	 * Get the Amazon Cloud Watch Client
 	 * 
 	 * @return AmazonCloudWatch
 	 */
-	public AmazonCloudWatch getAmazonCloudWatch() {
-		return this.awsCloudWatch;
-	}
 
 	/**
 	 * Get the hashmap of disabled metrics
@@ -163,9 +174,6 @@ public final class AmazonCloudWatchMonitor extends AManagedMonitor {
 	/**
 	 * Set the Amazon Cloud Watch Client
 	 */
-	public void setAmazonCloudWatch(AmazonCloudWatch awsCloudWatch) {
-		this.awsCloudWatch = awsCloudWatch;
-	}
 
 	/**
 	 * Set the hashmap of disabled metrics

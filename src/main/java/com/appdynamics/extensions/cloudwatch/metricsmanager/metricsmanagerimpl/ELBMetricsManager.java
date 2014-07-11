@@ -15,6 +15,7 @@
 */
 package com.appdynamics.extensions.cloudwatch.metricsmanager.metricsmanagerimpl;
 
+import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.model.Datapoint;
 import com.amazonaws.services.cloudwatch.model.Dimension;
 import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsRequest;
@@ -36,8 +37,8 @@ public final class ELBMetricsManager extends MetricsManager {
      * @return	Map     Map containing metrics
      */
     @Override
-    public Map gatherMetrics() {
-        List<com.amazonaws.services.cloudwatch.model.Metric> elbMetricsList = getMetrics(NAMESPACE, "LoadBalancerName", "AvailabilityZone");
+    public Map gatherMetrics(AmazonCloudWatch awsCloudWatch, String region) {
+        List<com.amazonaws.services.cloudwatch.model.Metric> elbMetricsList = getMetrics(awsCloudWatch, NAMESPACE, "LoadBalancerName", "AvailabilityZone");
 
         //Top level     -- Key = LoadBalancerName,      Value = HashMap of availability zones
         //Mid level     -- Key = AvailabilityZoneName,  Value = HashMap of Metrics

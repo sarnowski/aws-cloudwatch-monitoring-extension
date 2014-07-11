@@ -15,6 +15,7 @@
 */
 package com.appdynamics.extensions.cloudwatch.metricsmanager.metricsmanagerimpl;
 
+import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.model.Datapoint;
 import com.amazonaws.services.cloudwatch.model.Dimension;
 import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsRequest;
@@ -36,9 +37,9 @@ public final class RedshiftMetricsManager extends MetricsManager {
      * @return	Map     Map containing metrics
      */
     @Override
-    public Map gatherMetrics() {
+    public Map gatherMetrics(AmazonCloudWatch awsCloudWatch, String region) {
         HashMap<String, HashMap<String, HashMap<String, List<Datapoint>>>> redshiftMetrics = new HashMap<String, HashMap<String,HashMap<String,List<Datapoint>>>>();
-        List<com.amazonaws.services.cloudwatch.model.Metric> metrics = getMetrics(NAMESPACE, "ClusterIdentifier", "NodeID");
+        List<com.amazonaws.services.cloudwatch.model.Metric> metrics = getMetrics(awsCloudWatch, NAMESPACE, "ClusterIdentifier", "NodeID");
         for (com.amazonaws.services.cloudwatch.model.Metric metric : metrics) {
             List<Dimension> dimensions = metric.getDimensions();
             String clusterIdentifier = dimensions.get(1).getValue();

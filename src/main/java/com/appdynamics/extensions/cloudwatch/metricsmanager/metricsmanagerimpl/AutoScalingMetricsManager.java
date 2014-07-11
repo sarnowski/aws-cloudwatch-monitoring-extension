@@ -15,6 +15,7 @@
 */
 package com.appdynamics.extensions.cloudwatch.metricsmanager.metricsmanagerimpl;
 
+import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.model.Datapoint;
 import com.appdynamics.extensions.cloudwatch.metricsmanager.MetricsManager;
 
@@ -30,8 +31,8 @@ public final class AutoScalingMetricsManager extends MetricsManager {
      * @return	Map     Map containing metrics
      */
     @Override
-    public Map<String, Map<String,List<Datapoint>>> gatherMetrics() {
-        return gatherMetricsHelper(NAMESPACE, "AutoScalingGroupName");
+    public Map<String, Map<String,List<Datapoint>>> gatherMetrics(AmazonCloudWatch awsCloudWatch, String region) {
+        return gatherMetricsHelper(awsCloudWatch, NAMESPACE, region, "AutoScalingGroupName");
     }
 
     /**

@@ -1,38 +1,44 @@
 package com.appdynamics.extensions.cloudwatch;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.powermock.api.mockito.PowerMockito.whenNew;
+
+import java.util.Map;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+
+import com.google.common.collect.Maps;
+import com.singularity.ee.agent.systemagent.api.AManagedMonitor;
+import com.singularity.ee.agent.systemagent.api.MetricWriter;
 
 /**
  * Unit test for simple App.
  */
-public class AmazonCloudWatchMonitorTest 
-    extends TestCase
-{
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public AmazonCloudWatchMonitorTest( String testName )
-    {
-        super( testName );
-    }
+public class AmazonCloudWatchMonitorTest {
+	
+	@Mock
+	private MetricWriter mockMetricWriter;
+	
+	private AmazonCloudWatchMonitor classUnderTest;
+	
+	@Before
+	public void setUp() throws Exception {
+		classUnderTest = new AmazonCloudWatchMonitor();// spy(new AmazonCloudWatchMonitor());
+		whenNew(MetricWriter.class).withArguments(any(AManagedMonitor.class), anyString()).thenReturn(mockMetricWriter);
+	}
+	
+	@Test
+	public void test() {
+		Map<String, String> args = Maps.newHashMap();
+		args.put("configurations","src/test/resources/AWSConfigurations.xml");
+		
+		classUnderTest.execute(args, null);
+		
+		
+	}
+	
 
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite()
-    {
-        return new TestSuite( AmazonCloudWatchMonitorTest.class );
-    }
-
-    /**
-     * Rigourous Test :-)
-     */
-    public void testApp()
-    {
-        assertTrue( true );
-    }
 }

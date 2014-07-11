@@ -15,6 +15,7 @@
 */
 package com.appdynamics.extensions.cloudwatch.metricsmanager.metricsmanagerimpl;
 
+import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.model.Datapoint;
 import com.appdynamics.extensions.cloudwatch.metricsmanager.MetricsManager;
 import com.singularity.ee.agent.systemagent.api.MetricWriter;
@@ -37,12 +38,12 @@ public final class SNSMetricsManager extends MetricsManager {
      * @return	Map     Map containing metrics
      */
     @Override
-    public Map gatherMetrics() {
+    public Map gatherMetrics(AmazonCloudWatch awsCloudWatch, String region) {
         HashMap<String, HashMap<String, HashMap<String, List<Datapoint>>>> snsMetrics = new HashMap<String, HashMap<String, HashMap<String, List<Datapoint>>>>();
 
-        HashMap<String, HashMap<String, List<Datapoint>>> applicationMetrics = (HashMap)gatherMetricsHelper(NAMESPACE,"Application");
-        HashMap<String, HashMap<String, List<Datapoint>>> platformMetrics = (HashMap)gatherMetricsHelper(NAMESPACE,"Platform");
-        HashMap<String, HashMap<String, List<Datapoint>>> topicNameMetrics = (HashMap)gatherMetricsHelper(NAMESPACE,"TopicName");
+        HashMap<String, HashMap<String, List<Datapoint>>> applicationMetrics = (HashMap)gatherMetricsHelper(awsCloudWatch, NAMESPACE, region, "Application");
+        HashMap<String, HashMap<String, List<Datapoint>>> platformMetrics = (HashMap)gatherMetricsHelper(awsCloudWatch, NAMESPACE, region, "Platform");
+        HashMap<String, HashMap<String, List<Datapoint>>> topicNameMetrics = (HashMap)gatherMetricsHelper(awsCloudWatch, NAMESPACE, region, "TopicName");
 
         snsMetrics.put("Application", applicationMetrics);
         snsMetrics.put("Platform", platformMetrics);

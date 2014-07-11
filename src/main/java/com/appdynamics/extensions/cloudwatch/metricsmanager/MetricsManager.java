@@ -15,23 +15,34 @@
 */
 package com.appdynamics.extensions.cloudwatch.metricsmanager;
 
-import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
-import com.amazonaws.services.cloudwatch.model.*;
-import com.appdynamics.extensions.cloudwatch.AmazonCloudWatchMonitor;
-import com.singularity.ee.agent.systemagent.api.MetricWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
-import java.util.*;
-import java.util.Map.Entry;
+import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
+import com.amazonaws.services.cloudwatch.model.Datapoint;
+import com.amazonaws.services.cloudwatch.model.Dimension;
+import com.amazonaws.services.cloudwatch.model.DimensionFilter;
+import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsRequest;
+import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsResult;
+import com.amazonaws.services.cloudwatch.model.ListMetricsRequest;
+import com.amazonaws.services.cloudwatch.model.ListMetricsResult;
+import com.amazonaws.services.cloudwatch.model.Metric;
+import com.appdynamics.extensions.cloudwatch.AmazonCloudWatchMonitor;
+import com.google.common.collect.Lists;
+import com.singularity.ee.agent.systemagent.api.MetricWriter;
 
 public abstract class MetricsManager {
 
     private Logger logger = Logger.getLogger("com.singularity.extensions.MetricsManager");
     protected AmazonCloudWatchMonitor amazonCloudWatchMonitor;
-    protected AmazonCloudWatch awsCloudWatch;
     protected Map<String,Set<String>> disabledMetrics;
 
     /**
@@ -39,18 +50,17 @@ public abstract class MetricsManager {
      * @param regionUrl 
      * @return	String
      */
-    public void initialize(AmazonCloudWatchMonitor amazonCloudWatchMonitor, String regionUrl) {
+    public void initialize(AmazonCloudWatchMonitor amazonCloudWatchMonitor) {
         this.amazonCloudWatchMonitor = amazonCloudWatchMonitor;
-        this.awsCloudWatch = amazonCloudWatchMonitor.getAmazonCloudWatch();
-        this.awsCloudWatch.setEndpoint(regionUrl);
         this.disabledMetrics = amazonCloudWatchMonitor.getDisabledMetrics();
     }
 
     /**
      * Gather metrics for a particular namespace
+     * @param awsCloudWatch 
      * @return Map
      */
-    public abstract Map<String, Map<String,List<Datapoint>>> gatherMetrics();
+    public abstract Map<String, Map<String,List<Datapoint>>> gatherMetrics(AmazonCloudWatch awsCloudWatch, String region);
 
     /**
      * Print metrics for a particular namespace
@@ -92,11 +102,12 @@ public abstract class MetricsManager {
 
     /**
      * Retrieve metrics for a particular namespace using the specified filter names
+     * @param awsCloudWatch 
      * @param namespace     Name of the namespace
      * @param filterNames   List of filter names (used to filter metrics)
      * @return List<Metric> List of filtered metrics for a particular namespace
      */
-    protected List<Metric> getMetrics(String namespace, String... filterNames) {
+    protected List<Metric> getMetrics(AmazonCloudWatch awsCloudWatch, String namespace, String... filterNames) {
         ListMetricsRequest request = new ListMetricsRequest();
         List<DimensionFilter> filters = new ArrayList<DimensionFilter>();
 
@@ -105,12 +116,18 @@ public abstract class MetricsManager {
             dimensionFilter.withName(filterName);
             filters.add(dimensionFilter);
         }
-
         request.withNamespace(namespace);
         request.withDimensions(filters);
-
+        List<Metric> metricList = Lists.newArrayList();
         ListMetricsResult listMetricsResult = awsCloudWatch.listMetrics(request);
-        return listMetricsResult.getMetrics();
+        metricList = listMetricsResult.getMetrics();
+        // Retrieves all the metrics if metricList > 500
+        while (listMetricsResult.getNextToken() != null) {
+			request.setNextToken(listMetricsResult.getNextToken());
+			listMetricsResult = awsCloudWatch.listMetrics(request);
+			metricList.addAll(listMetricsResult.getMetrics());
+		}
+		return metricList;
     }
 
     /**
@@ -119,13 +136,21 @@ public abstract class MetricsManager {
      * @param filterNames   List of filter names (used to filter metrics)
      * @return Map          Map containing metrics for a particular namespace
      */
-    protected Map<String, Map<String,List<Datapoint>>> gatherMetricsHelper(String namespace, String...filterNames) {
-        Map<String, Map<String,List<Datapoint>>> metrics = new HashMap<String, Map<String,List<Datapoint>>>();
-        List<Metric> metricsList = getMetrics(namespace, filterNames);
+    protected Map<String, Map<String,List<Datapoint>>> gatherMetricsHelper(AmazonCloudWatch awsCloudWatch, String namespace, String region, String...filterNames) {
+    	Map<String, Map<String,List<Datapoint>>> metrics = new HashMap<String, Map<String,List<Datapoint>>>();
+    	
+        List<Metric> metricsList = getMetrics(awsCloudWatch, namespace, filterNames);
+        logger.info("Available metrics Size across all instances for NameSpace:" + namespace + " Region:" + region + " - " +  metricsList.size());
 
+        //Each metric is of the form {Namespace: AWS/EC2,MetricName: DiskWriteOps,Dimensions: [{Name: InstanceId,Value: i-b0b31ff2}]}
+        if(logger.isDebugEnabled()) {
+        	logMetricPerInstance(metricsList, namespace, region);
+        }
+        
         for (Metric metric : metricsList) {
             List<Dimension> dimensions = metric.getDimensions();
             String key = dimensions.get(0).getValue();
+            
             if (!metrics.containsKey(key)) {
                 metrics.put(key, new HashMap<String, List<Datapoint>>());
             }
@@ -135,13 +160,62 @@ public abstract class MetricsManager {
                     GetMetricStatisticsRequest getMetricStatisticsRequest = createGetMetricStatisticsRequest(namespace, metricName, "Average", metric.getDimensions());
                     GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
                     metrics.get(key).put(metricName, getMetricStatisticsResult.getDatapoints());
-                    if(logger.isDebugEnabled()) {
-                    	logger.debug("Metric " + metricName + " datapoints retrieved: " + getMetricStatisticsResult.getDatapoints());
-                    }
                 }
             }
         }
+        
+        // Logging metricName and datapoints corresponding to each instanceID
+        if(logger.isDebugEnabled()) {
+        	logDataPointsPerInstance(metrics);
+        }
+        
         return metrics;
+    }
+
+	private void logDataPointsPerInstance(Map<String, Map<String, List<Datapoint>>> metrics) {
+		for(Entry<String, Map<String, List<Datapoint>>> instance : metrics.entrySet()) {
+			String instanceId = instance.getKey();
+			Map<String, List<Datapoint>> instanceMetrics = instance.getValue();
+			logger.debug("Logging metrics after getting response from AWS excluding disabled metrics");
+			logger.debug("Instance ID: " + instanceId + " Metrics Size: " + instanceMetrics.size());
+			for(Entry<String, List<Datapoint>> metricsPerInstance : instanceMetrics.entrySet()) {
+				String metricName = metricsPerInstance.getKey();
+				List<Datapoint> dataPoints = metricsPerInstance.getValue();
+				logger.debug("MetricName: " + metricName + " DataPoints: " + dataPoints);
+			}
+		}
+	}
+    
+    private void logMetricPerInstance(List<Metric> metricsList, String namespace, String region) {
+    	 Map<String, List<String>> metricsPerInstance = new HashMap<String, List<String>>();
+         for (Metric metric : metricsList) {
+             List<Dimension> dimensions = metric.getDimensions();
+             
+             String instanceId = null;
+             
+          	if (dimensions != null && !dimensions.isEmpty()) {
+         		instanceId = dimensions.get(0).getValue();
+         	}
+             
+         	List<String> metricList = null;
+         	
+         	if (metricsPerInstance.containsKey(instanceId)) {
+         		metricList = metricsPerInstance.get(instanceId);
+         		
+         	} else {
+         		metricList = new ArrayList<String>();
+         	}
+         	
+         	metricList.add(metric.getMetricName());
+         	metricsPerInstance.put(instanceId, metricList);
+         }
+         
+        for (String key : metricsPerInstance.keySet()) {
+     	logger.debug(" Metrics of " + key + " belonging to " + namespace + "," + region);
+	     	for (String metricName: metricsPerInstance.get(key)) {
+	     		logger.debug(metricName);
+	     	}
+        }
     }
     /**
      * Helper method to print metrics for a particular namespace

@@ -37,7 +37,15 @@
     </Regions>
 
     <DisabledMetrics>
-        <!--<Metric namespace="AWS/EC2" metricName="CPUUtilization"/>-->
+        <!-- <Metric namespace="AWS/EC2" metricName="NetworkIn"/>
+        <Metric namespace="AWS/EC2" metricName="NetworkOut"/>
+        <Metric namespace="AWS/EC2" metricName="DiskReadBytes"/>
+        <Metric namespace="AWS/EC2" metricName="DiskWriteBytes"/>
+        <Metric namespace="AWS/EC2" metricName="DiskReadOps"/>
+        <Metric namespace="AWS/EC2" metricName="DiskWriteOps"/>
+        <Metric namespace="AWS/EC2" metricName="StatusCheckFailed"/>
+        <Metric namespace="AWS/EC2" metricName="StatusCheckFailed_Instance"/>
+        <Metric namespace="AWS/EC2" metricName="StatusCheckFailed_System"/> -->
     </DisabledMetrics>
 
 </Configurations>

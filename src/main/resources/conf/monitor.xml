@@ -12,7 +12,7 @@
                 <type>java</type>
                 <execution-timeout-in-secs>120</execution-timeout-in-secs>
                 <java-task>
-                    <classpath>CloudWatchMonitor.jar;lib/aws-java-sdk-1.5.6.jar;lib/httpclient-4.2.3.jar;lib/httpcore-4.2.2.jar;lib/commons-logging-1.1.1.jar;lib/joda-time-2.3.jar;lib/appd-exts-commons-1.0.3.jar;lib/slf4j-api-1.7.5.jar;lib/slf4j-log4j12-1.7.5.jar</classpath>
+                    <classpath>CloudWatchMonitor.jar;lib/aws-java-sdk-1.5.6.jar;lib/httpclient-4.2.3.jar;lib/httpcore-4.2.2.jar;lib/commons-logging-1.1.1.jar;lib/joda-time-2.3.jar;lib/appd-exts-commons-1.0.3.jar;lib/slf4j-api-1.7.5.jar;lib/slf4j-log4j12-1.7.5.jar;lib/guava-11.0.2.jar</classpath>
                         <impl-class>com.appdynamics.extensions.cloudwatch.AmazonCloudWatchMonitor</impl-class>
                 </java-task>
                 <task-arguments>

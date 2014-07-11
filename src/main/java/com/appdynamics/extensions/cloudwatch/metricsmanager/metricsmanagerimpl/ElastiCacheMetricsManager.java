@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.model.Datapoint;
 import com.amazonaws.services.cloudwatch.model.Dimension;
 import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsRequest;
@@ -37,8 +38,8 @@ public final class ElastiCacheMetricsManager extends MetricsManager {
      * @return	Map     Map containing metrics
      */
     @Override
-    public Map gatherMetrics() {
-        List<Metric> metricsList = getMetrics(NAMESPACE, "CacheClusterId", "CacheNodeId");
+    public Map gatherMetrics(AmazonCloudWatch awsCloudWatch, String region) {
+        List<Metric> metricsList = getMetrics(awsCloudWatch, NAMESPACE, "CacheClusterId", "CacheNodeId");
 
         //Top level     -- Key = CacheClusterIds,       Value = HashMap of cache nodes
         //Mid level     -- Key = CacheNodeIds,          Value = HashMap of Metrics
