@@ -5,7 +5,7 @@
         <monitor-configuration></monitor-configuration>
         <monitor-run-task>
                 <execution-style>periodic</execution-style>
-                <execution-frequency-in-seconds>120</execution-frequency-in-seconds>
+                <execution-frequency-in-seconds>60</execution-frequency-in-seconds>
                 <name>Amazon Cloud Watch Monitor Run Task</name>
                 <display-name>Cloud Watch Monitor Task</display-name>
                 <description>Cloud Watch Monitor Task</description>

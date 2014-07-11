@@ -15,39 +15,28 @@
 */
 package com.appdynamics.extensions.cloudwatch.metricsmanager;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
+import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
+import com.amazonaws.services.cloudwatch.model.*;
+import com.appdynamics.extensions.cloudwatch.AmazonCloudWatchMonitor;
+import com.google.common.collect.Lists;
+import com.singularity.ee.agent.systemagent.api.MetricWriter;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
-import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
-import com.amazonaws.services.cloudwatch.model.Datapoint;
-import com.amazonaws.services.cloudwatch.model.Dimension;
-import com.amazonaws.services.cloudwatch.model.DimensionFilter;
-import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsRequest;
-import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsResult;
-import com.amazonaws.services.cloudwatch.model.ListMetricsRequest;
-import com.amazonaws.services.cloudwatch.model.ListMetricsResult;
-import com.amazonaws.services.cloudwatch.model.Metric;
-import com.appdynamics.extensions.cloudwatch.AmazonCloudWatchMonitor;
-import com.google.common.collect.Lists;
-import com.singularity.ee.agent.systemagent.api.MetricWriter;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.*;
 
 public abstract class MetricsManager {
 
     private Logger logger = Logger.getLogger("com.singularity.extensions.MetricsManager");
     protected AmazonCloudWatchMonitor amazonCloudWatchMonitor;
     protected Map<String,Set<String>> disabledMetrics;
+    private ExecutorService workerPool;
 
     /**
      * Intializes the cloudwatch cloud watch client and the hashmap of disabled metrics
-     * @param regionUrl 
      * @return	String
      */
     public void initialize(AmazonCloudWatchMonitor amazonCloudWatchMonitor) {
@@ -65,7 +54,6 @@ public abstract class MetricsManager {
     /**
      * Print metrics for a particular namespace
      * @param region 
-     * @param namespace 
      * @param metrics Map
      */
     public abstract void printMetrics(String region, Map<String, Map<String,List<Datapoint>>> metrics);
@@ -136,8 +124,8 @@ public abstract class MetricsManager {
      * @param filterNames   List of filter names (used to filter metrics)
      * @return Map          Map containing metrics for a particular namespace
      */
-    protected Map<String, Map<String,List<Datapoint>>> gatherMetricsHelper(AmazonCloudWatch awsCloudWatch, String namespace, String region, String...filterNames) {
-    	Map<String, Map<String,List<Datapoint>>> metrics = new HashMap<String, Map<String,List<Datapoint>>>();
+    protected Map<String, Map<String,List<Datapoint>>> gatherMetricsHelper(final AmazonCloudWatch awsCloudWatch, final String namespace, String region, String...filterNames) {
+    	final Map<String, Map<String,List<Datapoint>>> metrics = new ConcurrentHashMap<String, Map<String,List<Datapoint>>>();
     	
         List<Metric> metricsList = getMetrics(awsCloudWatch, namespace, filterNames);
         logger.info("Available metrics Size across all instances for NameSpace:" + namespace + " Region:" + region + " - " +  metricsList.size());
@@ -146,21 +134,55 @@ public abstract class MetricsManager {
         if(logger.isDebugEnabled()) {
         	logMetricPerInstance(metricsList, namespace, region);
         }
-        
-        for (Metric metric : metricsList) {
+
+        int count = 0;
+        ExecutorCompletionService ecs = new ExecutorCompletionService(workerPool);
+        for (final Metric metric : metricsList) {
             List<Dimension> dimensions = metric.getDimensions();
-            String key = dimensions.get(0).getValue();
+            final String key = dimensions.get(0).getValue();
             
             if (!metrics.containsKey(key)) {
-                metrics.put(key, new HashMap<String, List<Datapoint>>());
+                metrics.put(key, new ConcurrentHashMap<String, List<Datapoint>>());
             }
             if (!metrics.get(key).containsKey(metric.getMetricName())) {
-            	String metricName = metric.getMetricName();
+            	final String metricName = metric.getMetricName();
                 if (!amazonCloudWatchMonitor.isMetricDisabled(namespace, metricName)) {
-                    GetMetricStatisticsRequest getMetricStatisticsRequest = createGetMetricStatisticsRequest(namespace, metricName, "Average", metric.getDimensions());
-                    GetMetricStatisticsResult getMetricStatisticsResult = awsCloudWatch.getMetricStatistics(getMetricStatisticsRequest);
-                    metrics.get(key).put(metricName, getMetricStatisticsResult.getDatapoints());
+                    ecs.submit(new Callable() {
+                        public Object call() throws Exception {
+                            try{
+                                GetMetricStatisticsRequest request =
+                                        createGetMetricStatisticsRequest(namespace, metricName, "Average", metric.getDimensions());
+                                GetMetricStatisticsResult result = awsCloudWatch.getMetricStatistics(request);
+                                if(logger.isDebugEnabled()){
+                                    logger.debug("Fetching MetricStatistics for NameSpace =" +
+                                            namespace + " Metric= " + metric+" Result= "+result);
+                                }
+                                List<Datapoint> dataPoints = result.getDatapoints();
+                                if(dataPoints!=null && !dataPoints.isEmpty()){
+                                    metrics.get(key).put(metricName, dataPoints);
+                                }
+                            } catch (Exception e){
+                                //Better to log it here when we have the context rather than in get()
+                                logger.error("Error while getting the MetricStatistics for NameSpace ="
+                                        + namespace + " Metric " + metric, e);
+                            }
+                            return null;
+                        }
+                    });
+                    ++count;
                 }
+            }
+        }
+
+        //Wait until its complete
+        for (int i = 0; i < count; i++) {
+            try {
+                ecs.take().get();
+            } catch (InterruptedException e) {
+                logger.error("Interrupted exception", e);
+            } catch (ExecutionException e) {
+                // We are catching the exceptions b4hand, so this will not be executed
+                logger.error("ExecutionException in MetricStatistics", e);
             }
         }
         
@@ -228,9 +250,10 @@ public abstract class MetricsManager {
             	String instandeId = entry.getKey();
             	Map<String, List<Datapoint>> metricStatistics = entry.getValue();
             	if(logger.isDebugEnabled()) {
-            		logger.debug(String.format("Collected Metrics %5s:%-5s %5s:%-5s %5s:%-5s %5s:%-5d" , "Region", region, "Namespace", namespace, "InstanceID", instandeId, " #Metrics",  metricStatistics.size()));
+            		logger.debug(String.format("Collected Metrics %5s:%-5s %5s:%-5s %5s:%-5s %5s:%-5s" , "Region",
+                            region, "Namespace", namespace, "InstanceID", instandeId,
+                            " Metrics ",  metricStatistics.keySet()));
             	}
-            	int printedMetricsSize = 0;
             	for(Entry<String, List<Datapoint>> entry2 : metricStatistics.entrySet()) {
             		String metricName = entry2.getKey();
             		List<Datapoint> datapoints = entry2.getValue();
@@ -240,10 +263,8 @@ public abstract class MetricsManager {
                                 MetricWriter.METRIC_AGGREGATION_TYPE_OBSERVATION,
                                 MetricWriter.METRIC_TIME_ROLLUP_TYPE_AVERAGE,
                                 MetricWriter.METRIC_CLUSTER_ROLLUP_TYPE_INDIVIDUAL);
-                        printedMetricsSize++;
                     }
             	}
-            	logger.info(String.format("Printed Metrics %5s:%-5s %5s:%-5s %5s:%-5s %5s:%-5d" , "Region", region, "Namespace", namespace, "InstanceID", instandeId, " # Metrics",  printedMetricsSize));
             }
     }
 
@@ -257,5 +278,9 @@ public abstract class MetricsManager {
         StringBuilder sb = new StringBuilder(namespace.substring(4,namespace.length()));
         sb.append("|").append(id).append("|");
         return sb.toString();
+    }
+
+    public void setWorkerPool(ExecutorService workerPool) {
+        this.workerPool = workerPool;
     }
 }

@@ -1,12 +1,12 @@
-/** 
+/**
  * Copyright 2013 AppDynamics 
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the License);
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an AS IS BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,17 +14,6 @@
  * limitations under the License.
  */
 package com.appdynamics.extensions.cloudwatch;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import org.apache.log4j.Logger;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
@@ -40,11 +29,19 @@ import com.singularity.ee.agent.systemagent.api.AManagedMonitor;
 import com.singularity.ee.agent.systemagent.api.MetricWriter;
 import com.singularity.ee.agent.systemagent.api.TaskExecutionContext;
 import com.singularity.ee.agent.systemagent.api.TaskOutput;
+import org.apache.log4j.Logger;
 
-public final class AmazonCloudWatchMonitor extends AManagedMonitor {
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.*;
+import java.util.concurrent.*;
+
+public class AmazonCloudWatchMonitor extends AManagedMonitor {
 
 	private Logger logger = Logger.getLogger("com.singularity.extensions.AmazonCloudWatchMonitor");
-	private static boolean isInitialized = false;
+	private boolean isInitialized = false;
+    private ExecutorService awsWorkerPool;
+    private ExecutorService awsMetricWorkerPool;
 
 	private MetricsManagerFactory metricsManagerFactory;
 	private Map<String, Set<String>> disabledMetrics;
@@ -82,12 +79,11 @@ public final class AmazonCloudWatchMonitor extends AManagedMonitor {
 		String msg = "Using Monitor Version [" + getImplementationVersion() + "]";
 		logger.info(msg);
 		System.out.println(msg);
-		metricsManagerFactory = new MetricsManagerFactory(this);
-	}
+    }
 
 	/**
 	 * Initialize AWS credentials, disabled metrics, and supported namespaces
-	 * 
+	 *
 	 * @param taskArguments
 	 * @return
 	 */
@@ -101,48 +97,54 @@ public final class AmazonCloudWatchMonitor extends AManagedMonitor {
 			availableNamespaces = configuration.availableNamespaces;
 			availableRegions = configuration.availableRegions;
 			isInitialized = true;
-			logger.info("AmazonMonitor initialized");
+            awsWorkerPool = Executors.newFixedThreadPool(5);
+            awsMetricWorkerPool = Executors.newFixedThreadPool(20);
+            metricsManagerFactory = new MetricsManagerFactory(this);
+            logger.info("AmazonMonitor initialized");
 		}
 	}
 
 	/**
 	 * Main execution method that uploads the metrics to the AppDynamics
 	 * Controller
-	 * 
+	 *
 	 * @see com.singularity.ee.agent.systemagent.api.ITask#execute(java.util.Map,
 	 *      com.singularity.ee.agent.systemagent.api.TaskExecutionContext)
 	 */
 	public TaskOutput execute(Map<String, String> taskArguments, TaskExecutionContext taskExecutionContext) {
-		try {
-			logger.info("Executing CloudWatchMonitor...");
-			initialize(taskArguments);
+        try {
+            logger.info("Executing CloudWatchMonitor...");
+            initialize(taskArguments);
+            ExecutorCompletionService ecs = new ExecutorCompletionService(awsWorkerPool);
+            int count = 0;
+            for (final String region : availableRegions) {
+                for (final String namespace : availableNamespaces) {
+                    ecs.submit(new Callable() {
+                        public Object call() throws Exception {
+                            fetchAndPrintMetrics(namespace, region);
+                            return null;
+                        }
+                    });
+                    ++count;
+                }
+            }
+            //Not sure if we need to wait.
+            for (int i = 0; i < count; i++) {
+                ecs.take().get();
+            }
+            logger.info("Finished Executing CloudWatchMonitor...");
+            return new TaskOutput("AWS Cloud Watch Metric Upload Complete Successfully");
+        } catch (Exception e) {
+            logger.error("Exception ", e);
+            return new TaskOutput("AWS Cloud Watch Metric Upload Failed");
+        }
+    }
 
-			final CountDownLatch taskChecker = new CountDownLatch(availableNamespaces.size() * availableRegions.size());
-			ExecutorService threadPool = Executors.newFixedThreadPool(availableNamespaces.size() * availableRegions.size());
-			for (final String region : availableRegions) {
-				final AmazonCloudWatch awsCloudWatch = new AmazonCloudWatchClient(credentials);
-				for (final String namespace : availableNamespaces) {
-					threadPool.execute(new Runnable() {
-						public void run() {
-							fetchAndPrintMetrics(awsCloudWatch, namespace, region);
-							taskChecker.countDown();
-						}
-					});
-				}
-			}
-			taskChecker.await();
-			threadPool.shutdown();
-			logger.info("Finished Executing CloudWatchMonitor...");
-			return new TaskOutput("AWS Cloud Watch Metric Upload Complete Successfully");
-		} catch (Exception e) {
-			logger.error("Exception ", e);
-			return new TaskOutput("AWS Cloud Watch Metric Upload Failed");
-		}
-	}
-
-	private void fetchAndPrintMetrics(AmazonCloudWatch awsCloudWatch, String namespace, String region) {
+	private void fetchAndPrintMetrics(String namespace, String region) {
+        AmazonCloudWatch awsCloudWatch = new AmazonCloudWatchClient(credentials);
+        awsCloudWatch.setEndpoint(regionVsURLs.get(region));
 		MetricsManager metricsManager = metricsManagerFactory.createMetricsManager(namespace);
-		awsCloudWatch.setEndpoint(regionVsURLs.get(region));
+        metricsManager.setWorkerPool(awsMetricWorkerPool);
 		Map<String, Map<String, List<Datapoint>>> metrics = metricsManager.gatherMetrics(awsCloudWatch, region);
 		// Logging number of instances for which metrics
 		// were collected
@@ -154,13 +156,13 @@ public final class AmazonCloudWatchMonitor extends AManagedMonitor {
 
 	/**
 	 * Get the Amazon Cloud Watch Client
-	 * 
+	 *
 	 * @return AmazonCloudWatch
 	 */
 
 	/**
 	 * Get the hashmap of disabled metrics
-	 * 
+	 *
 	 * @return HashMap
 	 */
 	public Map<String, Set<String>> getDisabledMetrics() {
@@ -192,7 +194,7 @@ public final class AmazonCloudWatchMonitor extends AManagedMonitor {
 
 	/**
 	 * Get the AWS Credentials
-	 * 
+	 *
 	 * @return AWSCredentials
 	 */
 	public AWSCredentials getAWSCredentials() {
@@ -201,7 +203,7 @@ public final class AmazonCloudWatchMonitor extends AManagedMonitor {
 
 	/**
 	 * Check for disabled metrics in particular namespaces
-	 * 
+	 *
 	 * @return boolean
 	 */
 	public boolean isMetricDisabled(String namespace, String metricName) {
@@ -216,7 +218,7 @@ public final class AmazonCloudWatchMonitor extends AManagedMonitor {
 
 	/**
 	 * Returns the metric to the AppDynamics Controller.
-	 * 
+	 *
 	 * @param namespacePrefix
 	 *            Name of the Prefix
 	 * @param metricName
@@ -233,11 +235,12 @@ public final class AmazonCloudWatchMonitor extends AManagedMonitor {
 	public void printMetric(String region, String namespacePrefix, String metricName, double metricValue, String aggregation, String timeRollup,
 			String cluster) {
 		try {
-			MetricWriter metricWriter = getMetricWriter(getMetricPrefix() + region + namespacePrefix + metricName, aggregation, timeRollup, cluster);
+            String value = new BigDecimal(metricValue).setScale(0, RoundingMode.HALF_UP).toString();
+            MetricWriter metricWriter = getMetricWriter(getMetricPrefix() + region + namespacePrefix + metricName, aggregation, timeRollup, cluster);
 			if (logger.isDebugEnabled()) {
-				logger.debug("Metric: " + getMetricPrefix() + region + namespacePrefix + metricName + " value: " + metricValue);
+				logger.debug("Metric: " + getMetricPrefix() + region + namespacePrefix + metricName + " value: " + value);
 			}
-			metricWriter.printMetric(String.valueOf((long) metricValue));
+			metricWriter.printMetric(value);
 		} catch (Exception e) {
 			logger.error(e);
 		}
@@ -245,7 +248,7 @@ public final class AmazonCloudWatchMonitor extends AManagedMonitor {
 
 	/**
 	 * Metric Prefix
-	 * 
+	 *
 	 * @return String
 	 */
 	private String getMetricPrefix() {
@@ -255,4 +258,5 @@ public final class AmazonCloudWatchMonitor extends AManagedMonitor {
 	public static String getImplementationVersion() {
 		return AmazonCloudWatchMonitor.class.getPackage().getImplementationTitle();
 	}
+
 }
