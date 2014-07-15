@@ -102,9 +102,14 @@ public class CustomNamespaceMetricsManager extends MetricsManager {
         	
         	Map<String, List<Datapoint>> metricStatistics = entry.getValue();
         	if(logger.isDebugEnabled()) {
-        		logger.debug(String.format("Collected Metrics %5s:%-5s %5s:%-5s %5s:%-5s" , "Region",
-                        region, "Namespace", namespace,
-                        " Metrics ",  metricStatistics.keySet()));
+        		if (metricStatistics.entrySet() != null && !metricStatistics.entrySet().isEmpty()) {
+        			logger.debug(String.format("Collected Metrics %5s:%-5s %5s:%-5s %5s:%-5s" , "Region",
+        					region, "Namespace", namespace,
+        					" Metrics ",  metricStatistics));
+        		} else {
+        			logger.debug(String.format("No data available for Namespace: %s Metric: %s",
+							namespace, entry.getKey()));
+        		}
         	}
         	
         	for(Entry<String, List<Datapoint>> entry2 : metricStatistics.entrySet()) {
