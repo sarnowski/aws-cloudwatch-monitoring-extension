@@ -67,7 +67,7 @@ public class EC2InstanceNameManager {
 		this.awsCredentials = awsCredentials;
 		this.tagFilterName = tagFilterName;
 		this.tagKey = tagKey;
-		this.ec2WorkerPool = Executors.newFixedThreadPool(10);
+		this.ec2WorkerPool = Executors.newFixedThreadPool(5);
 	}
 
 	public void initialise(final Set<String> availableRegions) {
@@ -102,7 +102,6 @@ public class EC2InstanceNameManager {
 		service.scheduleAtFixedRate(
 				new Runnable() {
 					public void run() {
-						logger.info("Retrieving instances details...");
 						retrieveInstances(availableRegions);
 					}
 				},
@@ -111,6 +110,7 @@ public class EC2InstanceNameManager {
 	}
 	
 	private void retrieveInstances(Set<String> availableRegions) {
+		logger.info("Retrieving instances details...");
 		ExecutorCompletionService<Object> ecs = new ExecutorCompletionService<Object>(ec2WorkerPool);
 		
 		int count = 0;
