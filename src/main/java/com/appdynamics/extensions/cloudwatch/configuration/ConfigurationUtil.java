@@ -83,6 +83,14 @@ public class ConfigurationUtil {
 					awsConfiguration.availableRegions.add(region);
 				}
 			}
+			
+			Element ec2InstanceNameElement = (Element) doc.getElementsByTagName("EC2InstanceName").item(0);
+			String tagFilterName = ec2InstanceNameElement.getElementsByTagName("TagFilterName").item(0).getTextContent();
+			awsConfiguration.tagFilterName = tagFilterName;
+			String tagKey = ec2InstanceNameElement.getElementsByTagName("TagKey").item(0).getTextContent();
+			awsConfiguration.tagKey = tagKey;
+			String strUseNameInMetrics = ec2InstanceNameElement.getElementsByTagName("UseNameInMetrics").item(0).getTextContent();
+			awsConfiguration.useNameInMetrics = Boolean.valueOf(strUseNameInMetrics);
 
 			// Initialize Disabled Metrics
 			Element disabledMetricsElement = (Element) doc.getElementsByTagName("DisabledMetrics").item(0);

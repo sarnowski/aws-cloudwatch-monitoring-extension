@@ -31,6 +31,12 @@ public class Configuration {
 	public Set<String> availableRegions;
 
 	public AWSCredentials awsCredentials;
+	
+	public boolean useNameInMetrics;
+	
+	public String tagFilterName;
+	
+	public String tagKey;
 
 	public Configuration() {
 		disabledMetrics = Collections.synchronizedMap(new HashMap<String, Set<String>>());

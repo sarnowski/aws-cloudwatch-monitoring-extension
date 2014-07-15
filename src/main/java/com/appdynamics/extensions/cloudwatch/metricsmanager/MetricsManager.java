@@ -20,6 +20,7 @@ import com.amazonaws.services.cloudwatch.model.*;
 import com.appdynamics.extensions.cloudwatch.AmazonCloudWatchMonitor;
 import com.google.common.collect.Lists;
 import com.singularity.ee.agent.systemagent.api.MetricWriter;
+
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -33,7 +34,7 @@ public abstract class MetricsManager {
     private Logger logger = Logger.getLogger("com.singularity.extensions.MetricsManager");
     protected AmazonCloudWatchMonitor amazonCloudWatchMonitor;
     protected Map<String,Set<String>> disabledMetrics;
-    private ExecutorService workerPool;
+    protected ExecutorService workerPool;
 
     /**
      * Intializes the cloudwatch cloud watch client and the hashmap of disabled metrics
@@ -124,7 +125,8 @@ public abstract class MetricsManager {
      * @param filterNames   List of filter names (used to filter metrics)
      * @return Map          Map containing metrics for a particular namespace
      */
-    protected Map<String, Map<String,List<Datapoint>>> gatherMetricsHelper(final AmazonCloudWatch awsCloudWatch, final String namespace, String region, String...filterNames) {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	protected Map<String, Map<String,List<Datapoint>>> gatherMetricsHelper(final AmazonCloudWatch awsCloudWatch, final String namespace, String region, String...filterNames) {
     	final Map<String, Map<String,List<Datapoint>>> metrics = new ConcurrentHashMap<String, Map<String,List<Datapoint>>>();
     	
         List<Metric> metricsList = getMetrics(awsCloudWatch, namespace, filterNames);
@@ -154,8 +156,8 @@ public abstract class MetricsManager {
                                         createGetMetricStatisticsRequest(namespace, metricName, "Average", metric.getDimensions());
                                 GetMetricStatisticsResult result = awsCloudWatch.getMetricStatistics(request);
                                 if(logger.isDebugEnabled()){
-                                    logger.debug("Fetching MetricStatistics for NameSpace =" +
-                                            namespace + " Metric= " + metric+" Result= "+result);
+                                    logger.debug("Fetching MetricStatistics for NameSpace = " +
+                                            namespace + " Metric = " + metric+" Result = "+result);
                                 }
                                 List<Datapoint> dataPoints = result.getDatapoints();
                                 if(dataPoints!=null && !dataPoints.isEmpty()){
@@ -194,12 +196,12 @@ public abstract class MetricsManager {
         return metrics;
     }
 
-	private void logDataPointsPerInstance(Map<String, Map<String, List<Datapoint>>> metrics) {
+	protected void logDataPointsPerInstance(Map<String, Map<String, List<Datapoint>>> metrics) {
 		for(Entry<String, Map<String, List<Datapoint>>> instance : metrics.entrySet()) {
 			String instanceId = instance.getKey();
 			Map<String, List<Datapoint>> instanceMetrics = instance.getValue();
 			logger.debug("Logging metrics after getting response from AWS excluding disabled metrics");
-			logger.debug("Instance ID: " + instanceId + " Metrics Size: " + instanceMetrics.size());
+			logger.debug("Instance: " + instanceId + " Metrics Size: " + instanceMetrics.size());
 			for(Entry<String, List<Datapoint>> metricsPerInstance : instanceMetrics.entrySet()) {
 				String metricName = metricsPerInstance.getKey();
 				List<Datapoint> dataPoints = metricsPerInstance.getValue();
@@ -208,7 +210,7 @@ public abstract class MetricsManager {
 		}
 	}
     
-    private void logMetricPerInstance(List<Metric> metricsList, String namespace, String region) {
+    protected void logMetricPerInstance(List<Metric> metricsList, String namespace, String region) {
     	 Map<String, List<String>> metricsPerInstance = new HashMap<String, List<String>>();
          for (Metric metric : metricsList) {
              List<Dimension> dimensions = metric.getDimensions();
@@ -251,7 +253,7 @@ public abstract class MetricsManager {
             	Map<String, List<Datapoint>> metricStatistics = entry.getValue();
             	if(logger.isDebugEnabled()) {
             		logger.debug(String.format("Collected Metrics %5s:%-5s %5s:%-5s %5s:%-5s %5s:%-5s" , "Region",
-                            region, "Namespace", namespace, "InstanceID", instandeId,
+                            region, "Namespace", namespace, "Instance", instandeId,
                             " Metrics ",  metricStatistics.keySet()));
             	}
             	for(Entry<String, List<Datapoint>> entry2 : metricStatistics.entrySet()) {

@@ -7,6 +7,7 @@ import static org.powermock.api.mockito.PowerMockito.whenNew;
 import java.util.Map;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -26,11 +27,12 @@ public class AmazonCloudWatchMonitorTest {
 	
 	@Before
 	public void setUp() throws Exception {
-		classUnderTest = new AmazonCloudWatchMonitor();// spy(new AmazonCloudWatchMonitor());
+		classUnderTest = new AmazonCloudWatchMonitor();
 		whenNew(MetricWriter.class).withArguments(any(AManagedMonitor.class), anyString()).thenReturn(mockMetricWriter);
 	}
 	
 	@Test
+	@Ignore
 	public void test() {
 		Map<String, String> args = Maps.newHashMap();
 		args.put("configurations","src/test/resources/AWSConfigurations.xml");

@@ -2,16 +2,16 @@
 <Configurations>
 
     <AWSCredentials>
-        <AccessKey></AccessKey>
+    	<AccessKey></AccessKey>
         <SecretKey></SecretKey>
     </AWSCredentials>
 
     <!-- MetricManagers for these namespaces have been implemented -->
     <SupportedNamespaces>
         <SupportedNamespace>AWS/EC2</SupportedNamespace>
-        <!-- <SupportedNamespace>AWS/AutoScaling</SupportedNamespace>
-        <SupportedNamespace>AWS/EBS</SupportedNamespace>
-        <SupportedNamespace>AWS/ELB</SupportedNamespace>
+        <!-- <SupportedNamespace>AWS/AutoScaling</SupportedNamespace> -->
+        <!-- <SupportedNamespace>AWS/EBS</SupportedNamespace> -->
+        <!-- <SupportedNamespace>AWS/ELB</SupportedNamespace>
         <SupportedNamespace>AWS/ElastiCache</SupportedNamespace>
         <SupportedNamespace>AWS/Redshift</SupportedNamespace>
         <SupportedNamespace>AWS/DynamoDB</SupportedNamespace>
@@ -23,6 +23,10 @@
         <SupportedNamespace>AWS/OpsWorks</SupportedNamespace>
         <SupportedNamespace>AWS/SNS</SupportedNamespace>
         <SupportedNamespace>AWS/Billing</SupportedNamespace> -->
+<!--         <SupportedNamespace>ArrivalBucket</SupportedNamespace>
+        <SupportedNamespace>ATG Session Count</SupportedNamespace>
+        <SupportedNamespace>SDG Weblogic</SupportedNamespace>
+        <SupportedNamespace>SDG-BASELINE</SupportedNamespace> -->
     </SupportedNamespaces>
     
     <Regions>
@@ -37,13 +41,14 @@
     </Regions>
     
     <EC2InstanceName>
-    	<UseNameInMetrics>false</UseNameInMetrics>
+    	<UseNameInMetrics>true</UseNameInMetrics>
     	<TagFilterName>tag-key</TagFilterName>
     	<TagKey>Name</TagKey>
     </EC2InstanceName>
 
     <DisabledMetrics>
-        <!-- <Metric namespace="AWS/EC2" metricName="NetworkIn"/>
+    	<!-- <Metric namespace="ArrivalBucket" metricName="PromotionsRate"/> -->
+<!--         <Metric namespace="AWS/EC2" metricName="NetworkIn"/>
         <Metric namespace="AWS/EC2" metricName="NetworkOut"/>
         <Metric namespace="AWS/EC2" metricName="DiskReadBytes"/>
         <Metric namespace="AWS/EC2" metricName="DiskWriteBytes"/>
@@ -52,7 +57,7 @@
         <Metric namespace="AWS/EC2" metricName="StatusCheckFailed"/>
         <Metric namespace="AWS/EC2" metricName="StatusCheckFailed_Instance"/>
         <Metric namespace="AWS/EC2" metricName="StatusCheckFailed_System"/> -->
-    </DisabledMetrics>
+	</DisabledMetrics>
 
 </Configurations>
 

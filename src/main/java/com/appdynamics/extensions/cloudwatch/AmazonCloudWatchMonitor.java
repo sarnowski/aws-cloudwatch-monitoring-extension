@@ -15,6 +15,8 @@
  */
 package com.appdynamics.extensions.cloudwatch;
 
+import static com.appdynamics.extensions.cloudwatch.metricsmanager.MetricsManagerFactory.AWS_EC2_NAMESPACE;
+
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
@@ -23,12 +25,15 @@ import com.appdynamics.TaskInputArgs;
 import com.appdynamics.extensions.ArgumentsValidator;
 import com.appdynamics.extensions.cloudwatch.configuration.Configuration;
 import com.appdynamics.extensions.cloudwatch.configuration.ConfigurationUtil;
+import com.appdynamics.extensions.cloudwatch.ec2.EC2InstanceNameManager;
 import com.appdynamics.extensions.cloudwatch.metricsmanager.MetricsManager;
 import com.appdynamics.extensions.cloudwatch.metricsmanager.MetricsManagerFactory;
+import com.appdynamics.extensions.cloudwatch.metricsmanager.metricsmanagerimpl.CustomNamespaceMetricsManager;
 import com.singularity.ee.agent.systemagent.api.AManagedMonitor;
 import com.singularity.ee.agent.systemagent.api.MetricWriter;
 import com.singularity.ee.agent.systemagent.api.TaskExecutionContext;
 import com.singularity.ee.agent.systemagent.api.TaskOutput;
+
 import org.apache.log4j.Logger;
 
 import java.math.BigDecimal;
@@ -50,6 +55,8 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
 	private AWSCredentials credentials;
 	private Configuration configuration;
 	private String metric_prefix;
+	private EC2InstanceNameManager ec2InstanceNameManager;
+	private boolean useEc2InstanceNameInMetrics;
 
 	private static final Map<String, String> regionVsURLs;
 
@@ -100,7 +107,18 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
             awsWorkerPool = Executors.newFixedThreadPool(5);
             awsMetricWorkerPool = Executors.newFixedThreadPool(20);
             metricsManagerFactory = new MetricsManagerFactory(this);
+            useEc2InstanceNameInMetrics = configuration.useNameInMetrics;
+            initializeEC2InstanceNameManager();
             logger.info("AmazonMonitor initialized");
+		}
+	}
+	
+	private void initializeEC2InstanceNameManager() {
+		if (useEc2InstanceNameInMetrics && availableNamespaces.contains(AWS_EC2_NAMESPACE)) {
+			ec2InstanceNameManager = new EC2InstanceNameManager(
+					credentials, configuration.tagFilterName, 
+					configuration.tagKey);
+			ec2InstanceNameManager.initialise(availableRegions);
 		}
 	}
 
@@ -128,6 +146,7 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
                     ++count;
                 }
             }
+            
             //Not sure if we need to wait.
             for (int i = 0; i < count; i++) {
                 ecs.take().get();
@@ -148,12 +167,21 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
 		Map<String, Map<String, List<Datapoint>>> metrics = metricsManager.gatherMetrics(awsCloudWatch, region);
 		// Logging number of instances for which metrics
 		// were collected
-		logger.info(String.format("Running Instances Count in AWS - %5s:%-5s %5s:%-5s %5s:%-5d", "Region", region, "Namespace", namespace,
-				"#Instances", metrics.size()));
+		
+		if (metricsManager instanceof CustomNamespaceMetricsManager) {
+			logger.info(String.format("Custom Namespace Metrics Count - %5s:%-5s %5s:%-5s %5s:%-5d", "Region", region, "Namespace", namespace,
+					"#Metric Size", metrics.size()));
+		} else {
+			logger.info(String.format("Running Instances Count in AWS - %5s:%-5s %5s:%-5s %5s:%-5d", "Region", region, "Namespace", namespace,
+					"#Instances", metrics.size()));
+		}
+		
 		metricsManager.printMetrics(region, metrics);
 
 	}
-
+	
+	
+	
 	/**
 	 * Get the Amazon Cloud Watch Client
 	 *
@@ -214,6 +242,14 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
 			}
 		}
 		return result;
+	}
+
+	public EC2InstanceNameManager getEc2InstanceNameManager() {
+		return ec2InstanceNameManager;
+	}
+
+	public boolean isUseEc2InstanceNameInMetrics() {
+		return useEc2InstanceNameInMetrics;
 	}
 
 	/**

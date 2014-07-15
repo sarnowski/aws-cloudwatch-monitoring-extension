@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.appdynamics.extensions.cloudwatch</groupId>
     <artifactId>aws-cloudwatch-monitoring-extension</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <packaging>jar</packaging>
     <name>aws-cloudwatch-monitoring-extension</name>
     <url>http://maven.apache.org</url>
@@ -21,7 +21,7 @@
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk</artifactId>
-            <version>1.5.6</version>
+            <version>1.6.8</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>

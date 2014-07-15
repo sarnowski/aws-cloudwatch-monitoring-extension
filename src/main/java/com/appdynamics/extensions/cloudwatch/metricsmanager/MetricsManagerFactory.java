@@ -17,10 +17,11 @@ package com.appdynamics.extensions.cloudwatch.metricsmanager;
 
 import com.appdynamics.extensions.cloudwatch.AmazonCloudWatchMonitor;
 import com.appdynamics.extensions.cloudwatch.metricsmanager.metricsmanagerimpl.*;
+import com.google.common.base.Strings;
 
 public final class MetricsManagerFactory {
 
-    private static final String AWS_EC2_NAMESPACE = "AWS/EC2";
+    public static final String AWS_EC2_NAMESPACE = "AWS/EC2";
     private static final String AWS_AUTOSCALING_NAMESPACE = "AWS/AutoScaling";
     private static final String AWS_EBS_NAMESPACE = "AWS/EBS";
     private static final String AWS_ELB_NAMESPACE = "AWS/ELB";
@@ -51,7 +52,8 @@ public final class MetricsManagerFactory {
      */
     public MetricsManager createMetricsManager(String namespace) {
         if (namespace.equals(AWS_EC2_NAMESPACE)){
-            metricsManager = new EC2MetricsManager();
+            metricsManager = new EC2MetricsManager(amazonCloudWatchMonitor.getEc2InstanceNameManager(), 
+            		amazonCloudWatchMonitor.isUseEc2InstanceNameInMetrics());
         }
         else if (namespace.equals(AWS_AUTOSCALING_NAMESPACE)) {
             metricsManager = new AutoScalingMetricsManager();
@@ -94,6 +96,9 @@ public final class MetricsManagerFactory {
         }
         else if (namespace.equals(AWS_BILLING_NAMESPACE)) {
             metricsManager = new BillingMetricsManager();
+        }
+        else if (!Strings.isNullOrEmpty(namespace)) {
+        	metricsManager = new CustomNamespaceMetricsManager(namespace);
         }
         else {
             throw new UnsupportedOperationException();
