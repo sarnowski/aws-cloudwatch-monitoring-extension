@@ -94,12 +94,13 @@ Installation
 Configuration
 -------------
 
-In the conf/AWSConfigurations.xml, there are three things that can be configured:
+In the conf/AWSConfigurations.xml, there are a few things that can be configured:
 
-    1) The AWS account credentials (i.e. the access key and the secret key)
-    2) The supported AWS namespaces that you can retrieve metrics for (you can enable or disable metrics for specific namespaces)
-	3) Regions (enable regions to monitor the running AWS Products in the corresponding region)
-    3) The list of disabled metrics associated with their corresponding AWS namespaces
+1. The AWS account credentials (i.e. the access key and the secret key)
+2. The supported AWS namespaces that you can retrieve metrics for (you can enable or disable metrics for specific namespaces). You can also add your custom namespace if required.
+3. Regions (enable regions to monitor the running AWS Products in the corresponding region)
+4. Use of instance name in Metrics. Default value is false. Note, this is only applicable for AWS/EC2 namespace.
+5. The list of disabled metrics associated with their corresponding AWS namespaces
 
 List of Amazon Cloudwatch Regions can be found at this link http://docs.aws.amazon.com/general/latest/gr/rande.html#cw_region
  
@@ -128,7 +129,17 @@ This is a sample AWSConfigurations.xml file:
             <Namespace>AWS/OpsWorks</Namespace>
             <Namespace>AWS/SNS</Namespace>
             <Namespace>AWS/Billing</Namespace>
+            
+            <!-- Custom Namespace -->
+            <Namespace>MyCustomNamespace</Namespace>
         </SupportedNamespaces>
+        
+        <EC2InstanceName>
+    		<UseNameInMetrics>true</UseNameInMetrics>
+    		<TagFilterName>tag-key</TagFilterName>
+    		<TagKey>Name</TagKey>
+    	</EC2InstanceName>
+        
 		<Regions>
         	<Region>us-east-1</Region> 
 	        <Region>us-west-2</Region>
@@ -163,7 +174,7 @@ Here is the monitor.xml file:
                 <type>java</type>
                 <execution-timeout-in-secs>60</execution-timeout-in-secs>
                 <java-task>
-                    <classpath>CloudWatchMonitor.jar;lib/aws-java-sdk-1.5.6.jar;lib/httpclient-4.2.3.jar;lib/httpcore-4.2.2.jar;lib/commons-logging-1.1.1.jar;lib/joda-time-2.3.jar</classpath>
+                    <classpath>CloudWatchMonitor.jar;lib/aws-java-sdk-1.6.8.jar;lib/httpclient-4.2.3.jar;lib/httpcore-4.2.2.jar;lib/commons-logging-1.1.1.jar;lib/joda-time-2.3.jar;lib/appd-exts-commons-1.0.3.jar;lib/slf4j-api-1.7.5.jar;lib/slf4j-log4j12-1.7.5.jar;lib/guava-11.0.2.jar;lib/jackson-annotations-2.1.1.jar;lib/jackson-core-2.1.1.jar;lib/jackson-core-asl-1.9.13.jar;lib/jackson-databind-2.1.1.jar;lib/jackson-mapper-asl-1.9.13.jar</classpath>
                         <impl-class>com.appdynamics.extensions.cloudwatch.AmazonCloudWatchMonitor</impl-class>
                 </java-task>
                 <task-arguments>
