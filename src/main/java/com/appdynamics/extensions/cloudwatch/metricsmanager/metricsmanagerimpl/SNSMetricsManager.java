@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
@@ -39,11 +40,11 @@ public final class SNSMetricsManager extends MetricsManager {
      */
     @Override
     public Map gatherMetrics(AmazonCloudWatch awsCloudWatch, String region) {
-        HashMap<String, HashMap<String, HashMap<String, List<Datapoint>>>> snsMetrics = new HashMap<String, HashMap<String, HashMap<String, List<Datapoint>>>>();
+        Map<String, Map<String, Map<String, List<Datapoint>>>> snsMetrics = new ConcurrentHashMap<String, Map<String, Map<String, List<Datapoint>>>>();
 
-        HashMap<String, HashMap<String, List<Datapoint>>> applicationMetrics = (HashMap)gatherMetricsHelper(awsCloudWatch, NAMESPACE, region, "Application");
-        HashMap<String, HashMap<String, List<Datapoint>>> platformMetrics = (HashMap)gatherMetricsHelper(awsCloudWatch, NAMESPACE, region, "Platform");
-        HashMap<String, HashMap<String, List<Datapoint>>> topicNameMetrics = (HashMap)gatherMetricsHelper(awsCloudWatch, NAMESPACE, region, "TopicName");
+        Map<String, Map<String, List<Datapoint>>> applicationMetrics = gatherMetricsHelper(awsCloudWatch, NAMESPACE, region, "Application");
+        Map<String, Map<String, List<Datapoint>>> platformMetrics = gatherMetricsHelper(awsCloudWatch, NAMESPACE, region, "Platform");
+        Map<String, Map<String, List<Datapoint>>> topicNameMetrics = gatherMetricsHelper(awsCloudWatch, NAMESPACE, region, "TopicName");
 
         snsMetrics.put("Application", applicationMetrics);
         snsMetrics.put("Platform", platformMetrics);
@@ -58,16 +59,16 @@ public final class SNSMetricsManager extends MetricsManager {
      */
     @Override
     public void printMetrics(String region, Map metrics) {
-        HashMap<String, HashMap<String, HashMap<String, List<Datapoint>>>> snsMetrics = (HashMap<String, HashMap<String,HashMap<String,List<Datapoint>>>>) metrics;
+        Map<String, Map<String, Map<String, List<Datapoint>>>> snsMetrics = (Map<String, Map<String,Map<String,List<Datapoint>>>>) metrics;
         Iterator dimensionFilterIterator = snsMetrics.keySet().iterator();
 
         while (dimensionFilterIterator.hasNext()) {
             String metricType = dimensionFilterIterator.next().toString();
-            HashMap<String, HashMap<String,List<Datapoint>>> dimensionMetrics = snsMetrics.get(metricType);
+            Map<String, Map<String,List<Datapoint>>> dimensionMetrics = snsMetrics.get(metricType);
             Iterator dimensionIterator = dimensionMetrics.keySet().iterator();
             while (dimensionIterator.hasNext()) {
                 String dimensionId = dimensionIterator.next().toString();
-                HashMap<String, List<Datapoint>> metricsMap = dimensionMetrics.get(dimensionId);
+                Map<String, List<Datapoint>> metricsMap = dimensionMetrics.get(dimensionId);
                 Iterator metricsIterator = metricsMap.keySet().iterator();
                 while (metricsIterator.hasNext()) {
                     String metricName = metricsIterator.next().toString();

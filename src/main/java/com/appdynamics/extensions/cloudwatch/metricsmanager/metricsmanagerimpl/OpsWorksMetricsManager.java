@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class OpsWorksMetricsManager extends MetricsManager {
 
@@ -35,11 +36,11 @@ public final class OpsWorksMetricsManager extends MetricsManager {
      */
     @Override
     public Map gatherMetrics(AmazonCloudWatch awsCloudWatch, String region) {
-        HashMap<String, HashMap<String, HashMap<String, List<Datapoint>>>> opsWorksMetrics = new HashMap<String, HashMap<String, HashMap<String, List<Datapoint>>>>();
+        Map<String, Map<String, Map<String, List<Datapoint>>>> opsWorksMetrics = new ConcurrentHashMap<String, Map<String, Map<String, List<Datapoint>>>>();
 
-        HashMap<String, HashMap<String, List<Datapoint>>> stackMetrics = (HashMap)gatherMetricsHelper(awsCloudWatch, NAMESPACE, region, "StackId");
-        HashMap<String, HashMap<String, List<Datapoint>>> layerMetrics = (HashMap)gatherMetricsHelper(awsCloudWatch, NAMESPACE, region, "LayerId");
-        HashMap<String, HashMap<String, List<Datapoint>>> instanceMetrics =  (HashMap)gatherMetricsHelper(awsCloudWatch, NAMESPACE, region, "InstanceId");
+        Map<String, Map<String, List<Datapoint>>> stackMetrics = gatherMetricsHelper(awsCloudWatch, NAMESPACE, region, "StackId");
+        Map<String, Map<String, List<Datapoint>>> layerMetrics = gatherMetricsHelper(awsCloudWatch, NAMESPACE, region, "LayerId");
+        Map<String, Map<String, List<Datapoint>>> instanceMetrics =  gatherMetricsHelper(awsCloudWatch, NAMESPACE, region, "InstanceId");
 
         opsWorksMetrics.put("StackId", stackMetrics);
         opsWorksMetrics.put("LayerId", layerMetrics);
@@ -54,16 +55,16 @@ public final class OpsWorksMetricsManager extends MetricsManager {
      */
     @Override
     public void printMetrics(String region, Map metrics) {
-        HashMap<String, HashMap<String, HashMap<String, List<Datapoint>>>> opsWorksMetrics = (HashMap<String, HashMap<String,HashMap<String,List<Datapoint>>>>) metrics;
+        Map<String, Map<String, Map<String, List<Datapoint>>>> opsWorksMetrics = (Map<String, Map<String,Map<String,List<Datapoint>>>>) metrics;
         Iterator dimensionFilterIterator = opsWorksMetrics.keySet().iterator();
 
         while (dimensionFilterIterator.hasNext()) {
             String metricType = dimensionFilterIterator.next().toString();
-            HashMap<String, HashMap<String,List<Datapoint>>> dimensionMetrics = opsWorksMetrics.get(metricType);
+            Map<String, Map<String,List<Datapoint>>> dimensionMetrics = opsWorksMetrics.get(metricType);
             Iterator dimensionIterator = dimensionMetrics.keySet().iterator();
             while (dimensionIterator.hasNext()) {
                 String dimensionId = dimensionIterator.next().toString();
-                HashMap<String, List<Datapoint>> metricsMap = dimensionMetrics.get(dimensionId);
+                Map<String, List<Datapoint>> metricsMap = dimensionMetrics.get(dimensionId);
                 Iterator metricsIterator = metricsMap.keySet().iterator();
                 while (metricsIterator.hasNext()) {
                     String metricName = metricsIterator.next().toString();
