@@ -18,7 +18,7 @@ import com.singularity.ee.agent.systemagent.api.MetricWriter;
 /**
  * Unit test for simple App.
  */
-public class AmazonCloudWatchMonitorTest {
+public class AmazonCloudWatchMonitorITest {
 	
 	@Mock
 	private MetricWriter mockMetricWriter;
@@ -38,9 +38,6 @@ public class AmazonCloudWatchMonitorTest {
 		args.put("configurations","src/test/resources/AWSConfigurations.xml");
 		
 		classUnderTest.execute(args, null);
-		
-		
 	}
-	
 
 }

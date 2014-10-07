@@ -8,11 +8,11 @@
 
     <!-- MetricManagers for these namespaces have been implemented -->
     <SupportedNamespaces>
-        <SupportedNamespace>AWS/EC2</SupportedNamespace>
+        <!-- <SupportedNamespace>AWS/EC2</SupportedNamespace> -->
         <!-- <SupportedNamespace>AWS/AutoScaling</SupportedNamespace> -->
         <!-- <SupportedNamespace>AWS/EBS</SupportedNamespace> -->
-        <!-- <SupportedNamespace>AWS/ELB</SupportedNamespace>
-        <SupportedNamespace>AWS/ElastiCache</SupportedNamespace>
+        <SupportedNamespace>AWS/ELB</SupportedNamespace>
+<!--         <SupportedNamespace>AWS/ElastiCache</SupportedNamespace>
         <SupportedNamespace>AWS/Redshift</SupportedNamespace>
         <SupportedNamespace>AWS/DynamoDB</SupportedNamespace>
         <SupportedNamespace>AWS/RDS</SupportedNamespace>
@@ -58,6 +58,19 @@
         <Metric namespace="AWS/EC2" metricName="StatusCheckFailed_Instance"/>
         <Metric namespace="AWS/EC2" metricName="StatusCheckFailed_System"/> -->
 	</DisabledMetrics>
+	
+ 	<!-- 	
+ 		By default, all metrics retrieved from cloudwatch are 'Average' values.	
+ 		This option allows you to override the metric type. 
+ 		
+ 		Allowed types are: ave, max, min, sum, samplecount
+ 		
+ 		Note: Irrespective of the metric type, value will still be reported as
+ 		Observed value to the Controller
+ 	-->
+    <MetricTypes>
+    	<!-- <Metric namespace="AWS/ELB" metricName="RequestCount" metricType="sum"/> -->
+	</MetricTypes>
 
 </Configurations>
 

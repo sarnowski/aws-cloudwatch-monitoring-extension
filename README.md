@@ -101,6 +101,7 @@ In the conf/AWSConfigurations.xml, there are a few things that can be configured
 3. Regions (enable regions to monitor the running AWS Products in the corresponding region)
 4. Use of instance name in Metrics. Default value is false. Note, this is only applicable for AWS/EC2 namespace.
 5. The list of disabled metrics associated with their corresponding AWS namespaces
+6. The list of metrics and associated metric type you wish to retrieve. Defaults to 'Ave' if not specified. Allowed metric types: **ave, max, min, sum, samplecount**
 
 List of Amazon Cloudwatch Regions can be found at this link http://docs.aws.amazon.com/general/latest/gr/rande.html#cw_region
  
@@ -150,10 +151,16 @@ This is a sample AWSConfigurations.xml file:
     	    <Region>ap-northeast-1</Region>
     	    <Region>sa-east-1</Region>
 	    </Regions>
+	    
         <DisabledMetrics>
             <Metric namespace="AWS/EC2" metricName="CPUUtilization"/>
             <Metric namespace="AWS/EC2" metricName="Some Metric"/>
         </DisabledMetrics>
+        
+    	<MetricTypes>
+    		<Metric namespace="AWS/ELB" metricName="RequestCount" metricType="sum"/>
+		</MetricTypes>
+		
     </Configurations> 
     
 The monitor.xml contains one parameter, which is the path to the AWSConfigurations.xml file.

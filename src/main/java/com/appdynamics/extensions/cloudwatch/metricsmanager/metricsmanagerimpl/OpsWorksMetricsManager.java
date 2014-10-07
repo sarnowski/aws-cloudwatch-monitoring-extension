@@ -71,7 +71,8 @@ public final class OpsWorksMetricsManager extends MetricsManager {
                     List<Datapoint> datapoints = metricsMap.get(metricName);
                     if (datapoints != null && datapoints.size() > 0) {
                         Datapoint data = datapoints.get(0);
-                        amazonCloudWatchMonitor.printMetric(region + "|", getNamespacePrefix() + metricType + "|" +  dimensionId + "|",metricName + "(" + data.getUnit() + ")", data.getAverage(),
+                        amazonCloudWatchMonitor.printMetric(region + "|", getNamespacePrefix() + metricType + "|" +  dimensionId + "|",metricName + "(" + data.getUnit() + ")", 
+                        		getValue(NAMESPACE, metricName, data),
                                 MetricWriter.METRIC_AGGREGATION_TYPE_OBSERVATION,
                                 MetricWriter.METRIC_TIME_ROLLUP_TYPE_AVERAGE,
                                 MetricWriter.METRIC_CLUSTER_ROLLUP_TYPE_INDIVIDUAL);

@@ -153,7 +153,8 @@ public abstract class MetricsManager {
                         public Object call() throws Exception {
                             try{
                                 GetMetricStatisticsRequest request =
-                                        createGetMetricStatisticsRequest(namespace, metricName, "Average", metric.getDimensions());
+                                        createGetMetricStatisticsRequest(namespace, metricName, 
+                                        		getMetricType(namespace, metricName).getTypeName(), metric.getDimensions());
                                 GetMetricStatisticsResult result = awsCloudWatch.getMetricStatistics(request);
                                 if(logger.isDebugEnabled()){
                                     logger.debug("Fetching MetricStatistics for NameSpace = " +
@@ -261,13 +262,55 @@ public abstract class MetricsManager {
             		List<Datapoint> datapoints = entry2.getValue();
             		if (datapoints != null && !datapoints.isEmpty()) {
                         Datapoint data = datapoints.get(0);
-                        amazonCloudWatchMonitor.printMetric(region + "|", prefix, instandeId + "|" + metricName, data.getAverage(),
+                        amazonCloudWatchMonitor.printMetric(region + "|", prefix, instandeId + "|" + metricName, 
+                        		getValue(namespace, metricName, data),
                                 MetricWriter.METRIC_AGGREGATION_TYPE_OBSERVATION,
                                 MetricWriter.METRIC_TIME_ROLLUP_TYPE_AVERAGE,
                                 MetricWriter.METRIC_CLUSTER_ROLLUP_TYPE_INDIVIDUAL);
                     }
             	}
             }
+    }
+    
+    protected Double getValue(String namespace, String metricName, Datapoint data) {
+    	MetricType type = getMetricType(namespace, metricName);
+    	Double value = null;
+    	
+    	switch(type) {
+    		case AVE:
+    			value = data.getAverage();
+    			break;
+    		case MAX:
+    			value = data.getMaximum();
+    			break;
+    		case MIN:
+    			value = data.getMinimum();
+    			break;
+    		case SUM:
+    			value = data.getSum();
+    			break;
+    		case SAMPLE_COUNT:
+    			value = data.getSampleCount();
+    			break;
+    	}
+    	
+    	return value;
+    }
+    
+    protected MetricType getMetricType(String namespace, String metricName) {
+    	Map<String, Map<String, MetricType>> metricTypes = amazonCloudWatchMonitor.getMetricTypes();
+    	MetricType metricType = null;
+    	
+    	if (metricTypes != null && !metricTypes.isEmpty() &&
+    			metricTypes.get(namespace) != null && !metricTypes.get(namespace).isEmpty()) {
+    		metricType = metricTypes.get(namespace).get(metricName);
+    	}
+    	
+    	if (metricType == null) {
+    		metricType = MetricType.AVE;
+    	}
+    	
+    	return metricType;
     }
 
     /**

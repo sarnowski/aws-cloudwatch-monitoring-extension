@@ -26,6 +26,7 @@ import com.appdynamics.extensions.ArgumentsValidator;
 import com.appdynamics.extensions.cloudwatch.configuration.Configuration;
 import com.appdynamics.extensions.cloudwatch.configuration.ConfigurationUtil;
 import com.appdynamics.extensions.cloudwatch.ec2.EC2InstanceNameManager;
+import com.appdynamics.extensions.cloudwatch.metricsmanager.MetricType;
 import com.appdynamics.extensions.cloudwatch.metricsmanager.MetricsManager;
 import com.appdynamics.extensions.cloudwatch.metricsmanager.MetricsManagerFactory;
 import com.appdynamics.extensions.cloudwatch.metricsmanager.metricsmanagerimpl.CustomNamespaceMetricsManager;
@@ -50,6 +51,7 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
 
 	private MetricsManagerFactory metricsManagerFactory;
 	private Map<String, Set<String>> disabledMetrics;
+	private Map<String, Map<String, MetricType>> metricTypes;
 	private Set<String> availableNamespaces;
 	private Set<String> availableRegions;
 	private AWSCredentials credentials;
@@ -103,6 +105,7 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
 			disabledMetrics = configuration.disabledMetrics;
 			availableNamespaces = configuration.availableNamespaces;
 			availableRegions = configuration.availableRegions;
+			metricTypes = configuration.metricTypes;
 			isInitialized = true;
             awsWorkerPool = Executors.newFixedThreadPool(5);
             awsMetricWorkerPool = Executors.newFixedThreadPool(20);
@@ -227,6 +230,15 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
 	 */
 	public AWSCredentials getAWSCredentials() {
 		return credentials;
+	}
+
+	/**
+	 * Get the Metric Types for specific 
+	 * 
+	 * @return Metric Types
+	 */
+	public Map<String, Map<String, MetricType>> getMetricTypes() {
+		return metricTypes;
 	}
 
 	/**

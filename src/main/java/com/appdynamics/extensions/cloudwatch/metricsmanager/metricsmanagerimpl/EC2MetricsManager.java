@@ -80,7 +80,8 @@ public final class EC2MetricsManager extends MetricsManager {
                         public Object call() throws Exception {
                             try{
                                 GetMetricStatisticsRequest request =
-                                        createGetMetricStatisticsRequest(NAMESPACE, metricName, "Average", metric.getDimensions());
+                                        createGetMetricStatisticsRequest(NAMESPACE, metricName, 
+                                        		getMetricType(NAMESPACE, metricName).getTypeName(), metric.getDimensions());
                                 GetMetricStatisticsResult result = awsCloudWatch.getMetricStatistics(request);
                                 if(logger.isDebugEnabled()){
                                     logger.debug("Fetching MetricStatistics for NameSpace = " +

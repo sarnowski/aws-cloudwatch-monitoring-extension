@@ -19,6 +19,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.HashSet;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -30,6 +31,7 @@ import org.w3c.dom.NodeList;
 
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.appdynamics.extensions.PathResolver;
+import com.appdynamics.extensions.cloudwatch.metricsmanager.MetricType;
 import com.google.common.base.Strings;
 import com.singularity.ee.agent.systemagent.api.AManagedMonitor;
 
@@ -103,10 +105,27 @@ public class ConfigurationUtil {
 				}
 				(awsConfiguration.disabledMetrics.get(namespaceKey)).add(metricName);
 			}
+			
+			Element metricTypesElement = (Element) doc.getElementsByTagName("MetricTypes").item(0);
+			NodeList metricTypesList = metricTypesElement.getElementsByTagName("Metric");
+			for (int i = 0; i < metricTypesList.getLength(); i++) {
+				String namespaceKey = metricTypesList.item(i).getAttributes().getNamedItem("namespace").getNodeValue();
+				String metricName = metricTypesList.item(i).getAttributes().getNamedItem("metricName").getNodeValue();
+				String metricTypeName = metricTypesList.item(i).getAttributes().getNamedItem("metricType").getNodeValue();
+				
+				if (!awsConfiguration.metricTypes.containsKey(namespaceKey)) {
+					awsConfiguration.metricTypes.put(namespaceKey, new ConcurrentHashMap<String, MetricType>());
+				}
+				
+				(awsConfiguration.metricTypes.get(namespaceKey)).put(metricName, 
+						convertToMetricType(namespaceKey, metricName, metricTypeName));
+			}
+			
 			if (logger.isDebugEnabled()) {
 				logger.debug("Enabled namespaces: " + awsConfiguration.availableNamespaces);
 				logger.debug("Enabled regions: " + awsConfiguration.availableRegions);
 			}
+			
 			return awsConfiguration;
 		} catch (Exception e) {
 			logger.error("Exception while reading configuration file", e);
@@ -114,6 +133,22 @@ public class ConfigurationUtil {
 		} finally {
 			configFile.close();
 		}
+	}
+	
+	private static MetricType convertToMetricType(String namespace, String metricName, String metricTypeName) {
+		MetricType metricType = null; 
+		
+		try {
+			metricType = MetricType.fromString(metricTypeName);
+			
+		} catch (IllegalArgumentException ex) {
+			logger.warn(String.format("Issue with selected metric type [%s] for %s - %s: %s.. Defaulting to [%s]!", 
+					metricTypeName, namespace, metricName, ex.getMessage(), MetricType.AVE.getTypeName()));
+			metricType = MetricType.AVE;
+		}
+
+		return metricType;
+		
 	}
 
 	private static String getConfigFilename(String filename) {
