@@ -130,7 +130,6 @@ public final class ELBMetricsManager extends MetricsManager {
                     List<Datapoint> datapoints = metricsMap.get(metricName);
                     if (datapoints != null && datapoints.size() > 0) {
                         Datapoint data = datapoints.get(0);
-                        System.out.println(metricName + ": " + data);
                         amazonCloudWatchMonitor.printMetric(region + "|", getNamespacePrefix() + loadBalancerName + "|" + "Availability Zone|" +  zoneName + "|",metricName + "(" + data.getUnit() + ")", 
                         		getValue(NAMESPACE, metricName, data),
                                 MetricWriter.METRIC_AGGREGATION_TYPE_OBSERVATION,
