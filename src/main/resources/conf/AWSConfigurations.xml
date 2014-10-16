@@ -66,6 +66,14 @@
 	<MetricTypes>
 		<!-- <Metric namespace="AWS/ELB" metricName="RequestCount" metricType="sum"/> -->
 	</MetricTypes>
+	
+    <!-- 
+    	The max number of retry attempts for failed retryable requests 
+    	(ex: 5xx error responses from a service) or throttling errors
+    	
+    	Allowed values: 0 for disabled, up to a max value of 3
+    -->
+    <MaxErrorRetrySize>0</MaxErrorRetrySize>
 
 </Configurations>
 

@@ -74,7 +74,7 @@ public final class SNSMetricsManager extends MetricsManager {
                     String metricName = metricsIterator.next().toString();
                     List<Datapoint> datapoints = metricsMap.get(metricName);
                     if (datapoints != null && datapoints.size() > 0) {
-                        Datapoint data = datapoints.get(0);
+                        Datapoint data = getLatestDatapoint(datapoints);
                         amazonCloudWatchMonitor.printMetric(region + "|", getNamespacePrefix() + metricType + "|" +  dimensionId + "|",metricName + "(" + data.getUnit() + ")", 
                         		getValue(NAMESPACE, metricName, data),
                                 MetricWriter.METRIC_AGGREGATION_TYPE_OBSERVATION,

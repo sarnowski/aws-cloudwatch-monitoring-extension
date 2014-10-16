@@ -102,6 +102,7 @@ In the conf/AWSConfigurations.xml, there are a few things that can be configured
 4. Use of instance name in Metrics. Default value is false. Note, this is only applicable for AWS/EC2 namespace.
 5. The list of disabled metrics associated with their corresponding AWS namespaces
 6. The list of metrics and associated metric type you wish to retrieve. Defaults to 'Ave' if not specified. Allowed metric types: **ave, max, min, sum, samplecount**
+7. The max number of retry attempts for failed retryable requests (ex: 5xx error responses from a service) or throttling errors. Allowed values: **0 for disabled, up to a max value of 3**
 
 List of Amazon Cloudwatch Regions can be found at this link http://docs.aws.amazon.com/general/latest/gr/rande.html#cw_region
  
@@ -160,6 +161,8 @@ This is a sample AWSConfigurations.xml file:
     	<MetricTypes>
     		<Metric namespace="AWS/ELB" metricName="RequestCount" metricType="sum"/>
 		</MetricTypes>
+		
+		<MaxErrorRetrySize>3</MaxErrorRetrySize>
 		
     </Configurations> 
     

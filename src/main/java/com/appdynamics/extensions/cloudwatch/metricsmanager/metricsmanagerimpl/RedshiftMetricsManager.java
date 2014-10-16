@@ -85,7 +85,7 @@ public final class RedshiftMetricsManager extends MetricsManager {
                     String metricName = metricsIterator.next().toString();
                     List<Datapoint> datapoints = metricsMap.get(metricName);
                     if (datapoints != null && datapoints.size() > 0) {
-                        Datapoint data = datapoints.get(0);
+                        Datapoint data = getLatestDatapoint(datapoints);
                         amazonCloudWatchMonitor.printMetric(region + "|", getNamespacePrefix() + clusterIdentifier + "|" + "NodeID|" +  nodeId + "|",metricName + "(" + data.getUnit() + ")", 
                         		getValue(NAMESPACE, metricName, data),
                                 MetricWriter.METRIC_AGGREGATION_TYPE_OBSERVATION,

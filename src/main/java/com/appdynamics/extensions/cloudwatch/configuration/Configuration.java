@@ -15,6 +15,7 @@
  */
 package com.appdynamics.extensions.cloudwatch.configuration;
 
+import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
 import com.appdynamics.extensions.cloudwatch.metricsmanager.MetricType;
 
@@ -33,6 +34,8 @@ public class Configuration {
 
 	public AWSCredentials awsCredentials;
 	
+	public ClientConfiguration clientConfiguration;
+	
 	public boolean useNameInMetrics;
 	
 	public String tagFilterName;
@@ -46,5 +49,6 @@ public class Configuration {
 		metricTypes = Collections.synchronizedMap(new HashMap<String, Map<String, MetricType>>());
 		availableNamespaces = new HashSet<String>();
 		availableRegions = new HashSet<String>();
+		clientConfiguration = new ClientConfiguration();
 	}
 }

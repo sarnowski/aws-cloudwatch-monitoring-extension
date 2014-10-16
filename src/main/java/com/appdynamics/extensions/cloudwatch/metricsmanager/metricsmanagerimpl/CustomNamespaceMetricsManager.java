@@ -118,7 +118,7 @@ public class CustomNamespaceMetricsManager extends MetricsManager {
         		String metricName = entry2.getKey();
         		List<Datapoint> datapoints = entry2.getValue();
         		if (datapoints != null && !datapoints.isEmpty()) {
-                    Datapoint data = datapoints.get(0);
+                    Datapoint data = getLatestDatapoint(datapoints);
                     amazonCloudWatchMonitor.printMetric(region + "|", getNamespacePrefix(), "|" + metricName, 
                     		getValue(namespace, metricName, data),
                             MetricWriter.METRIC_AGGREGATION_TYPE_OBSERVATION,

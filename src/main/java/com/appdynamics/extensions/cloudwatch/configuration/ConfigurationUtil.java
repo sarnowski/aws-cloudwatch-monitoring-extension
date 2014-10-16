@@ -38,6 +38,10 @@ import com.singularity.ee.agent.systemagent.api.AManagedMonitor;
 public class ConfigurationUtil {
 
 	private static Logger logger = Logger.getLogger("com.singularity.extensions.ConfigurationUtil");
+	
+	private static final int MAX_ERROR_RETRY = 3;
+	
+	private static final int MIN_ERROR_RETRY = 0;
 
 	/**
 	 * Reads the config file in the conf/ directory and retrieves AWS
@@ -121,6 +125,13 @@ public class ConfigurationUtil {
 						convertToMetricType(namespaceKey, metricName, metricTypeName));
 			}
 			
+			Element maxErrorRetrySizeElement = (Element) doc.getElementsByTagName("MaxErrorRetrySize").item(0);
+			int maxErrorRetrySize = convertMaxErrorRetrySize(maxErrorRetrySizeElement.getTextContent());
+			
+			if (maxErrorRetrySize > MIN_ERROR_RETRY && maxErrorRetrySize <= MAX_ERROR_RETRY) {
+				awsConfiguration.clientConfiguration.setMaxErrorRetry(maxErrorRetrySize);
+			}
+			
 			if (logger.isDebugEnabled()) {
 				logger.debug("Enabled namespaces: " + awsConfiguration.availableNamespaces);
 				logger.debug("Enabled regions: " + awsConfiguration.availableRegions);
@@ -149,6 +160,32 @@ public class ConfigurationUtil {
 
 		return metricType;
 		
+	}
+	
+	private static int convertMaxErrorRetrySize(String strErrorRetrySize) {
+		int errorRetrySize;
+		
+		try {
+			errorRetrySize = Integer.valueOf(strErrorRetrySize);
+			
+		} catch (NumberFormatException ex) {
+			logger.warn(String.format("Invalid max retry size [%s]... Defaulting to [%s]!", 
+					strErrorRetrySize, MIN_ERROR_RETRY));
+			errorRetrySize = MIN_ERROR_RETRY;
+		}
+		
+		if (errorRetrySize < MIN_ERROR_RETRY) {
+			logger.warn(String.format("Invalid max retry size [%s]... Defaulting to [%s]!", 
+					errorRetrySize, MIN_ERROR_RETRY));
+			errorRetrySize = MIN_ERROR_RETRY;
+			
+		} else if (errorRetrySize > MAX_ERROR_RETRY) {
+			logger.warn(String.format("Invalid max retry size [%s]... Defaulting to [%s]!", 
+					errorRetrySize, MAX_ERROR_RETRY));
+			errorRetrySize = MAX_ERROR_RETRY;
+		}
+		
+		return errorRetrySize;
 	}
 
 	private static String getConfigFilename(String filename) {

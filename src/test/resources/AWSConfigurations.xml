@@ -8,7 +8,7 @@
 
     <!-- MetricManagers for these namespaces have been implemented -->
     <SupportedNamespaces>
-        <!-- <SupportedNamespace>AWS/EC2</SupportedNamespace> -->
+        <SupportedNamespace>AWS/EC2</SupportedNamespace>
         <!-- <SupportedNamespace>AWS/AutoScaling</SupportedNamespace> -->
         <!-- <SupportedNamespace>AWS/EBS</SupportedNamespace> -->
         <SupportedNamespace>AWS/ELB</SupportedNamespace>
@@ -69,8 +69,18 @@
  		Observed value to the Controller
  	-->
     <MetricTypes>
-    	<!-- <Metric namespace="AWS/ELB" metricName="RequestCount" metricType="sum"/> -->
+    	<Metric namespace="AWS/ELB" metricName="RequestCount" metricType="sum"/>
+    	<Metric namespace="AWS/ELB" metricName="UnHealthyHostCount" metricType="max"/>
+		<Metric namespace="AWS/ELB" metricName="HealthyHostCount" metricType="ave"/> 
 	</MetricTypes>
+	
+    <!-- 
+    	The max number of retry attempts for failed retryable requests 
+    	(ex: 5xx error responses from a service) or throttling errors
+    	
+    	Allowed values: 0 for disabled, up to a max value of 3
+    -->
+    <MaxErrorRetrySize>2</MaxErrorRetrySize>
 
 </Configurations>
 

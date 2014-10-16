@@ -261,7 +261,7 @@ public abstract class MetricsManager {
             		String metricName = entry2.getKey();
             		List<Datapoint> datapoints = entry2.getValue();
             		if (datapoints != null && !datapoints.isEmpty()) {
-                        Datapoint data = datapoints.get(0);
+                        Datapoint data = getLatestDatapoint(datapoints);
                         amazonCloudWatchMonitor.printMetric(region + "|", prefix, instandeId + "|" + metricName, 
                         		getValue(namespace, metricName, data),
                                 MetricWriter.METRIC_AGGREGATION_TYPE_OBSERVATION,
@@ -270,6 +270,20 @@ public abstract class MetricsManager {
                     }
             	}
             }
+    }
+    
+    protected Datapoint getLatestDatapoint(List<Datapoint> datapoints) {
+    	Datapoint datapoint = null;
+    	
+    	if (datapoints != null) {
+    		if (datapoints.size() > 1) {
+    			Collections.sort(datapoints, new DatapointComparator());
+    		}
+    		
+    		datapoint = datapoints.get(0);
+    	}
+    	
+    	return datapoint;
     }
     
     protected Double getValue(String namespace, String metricName, Datapoint data) {
@@ -327,5 +341,36 @@ public abstract class MetricsManager {
 
     public void setWorkerPool(ExecutorService workerPool) {
         this.workerPool = workerPool;
+    }
+    
+    /**
+     * Descending order comparator for Datapoint
+     * 
+     * Null value is always considered as last
+     *
+     */
+    private class DatapointComparator implements Comparator<Datapoint> {
+
+		public int compare(Datapoint datapoint1, Datapoint datapoint2) {
+			
+			if (getTimestamp(datapoint1) == null && getTimestamp(datapoint2) == null) {
+				return 0;
+				
+			} else if (getTimestamp(datapoint1) == null && getTimestamp(datapoint2) != null) {
+				return 1;
+				
+			} else if (getTimestamp(datapoint1) != null && getTimestamp(datapoint2) == null) {
+				return -1;
+				
+			} else {
+				return -1 * getTimestamp(datapoint1).compareTo(getTimestamp(datapoint2));
+			}
+			
+		}
+		
+		private Date getTimestamp(Datapoint datapoint) {
+			return datapoint != null ? datapoint.getTimestamp() : null;
+		}
+    	
     }
 }

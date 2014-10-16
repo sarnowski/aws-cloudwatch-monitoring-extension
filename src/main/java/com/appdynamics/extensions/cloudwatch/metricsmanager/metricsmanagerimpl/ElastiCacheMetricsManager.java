@@ -86,7 +86,7 @@ public final class ElastiCacheMetricsManager extends MetricsManager {
         			String metricName = metricsIterator.getKey();
         			List<Datapoint> datapoints = metricsIterator.getValue();
         			if (datapoints != null && datapoints.size() > 0) {
-                        Datapoint data = datapoints.get(0);
+                        Datapoint data = getLatestDatapoint(datapoints);
                         amazonCloudWatchMonitor.printMetric(region + "|", getNamespacePrefix() + cacheClusterId + "|" + "Cache Node Id|" +  cacheNodeId + "|",metricName + "(" + data.getUnit() + ")", 
                         		getValue(NAMESPACE, metricName, data),
                                 MetricWriter.METRIC_AGGREGATION_TYPE_OBSERVATION,

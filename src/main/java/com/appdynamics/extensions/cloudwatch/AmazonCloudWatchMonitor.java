@@ -17,6 +17,7 @@ package com.appdynamics.extensions.cloudwatch;
 
 import static com.appdynamics.extensions.cloudwatch.metricsmanager.MetricsManagerFactory.AWS_EC2_NAMESPACE;
 
+import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
@@ -45,6 +46,7 @@ import java.util.concurrent.*;
 public class AmazonCloudWatchMonitor extends AManagedMonitor {
 
 	private Logger logger = Logger.getLogger("com.singularity.extensions.AmazonCloudWatchMonitor");
+	
 	private boolean isInitialized = false;
     private ExecutorService awsWorkerPool;
     private ExecutorService awsMetricWorkerPool;
@@ -55,6 +57,7 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
 	private Set<String> availableNamespaces;
 	private Set<String> availableRegions;
 	private AWSCredentials credentials;
+	private ClientConfiguration clientConfiguration;
 	private Configuration configuration;
 	private String metric_prefix;
 	private EC2InstanceNameManager ec2InstanceNameManager;
@@ -102,6 +105,7 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
 			metric_prefix = taskArguments.get(TaskInputArgs.METRIC_PREFIX);
 			configuration = ConfigurationUtil.getConfigurations(taskArguments.get("configurations"));
 			credentials = configuration.awsCredentials;
+			clientConfiguration = configuration.clientConfiguration;
 			disabledMetrics = configuration.disabledMetrics;
 			availableNamespaces = configuration.availableNamespaces;
 			availableRegions = configuration.availableRegions;
@@ -163,7 +167,7 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
     }
 
 	private void fetchAndPrintMetrics(String namespace, String region) {
-        AmazonCloudWatch awsCloudWatch = new AmazonCloudWatchClient(credentials);
+        AmazonCloudWatch awsCloudWatch = new AmazonCloudWatchClient(credentials, clientConfiguration);
         awsCloudWatch.setEndpoint(regionVsURLs.get(region));
 		MetricsManager metricsManager = metricsManagerFactory.createMetricsManager(namespace);
         metricsManager.setWorkerPool(awsMetricWorkerPool);
