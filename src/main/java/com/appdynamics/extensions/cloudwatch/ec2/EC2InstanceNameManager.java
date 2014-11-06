@@ -159,7 +159,7 @@ public class EC2InstanceNameManager {
 		}
 		
 		DescribeInstancesResult result = ec2Client.describeInstances(request);
-		
+                
 		if (result != null) {
 			List<Reservation> reservations = result.getReservations();
 			

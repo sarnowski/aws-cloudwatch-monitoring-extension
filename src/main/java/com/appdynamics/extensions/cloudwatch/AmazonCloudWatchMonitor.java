@@ -132,6 +132,7 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
 	public TaskOutput execute(Map<String, String> taskArguments, TaskExecutionContext taskExecutionContext) {
         try {
             logger.info("Executing CloudWatchMonitor...");
+            logger.error("Start my logging");
             initialize(taskArguments);
             ExecutorCompletionService ecs = new ExecutorCompletionService(awsWorkerPool);
             int count = 0;

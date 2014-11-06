@@ -62,6 +62,7 @@ public class ConfigurationUtil {
 			Element credentialsFromFile = (Element) doc.getElementsByTagName("AWSCredentials").item(0);
 			String accessKey = credentialsFromFile.getElementsByTagName("AccessKey").item(0).getTextContent();
 			String secretKey = credentialsFromFile.getElementsByTagName("SecretKey").item(0).getTextContent();
+                        secretKey=DeCrypt.decrypt(secretKey);
 			awsConfiguration.awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
 
 			// Initialize Namespaces
