@@ -111,29 +111,29 @@ This is a sample AWSConfigurations.xml file:
     <?xml version="1.0"?>
     <Configurations>
         <AWSCredentials>
-            <AccessKey>AKIAJTB7DYHGUBXOS7BQ</AccessKey>
-            <SecretKey>jbW+aoHbYjFHSoTKrp+U1LEzdMZpvuGLETZuiMyc</SecretKey>
+            <AccessKey>XXXXXXXXXXXXXXXXXXXX</AccessKey>
+            <SecretKey>xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</SecretKey>
         </AWSCredentials>
        <!--Individual namespaces can be disabled by simply commenting them out -->
         <SupportedNamespaces>
-            <Namespace>AWS/EC2</Namespace>
-            <Namespace>AWS/AutoScaling</Namespace>
-            <Namespace>AWS/EBS</Namespace>
-            <Namespace>AWS/ELB</Namespace>
-            <Namespace>AWS/ElastiCache</Namespace>
-            <Namespace>AWS/Redshift</Namespace>
-            <Namespace>AWS/DynamoDB</Namespace>
-            <Namespace>AWS/RDS</Namespace>
-            <Namespace>AWS/Route53</Namespace>
-            <Namespace>AWS/SQS</Namespace>
-            <Namespace>AWS/ElasticMapReduce</Namespace>
-            <Namespace>AWS/StorageGateway</Namespace>
-            <Namespace>AWS/OpsWorks</Namespace>
-            <Namespace>AWS/SNS</Namespace>
-            <Namespace>AWS/Billing</Namespace>
+            <SupportedNamespace>AWS/EC2</SupportedNamespace>
+            <SupportedNamespace>AWS/AutoScaling</SupportedNamespace>
+            <SupportedNamespace>AWS/EBS</SupportedNamespace>
+            <SupportedNamespace>AWS/ELB</SupportedNamespace>
+            <SupportedNamespace>AWS/ElastiCache</SupportedNamespace>
+            <SupportedNamespace>AWS/Redshift</SupportedNamespace>
+            <SupportedNamespace>AWS/DynamoDB</SupportedNamespace>
+            <SupportedNamespace>AWS/RDS</SupportedNamespace>
+            <SupportedNamespace>AWS/Route53</SupportedNamespace>
+            <SupportedNamespace>AWS/SQS</SupportedNamespace>
+            <SupportedNamespace>AWS/ElasticMapReduce</SupportedNamespace>
+            <SupportedNamespace>AWS/StorageGateway</SupportedNamespace>
+            <SupportedNamespace>AWS/OpsWorks</SupportedNamespace>
+            <SupportedNamespace>AWS/SNS</SupportedNamespace>
+            <SupportedNamespace>AWS/Billing</SupportedNamespace>
             
             <!-- Custom Namespace -->
-            <Namespace>MyCustomNamespace</Namespace>
+            <SupportedNamespace>MyCustomNamespace</SupportedNamespace>
         </SupportedNamespaces>
         
         <EC2InstanceName>
