@@ -43,6 +43,8 @@ public class Configuration {
 	public String tagKey;
 	
 	public Map<String, Map<String, MetricType>> metricTypes;
+	
+	public Map<String, String> proxyParams;
 
 	public Configuration() {
 		disabledMetrics = Collections.synchronizedMap(new HashMap<String, Set<String>>());
@@ -50,5 +52,6 @@ public class Configuration {
 		availableNamespaces = new HashSet<String>();
 		availableRegions = new HashSet<String>();
 		clientConfiguration = new ClientConfiguration();
+		proxyParams = new HashMap<String, String>();
 	}
 }

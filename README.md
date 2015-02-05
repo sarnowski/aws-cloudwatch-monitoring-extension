@@ -97,12 +97,13 @@ Configuration
 In the conf/AWSConfigurations.xml, there are a few things that can be configured:
 
 1. The AWS account credentials (i.e. the access key and the secret key)
-2. The supported AWS namespaces that you can retrieve metrics for (you can enable or disable metrics for specific namespaces). You can also add your custom namespace if required.
-3. Regions (enable regions to monitor the running AWS Products in the corresponding region)
-4. Use of instance name in Metrics. Default value is false. Note, this is only applicable for AWS/EC2 namespace.
-5. The list of disabled metrics associated with their corresponding AWS namespaces
-6. The list of metrics and associated metric type you wish to retrieve. Defaults to 'Ave' if not specified. Allowed metric types: **ave, max, min, sum, samplecount**
-7. The max number of retry attempts for failed retryable requests (ex: 5xx error responses from a service) or throttling errors. Allowed values: **0 for disabled, up to a max value of 3**
+2. ProxyParams if a proxy is used to connect to AWS
+3. The supported AWS namespaces that you can retrieve metrics for (you can enable or disable metrics for specific namespaces). You can also add your custom namespace if required.
+4. Regions (enable regions to monitor the running AWS Products in the corresponding region)
+5. Use of instance name in Metrics. Default value is false. Note, this is only applicable for AWS/EC2 namespace.
+6. The list of disabled metrics associated with their corresponding AWS namespaces
+7. The list of metrics and associated metric type you wish to retrieve. Defaults to 'Ave' if not specified. Allowed metric types: **ave, max, min, sum, samplecount**
+8. The max number of retry attempts for failed retryable requests (ex: 5xx error responses from a service) or throttling errors. Allowed values: **0 for disabled, up to a max value of 3**
 
 List of Amazon Cloudwatch Regions can be found at this link http://docs.aws.amazon.com/general/latest/gr/rande.html#cw_region
  
@@ -114,6 +115,14 @@ This is a sample AWSConfigurations.xml file:
             <AccessKey>XXXXXXXXXXXXXXXXXXXX</AccessKey>
             <SecretKey>xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</SecretKey>
         </AWSCredentials>
+
+        <ProxyParams>
+            <Host></Host>
+            <Port></Port>
+            <UserName></UserName>
+            <Password></Password>
+       </ProxyParams>
+
        <!--Individual namespaces can be disabled by simply commenting them out -->
         <SupportedNamespaces>
             <SupportedNamespace>AWS/EC2</SupportedNamespace>
@@ -240,4 +249,4 @@ Find out more in the <a href="http://appsphere.appdynamics.com/t5/eXchange/AWS-C
 Support
 -------
 
-For any questions or feature request, please contact <a href="mailto:ace-request@appdynamics.com">AppDynamics Center of Excellence</a>.
+For any questions or feature request, please contact <a href="mailto:help@appdynamics.com">AppDynamics Support</a>.

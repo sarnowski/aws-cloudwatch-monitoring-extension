@@ -90,6 +90,16 @@ public class ConfigurationUtil {
 				}
 			}
 			
+			Element proxyParamsElement = (Element) doc.getElementsByTagName("ProxyParams").item(0);
+			String proxyHost = proxyParamsElement.getElementsByTagName("Host").item(0).getTextContent();
+			String proxyPort = proxyParamsElement.getElementsByTagName("Port").item(0).getTextContent();
+			String proxyUserName = proxyParamsElement.getElementsByTagName("UserName").item(0).getTextContent();
+			String proxyPassword = proxyParamsElement.getElementsByTagName("Password").item(0).getTextContent();
+			awsConfiguration.proxyParams.put("proxyHost", proxyHost);
+			awsConfiguration.proxyParams.put("proxyPort", proxyPort);
+			awsConfiguration.proxyParams.put("proxyUserName", proxyUserName);
+			awsConfiguration.proxyParams.put("proxyPassword", proxyPassword);
+			
 			Element ec2InstanceNameElement = (Element) doc.getElementsByTagName("EC2InstanceName").item(0);
 			String tagFilterName = ec2InstanceNameElement.getElementsByTagName("TagFilterName").item(0).getTextContent();
 			awsConfiguration.tagFilterName = tagFilterName;

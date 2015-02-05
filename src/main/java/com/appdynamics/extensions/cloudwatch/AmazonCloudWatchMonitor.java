@@ -106,6 +106,7 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
 			configuration = ConfigurationUtil.getConfigurations(taskArguments.get("configurations"));
 			credentials = configuration.awsCredentials;
 			clientConfiguration = configuration.clientConfiguration;
+			setProxyParams(configuration);
 			disabledMetrics = configuration.disabledMetrics;
 			availableNamespaces = configuration.availableNamespaces;
 			availableRegions = configuration.availableRegions;
@@ -120,6 +121,13 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
 		}
 	}
 	
+	private void setProxyParams(Configuration configuration) {
+		clientConfiguration.setProxyHost(configuration.proxyParams.get("proxyHost"));
+		clientConfiguration.setProxyPort(Integer.parseInt(configuration.proxyParams.get("proxyPort")));
+		clientConfiguration.setProxyUsername(configuration.proxyParams.get("proxyUserName"));
+		clientConfiguration.setProxyPassword(configuration.proxyParams.get("proxyPassword"));
+	}
+
 	private void initializeEC2InstanceNameManager() {
 		if (useEc2InstanceNameInMetrics && availableNamespaces.contains(AWS_EC2_NAMESPACE)) {
 			ec2InstanceNameManager = new EC2InstanceNameManager(
@@ -310,5 +318,4 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
 	public static String getImplementationVersion() {
 		return AmazonCloudWatchMonitor.class.getPackage().getImplementationTitle();
 	}
-
 }

@@ -5,6 +5,13 @@
         <AccessKey></AccessKey>
         <SecretKey></SecretKey>
     </AWSCredentials>
+    
+    <ProxyParams>
+        <Host></Host>
+        <Port></Port>
+        <UserName></UserName>
+        <Password></Password>
+    </ProxyParams>
 
     <!-- MetricManagers for these namespaces have been implemented -->
     <SupportedNamespaces>
