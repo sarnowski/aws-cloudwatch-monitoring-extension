@@ -213,7 +213,7 @@ To avoid setting the raw AccessKey and SecretKey in the AWSConfigurations.xml, p
 java -cp appd-exts-commons-1.1.2.jar com.appdynamics.extensions.crypto.Encryptor EncryptionKey AccessKey
 java -cp appd-exts-commons-1.1.2.jar com.appdynamics.extensions.crypto.Encryptor EncryptionKey SecretKey
 </pre>
-3. In the AWSConfigurations.xml, replace the existing properties in <AWSCredentials></AWSCredentials> with
+3. In the AWSConfigurations.xml, replace the existing properties in ```<AWSCredentials></AWSCredentials>``` with
 ```
         <EncryptionKey></EncryptionKey>
         <EncryptedAccessKey></EncryptedAccessKey>
