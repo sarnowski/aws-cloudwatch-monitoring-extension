@@ -20,7 +20,7 @@ import com.singularity.ee.agent.systemagent.api.MetricWriter;
 
 public class CustomNamespaceMetricsManager extends MetricsManager {
 	
-	private Logger logger = Logger.getLogger("com.singularity.extensions.cloudwatch.metricsmanager.CustomNamespaceMetricsManager");
+	private Logger logger = Logger.getLogger(CustomNamespaceMetricsManager.class);
 	
 	private String namespace;
 

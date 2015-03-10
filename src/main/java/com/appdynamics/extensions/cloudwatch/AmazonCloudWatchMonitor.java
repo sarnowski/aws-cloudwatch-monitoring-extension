@@ -171,8 +171,15 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
             logger.info("Finished Executing CloudWatchMonitor...");
             return new TaskOutput("AWS Cloud Watch Metric Upload Complete Successfully");
         } catch (Exception e) {
-            logger.error("Exception ", e);
+            logger.error("AWS Cloud Watch Metric Upload Failed ", e);
             return new TaskOutput("AWS Cloud Watch Metric Upload Failed");
+        } finally {
+            if(!awsWorkerPool.isShutdown()) {
+                awsWorkerPool.shutdown();
+            }
+            if(!awsMetricWorkerPool.isShutdown()) {
+                awsMetricWorkerPool.shutdown();
+            }
         }
     }
 

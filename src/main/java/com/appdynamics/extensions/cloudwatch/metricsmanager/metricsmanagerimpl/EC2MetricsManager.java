@@ -35,7 +35,7 @@ import com.appdynamics.extensions.cloudwatch.metricsmanager.MetricsManager;
 
 public final class EC2MetricsManager extends MetricsManager {
 	
-	private Logger logger = Logger.getLogger("com.singularity.extensions.cloudwatch.metricsmanager.EC2MetricsManager");
+	private Logger logger = Logger.getLogger(EC2MetricsManager.class);
 
     private static final String NAMESPACE = "AWS/EC2";
     
