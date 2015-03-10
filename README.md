@@ -201,6 +201,23 @@ Here is the monitor.xml file:
                 </task-arguments>
         </monitor-run-task>
 </monitor>
+
+Password Encryption Support
+--------------------------- 
+To avoid setting the raw AccessKey and SecretKey in the AWSConfigurations.xml, please follow the process to encrypt the AWSCredentials and set the EncryptedAccessKey and EncryptedSecretKey in the AWSConfigurations.xml
+
+1. Download the util jar to encrypt the AWS Credentials from here https://github.com/Appdynamics/maven-repo/blob/master/releases/com/appdynamics/appd-exts-commons/1.1.2/appd-exts-commons-1.1.2.jar
+
+2. Encrypt AccessKey and SecretKey from the commandline with a common EncryptionKey.
+java -cp appd-exts-commons-1.1.2.jar com.appdynamics.extensions.crypto.Encryptor EncryptionKey AccessKey
+java -cp appd-exts-commons-1.1.2.jar com.appdynamics.extensions.crypto.Encryptor EncryptionKey SecretKey
+
+3. In the AWSConfigurations.xml, replace the existing properties in <AWSCredentials></AWSCredentials> with
+        <EncryptionKey></EncryptionKey>
+        <EncryptedAccessKey></EncryptedAccessKey>
+        <EncryptedSecretKey></EncryptedSecretKey>
+copying the EncryptionKey, EncryptedAccessKey and EncryptedSecretKey.
+
  
 Directory Structure
 -------------------

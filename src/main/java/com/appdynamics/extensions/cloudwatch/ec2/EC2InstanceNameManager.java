@@ -29,7 +29,7 @@ import com.google.common.base.Strings;
 
 public class EC2InstanceNameManager {
 	
-	private static final Logger logger = Logger.getLogger("com.singularity.extensions.cloudwatch.ec2.EC2InstanceNameManager");
+	private static final Logger logger = Logger.getLogger(EC2InstanceNameManager.class);
 	
 	private static final Map<String, String> regionEndPoints;
 	

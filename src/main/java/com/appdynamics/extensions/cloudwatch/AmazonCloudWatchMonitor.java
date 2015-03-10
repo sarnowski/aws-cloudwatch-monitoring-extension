@@ -45,7 +45,7 @@ import java.util.concurrent.*;
 
 public class AmazonCloudWatchMonitor extends AManagedMonitor {
 
-	private Logger logger = Logger.getLogger("com.singularity.extensions.AmazonCloudWatchMonitor");
+	private Logger logger = Logger.getLogger(AmazonCloudWatchMonitor.class);
 	
 	private boolean isInitialized = false;
     private ExecutorService awsWorkerPool;
@@ -122,11 +122,13 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
 	}
 	
 	private void setProxyParams(Configuration configuration) {
-		clientConfiguration.setProxyHost(configuration.proxyParams.get("proxyHost"));
-		clientConfiguration.setProxyPort(Integer.parseInt(configuration.proxyParams.get("proxyPort")));
-		clientConfiguration.setProxyUsername(configuration.proxyParams.get("proxyUserName"));
-		clientConfiguration.setProxyPassword(configuration.proxyParams.get("proxyPassword"));
-	}
+        if(!configuration.proxyParams.isEmpty()) {
+            clientConfiguration.setProxyHost(configuration.proxyParams.get("proxyHost"));
+            clientConfiguration.setProxyPort(Integer.parseInt(configuration.proxyParams.get("proxyPort")));
+            clientConfiguration.setProxyUsername(configuration.proxyParams.get("proxyUserName"));
+            clientConfiguration.setProxyPassword(configuration.proxyParams.get("proxyPassword"));
+        }
+    }
 
 	private void initializeEC2InstanceNameManager() {
 		if (useEc2InstanceNameInMetrics && availableNamespaces.contains(AWS_EC2_NAMESPACE)) {
@@ -182,7 +184,7 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
 		Map<String, Map<String, List<Datapoint>>> metrics = metricsManager.gatherMetrics(awsCloudWatch, region);
 		// Logging number of instances for which metrics
 		// were collected
-		
+
 		if (metricsManager instanceof CustomNamespaceMetricsManager) {
 			logger.info(String.format("Custom Namespace Metrics Count - %5s:%-5s %5s:%-5s %5s:%-5d", "Region", region, "Namespace", namespace,
 					"#Metric Size", metrics.size()));
@@ -190,7 +192,7 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
 			logger.info(String.format("Running Instances Count in AWS - %5s:%-5s %5s:%-5s %5s:%-5d", "Region", region, "Namespace", namespace,
 					"#Instances", metrics.size()));
 		}
-		
+
 		metricsManager.printMetrics(region, metrics);
 
 	}

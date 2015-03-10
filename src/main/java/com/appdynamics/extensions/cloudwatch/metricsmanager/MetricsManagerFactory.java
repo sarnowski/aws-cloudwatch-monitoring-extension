@@ -47,7 +47,6 @@ public final class MetricsManagerFactory {
     /**
      * Creates an instance of a MetricsManager specific to a namespace
      * @param   namespace       The name of the namespace
-     * @param regionUrl 
      * @return	MetricsManager  An instance of MetricsManager specific to the namespace
      */
     public MetricsManager createMetricsManager(String namespace) {

@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import com.appdynamics.extensions.crypto.Decryptor;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -37,7 +38,7 @@ import com.singularity.ee.agent.systemagent.api.AManagedMonitor;
 
 public class ConfigurationUtil {
 
-	private static Logger logger = Logger.getLogger("com.singularity.extensions.ConfigurationUtil");
+	private static Logger logger = Logger.getLogger(ConfigurationUtil.class);
 	
 	private static final int MAX_ERROR_RETRY = 3;
 	
@@ -65,10 +66,7 @@ public class ConfigurationUtil {
 			Document doc = dBuilder.parse(configFile);
 
 			// Initialize AmazonCloudWatch
-			Element credentialsFromFile = (Element) doc.getElementsByTagName("AWSCredentials").item(0);
-			String accessKey = credentialsFromFile.getElementsByTagName("AccessKey").item(0).getTextContent();
-			String secretKey = credentialsFromFile.getElementsByTagName("SecretKey").item(0).getTextContent();
-			awsConfiguration.awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
+            initializeAWSCredentials(awsConfiguration, doc);
 
 			// Initialize Namespaces
 			Element namespacesElement = (Element) doc.getElementsByTagName("SupportedNamespaces").item(0);
@@ -89,17 +87,21 @@ public class ConfigurationUtil {
 					awsConfiguration.availableRegions.add(region);
 				}
 			}
-			
-			Element proxyParamsElement = (Element) doc.getElementsByTagName("ProxyParams").item(0);
-			String proxyHost = proxyParamsElement.getElementsByTagName("Host").item(0).getTextContent();
-			String proxyPort = proxyParamsElement.getElementsByTagName("Port").item(0).getTextContent();
-			String proxyUserName = proxyParamsElement.getElementsByTagName("UserName").item(0).getTextContent();
-			String proxyPassword = proxyParamsElement.getElementsByTagName("Password").item(0).getTextContent();
-			awsConfiguration.proxyParams.put("proxyHost", proxyHost);
-			awsConfiguration.proxyParams.put("proxyPort", proxyPort);
-			awsConfiguration.proxyParams.put("proxyUserName", proxyUserName);
-			awsConfiguration.proxyParams.put("proxyPassword", proxyPassword);
-			
+
+            if(doc.getElementsByTagName("ProxyParams").item(0) != null) {
+                Element proxyParamsElement = (Element) doc.getElementsByTagName("ProxyParams").item(0);
+                String proxyHost = proxyParamsElement.getElementsByTagName("Host").item(0).getTextContent();
+                String proxyPort = proxyParamsElement.getElementsByTagName("Port").item(0).getTextContent();
+                String proxyUserName = proxyParamsElement.getElementsByTagName("UserName").item(0).getTextContent();
+                String proxyPassword = proxyParamsElement.getElementsByTagName("Password").item(0).getTextContent();
+                if(!"".equals(proxyHost)) {
+                    awsConfiguration.proxyParams.put("proxyHost", proxyHost);
+                    awsConfiguration.proxyParams.put("proxyPort", proxyPort);
+                    awsConfiguration.proxyParams.put("proxyUserName", proxyUserName);
+                    awsConfiguration.proxyParams.put("proxyPassword", proxyPassword);
+                }
+            }
+
 			Element ec2InstanceNameElement = (Element) doc.getElementsByTagName("EC2InstanceName").item(0);
 			String tagFilterName = ec2InstanceNameElement.getElementsByTagName("TagFilterName").item(0).getTextContent();
 			awsConfiguration.tagFilterName = tagFilterName;
@@ -155,8 +157,24 @@ public class ConfigurationUtil {
 			configFile.close();
 		}
 	}
-	
-	private static MetricType convertToMetricType(String namespace, String metricName, String metricTypeName) {
+
+    private static void initializeAWSCredentials(Configuration awsConfiguration, Document doc) {
+        Element credentialsFromFile = (Element) doc.getElementsByTagName("AWSCredentials").item(0);
+        if(credentialsFromFile.getElementsByTagName("EncryptionKey").item(0) != null) {
+            String encryptionKey = doc.getElementsByTagName("EncryptionKey").item(0).getTextContent();
+            String encryptedAccessKey = credentialsFromFile.getElementsByTagName("EncryptedAccessKey").item(0).getTextContent();
+            String encryptedSecretKey = credentialsFromFile.getElementsByTagName("EncryptedSecretKey").item(0).getTextContent();
+            Decryptor decryptor = new Decryptor(encryptionKey);
+            awsConfiguration.awsCredentials = new BasicAWSCredentials(decryptor.decrypt(encryptedAccessKey), decryptor.decrypt(encryptedSecretKey));
+        } else {
+            String accessKey = credentialsFromFile.getElementsByTagName("AccessKey").item(0).getTextContent();
+            String secretKey = credentialsFromFile.getElementsByTagName("SecretKey").item(0).getTextContent();
+            awsConfiguration.awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
+        }
+
+    }
+
+    private static MetricType convertToMetricType(String namespace, String metricName, String metricTypeName) {
 		MetricType metricType = null; 
 		
 		try {

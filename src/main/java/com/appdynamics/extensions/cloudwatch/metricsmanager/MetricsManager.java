@@ -31,7 +31,7 @@ import java.util.concurrent.*;
 
 public abstract class MetricsManager {
 
-    private Logger logger = Logger.getLogger("com.singularity.extensions.MetricsManager");
+    private Logger logger = Logger.getLogger(MetricsManager.class);
     protected AmazonCloudWatchMonitor amazonCloudWatchMonitor;
     protected Map<String,Set<String>> disabledMetrics;
     protected ExecutorService workerPool;
