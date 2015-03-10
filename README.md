@@ -96,7 +96,7 @@ Configuration
 
 In the conf/AWSConfigurations.xml, there are a few things that can be configured:
 
-1. The AWS account credentials (i.e. the access key and the secret key)
+1. The AWS account credentials (i.e. the access key and the secret key). If you wish to encrypt the credentials, please refer to "Password Encryption Support" section.
 2. ProxyParams if a proxy is used to connect to AWS
 3. The supported AWS namespaces that you can retrieve metrics for (you can enable or disable metrics for specific namespaces). You can also add your custom namespace if required.
 4. Regions (enable regions to monitor the running AWS Products in the corresponding region)
@@ -209,13 +209,16 @@ To avoid setting the raw AccessKey and SecretKey in the AWSConfigurations.xml, p
 1. Download the util jar to encrypt the AWS Credentials from here https://github.com/Appdynamics/maven-repo/blob/master/releases/com/appdynamics/appd-exts-commons/1.1.2/appd-exts-commons-1.1.2.jar
 
 2. Encrypt AccessKey and SecretKey from the commandline with a common EncryptionKey.
+<pre>
 java -cp appd-exts-commons-1.1.2.jar com.appdynamics.extensions.crypto.Encryptor EncryptionKey AccessKey
 java -cp appd-exts-commons-1.1.2.jar com.appdynamics.extensions.crypto.Encryptor EncryptionKey SecretKey
-
+</pre>
 3. In the AWSConfigurations.xml, replace the existing properties in <AWSCredentials></AWSCredentials> with
+```
         <EncryptionKey></EncryptionKey>
         <EncryptedAccessKey></EncryptedAccessKey>
         <EncryptedSecretKey></EncryptedSecretKey>
+```
 copying the EncryptionKey, EncryptedAccessKey and EncryptedSecretKey.
 
  
