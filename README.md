@@ -156,6 +156,7 @@ This is a sample AWSConfigurations.xml file:
 	        <Region>us-west-2</Region>
     	    <Region>us-west-1</Region>
     	    <Region>eu-west-1</Region>
+    	    <Region>eu-central-1</Region>
         	<Region>ap-southeast-1</Region>
     	    <Region>ap-southeast-2</Region>
     	    <Region>ap-northeast-1</Region>
