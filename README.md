@@ -82,7 +82,7 @@ Specific metrics under each of these namespaces can be found at this link http:/
 Installation
 ------------
 
- 1. Clone aws-cloudwatch-monitoring-extension from GitHub https://github.com/Appdynamics
+ 1. To build from source, clone this repository and run 'mvn clean install'. This will produce a CloudWatchMonitor-VERSION.zip in the target directory. Alternatively, download the latest release archive from [Github](https://github.com/Appdynamics/aws-cloudwatch-monitoring-extension/releases).
  2. Run 'mvn clean install' from the cloned aws-cloudwatch-monitoring-extension directory.
  3. Download the CloudWatchMonitor.zip found in the 'target' directory into <machineagent install dir>/monitors/
  4. Unzip the downloaded zip file.
