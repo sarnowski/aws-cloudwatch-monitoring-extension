@@ -70,6 +70,7 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
 
 		tmpRegionVsURLs.put("ap-southeast-1", "monitoring.ap-southeast-1.amazonaws.com");
 		tmpRegionVsURLs.put("eu-west-1", "monitoring.eu-west-1.amazonaws.com");
+        tmpRegionVsURLs.put("eu-central-1", "monitoring.eu-central-1.amazonaws.com");
 		tmpRegionVsURLs.put("us-east-1", "monitoring.us-east-1.amazonaws.com");
 		tmpRegionVsURLs.put("us-west-1", "monitoring.us-west-1.amazonaws.com");
 		tmpRegionVsURLs.put("us-west-2", "monitoring.us-west-2.amazonaws.com");
