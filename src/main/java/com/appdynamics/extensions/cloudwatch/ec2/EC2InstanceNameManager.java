@@ -144,7 +144,12 @@ public class EC2InstanceNameManager {
 	}
 	
 	private void retrieveInstancesPerRegion(String region, String... instanceIds) {
-		AmazonEC2Client ec2Client = new AmazonEC2Client(awsCredentials);
+		AmazonEC2Client ec2Client;
+		if (awsCredentials == null) {
+			ec2Client = new AmazonEC2Client();
+		} else {
+			ec2Client = new AmazonEC2Client(awsCredentials);
+		}
 		ec2Client.setEndpoint(regionEndPoints.get(region));
 		
 		Filter filter = new Filter();

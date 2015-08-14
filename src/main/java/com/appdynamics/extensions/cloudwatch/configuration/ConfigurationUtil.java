@@ -159,6 +159,11 @@ public class ConfigurationUtil {
 	}
 
     private static void initializeAWSCredentials(Configuration awsConfiguration, Document doc) {
+		if (doc.getElementsByTagName("AWSCredentials").item(0) == null) {
+			// not specified, use default handler chain of amazon sdk like using IAM instance profiles
+			return;
+		}
+
         Element credentialsFromFile = (Element) doc.getElementsByTagName("AWSCredentials").item(0);
         if(credentialsFromFile.getElementsByTagName("EncryptionKey").item(0) != null) {
             String encryptionKey = doc.getElementsByTagName("EncryptionKey").item(0).getTextContent();

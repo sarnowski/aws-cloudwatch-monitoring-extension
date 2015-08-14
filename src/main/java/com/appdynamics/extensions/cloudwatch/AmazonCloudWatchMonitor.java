@@ -179,8 +179,13 @@ public class AmazonCloudWatchMonitor extends AManagedMonitor {
     }
 
 	private void fetchAndPrintMetrics(String namespace, String region) {
-        AmazonCloudWatch awsCloudWatch = new AmazonCloudWatchClient(credentials, clientConfiguration);
-        awsCloudWatch.setEndpoint(regionVsURLs.get(region));
+        AmazonCloudWatch awsCloudWatch;
+		if (credentials == null) {
+			awsCloudWatch = new AmazonCloudWatchClient(clientConfiguration);
+		} else {
+			awsCloudWatch = new AmazonCloudWatchClient(credentials, clientConfiguration);
+		}
+		awsCloudWatch.setEndpoint(regionVsURLs.get(region));
 		MetricsManager metricsManager = metricsManagerFactory.createMetricsManager(namespace);
         metricsManager.setWorkerPool(awsMetricWorkerPool);
 		Map<String, Map<String, List<Datapoint>>> metrics = metricsManager.gatherMetrics(awsCloudWatch, region);
